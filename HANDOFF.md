@@ -20,10 +20,12 @@ Zecrow is a managed private escrow service for real-world commerce using shielde
 - `public/video/zecrow-ribbon-motion.webm`: copied from the existing Rixor motion-alpha video.
 - `public/images/zecrow-ribbon-poster.webp`: copied from the existing Rixor poster.
 - `index.html`: page title and metadata.
+- `docs/screenshots/homepage-foundation.png`: desktop visual reference for future models.
 
 ### Verification
 - `npm install` completed with 0 reported vulnerabilities. `npm run build` passes (TypeScript + Vite production build).
-- Dev server starts at `http://127.0.0.1:5173/`. Visual screenshot capture was attempted but not confirmed, so browser-level visual review remains pending.
+- `npm run build` passes (TypeScript + Vite production build). The dev server responds HTTP 200 at `http://127.0.0.1:5173/`.
+- Desktop screenshot visually reviewed and saved as `docs/screenshots/homepage-foundation.png`. The ribbon, palette, and navbar render as intended; mobile visual review remains pending.
 - Check the header anchors before implementing their real destinations.
 
 ### Important constraints
