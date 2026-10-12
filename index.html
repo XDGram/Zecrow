@@ -150,10 +150,29 @@ body {
   font-size: 0.78rem;
   font-weight: 700;
   cursor: pointer;
-  transition: border-color 0.25s ease;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: color 0.3s ease, border-color 0.25s ease;
+}
+.wallet-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(to right, #FFC53D 0%, var(--accent) 100%);
+  transition: width 0.45s ease;
+  z-index: -1;
+}
+.wallet-btn:hover::before {
+  width: 100%;
 }
 .wallet-btn:hover {
   border-color: var(--accent);
+  color: #101010;
 }
 .wallet-btn:focus-visible {
   outline: 2px solid var(--accent);
@@ -556,79 +575,62 @@ body {
   display: flex;
   justify-content: flex-end;
 }
-.fan-wrap {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.connect-card {
   width: 100%;
-  max-width: 460px;
+  max-width: 360px;
   margin-left: auto;
-  padding: 20px 0;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  padding: 26px;
 }
-.fan-glass {
-  position: relative;
-  width: 200px;
-  height: 244px;
-  background: linear-gradient(rgba(255,255,255,.09), transparent);
-  border: 1px solid rgba(255,255,255,.12);
-  box-shadow: 0 25px 25px rgba(0,0,0,.25);
+.connect-head {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
-  padding: 20px 16px 60px;
-  transition: transform .5s ease, margin .5s ease;
-  border-radius: 12px;
-  margin: 0 -40px;
-  backdrop-filter: blur(10px);
-  transform: rotate(calc(var(--r) * 1deg));
-}
-.fan-sub {
-  margin: 0;
-  font-size: 0.8rem;
-  line-height: 1.55;
-  text-align: center;
+  margin-bottom: 14px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
   color: var(--hero-muted);
 }
-.carbon-stage:not(.dark-mode) .fan-glass {
-  background: linear-gradient(rgba(20,20,18,.06), transparent);
-  border-color: rgba(20,20,18,.12);
-  box-shadow: 0 25px 25px rgba(0,0,0,.12);
+.connect-pill {
+  padding: 5px 12px;
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  color: var(--hero-muted);
+  white-space: nowrap;
 }
-.fan-wrap:hover .fan-glass,
-.fan-wrap:focus-within .fan-glass {
-  transform: rotate(0deg);
-  margin: 0 8px;
+.connect-pill.on {
+  border-color: var(--accent);
+  color: var(--accent);
 }
-.fan-glass::before {
-  content: attr(data-text);
-  position: absolute;
-  bottom: 0;
+.connect-copy {
+  margin: 0 0 20px;
+  font-size: 0.88rem;
+  line-height: 1.65;
+  color: var(--hero-muted);
+}
+.connect-card .wallet-wrap {
+  display: block;
+}
+.connect-card .wallet-btn {
   width: 100%;
-  height: 40px;
-  background: rgba(255,255,255,.05);
-  display: flex;
   justify-content: center;
-  align-items: center;
-  color: var(--hero-text);
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  border-radius: 0 0 12px 12px;
+  min-height: 46px;
+  font-size: 0.85rem;
 }
-.carbon-stage:not(.dark-mode) .fan-glass::before {
-  background: rgba(20,20,18,.05);
+.connect-sep {
+  margin: 16px 0 0;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--hero-muted);
 }
-.fan-glass svg {
-  width: 2.5em;
-  height: 2.5em;
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.connect-card .wallet-menu {
+  width: 100%;
 }
 @media (max-width: 920px) {
   .hero {
@@ -639,27 +641,9 @@ body {
   .hero-visual {
     justify-content: flex-start;
   }
-  .fan-wrap {
-    max-width: 340px;
+  .connect-card {
+    max-width: 420px;
     margin: 0;
-  }
-  .fan-glass {
-    width: 160px;
-    height: 208px;
-    margin: 0 -30px;
-  }
-}
-@media (max-width: 560px) {
-  .fan-wrap {
-    flex-direction: column;
-    max-width: 220px;
-  }
-  .fan-glass {
-    margin: -22px 0;
-  }
-  .fan-wrap:hover .fan-glass,
-  .fan-wrap:focus-within .fan-glass {
-    margin: 8px 0;
   }
 }
 .how-cards {
@@ -1497,22 +1481,6 @@ body {
   <span class="slider"></span>
 </label>
 </div>
-<div class="wallet-wrap">
-  <button class="wallet-btn" id="wallet-btn" aria-haspopup="true" aria-expanded="false" aria-controls="wallet-menu">
-    <span class="wdot" aria-hidden="true"></span><span id="wallet-label">Connect Wallet</span>
-  </button>
-  <div class="wallet-menu" id="wallet-menu" hidden>
-    <p class="wallet-status" id="wallet-status" role="status">Checking for a Zcash wallet…</p>
-    <p class="wallet-address" id="wallet-address" hidden></p>
-    <div class="wallet-actions">
-      <button class="wallet-action" id="wallet-go" hidden>Connect Noir Wallet</button>
-      <button class="wallet-action ghost" id="wallet-copy" hidden>Copy address</button>
-      <button class="wallet-action ghost" id="wallet-leave" hidden>Disconnect</button>
-    </div>
-    <a class="wallet-install" id="wallet-install" href="https://chromewebstore.google.com/detail/noir-wallet/mfoghjbpfanobmnoemoepenjjcmfpmdn" target="_blank" rel="noopener" hidden>Get Noir Wallet for Chrome</a>
-    <p class="wallet-note">Wallet connection only shares your address. It never moves funds, never asks for a seed phrase, and does not prove ownership.</p>
-  </div>
-</div>
 </header>
 <section class="hero">
   <div class="hero-copy">
@@ -1525,20 +1493,27 @@ body {
     </div>
     <p class="trust-line">No buyer account required <span class="sep">·</span> Privacy by design</p>
   </div>
-  <aside class="hero-visual" aria-label="Zecrow principles: private, protected, resolved">
-    <div class="fan-wrap">
-      <div class="fan-glass" data-text="Private" style="--r:-12;">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l7.5 2.8v5.7c0 4.6-3.2 7.9-7.5 10.2-4.3-2.3-7.5-5.6-7.5-10.2V5.3z"/></svg>
-        <p class="fan-sub">Shielded payments, no buyer account needed.</p>
+  <aside class="hero-visual" aria-label="Wallet connection">
+    <div class="connect-card">
+      <div class="connect-head"><span>Wallet</span><span class="connect-pill" id="wallet-pill">Not connected</span></div>
+      <p class="connect-copy">Connect a Zcash wallet to tie an address to your side of the escrow. Nothing moves until you approve it.</p>
+      <div class="wallet-wrap">
+        <button class="wallet-btn" id="wallet-btn" aria-haspopup="true" aria-expanded="false" aria-controls="wallet-menu">
+          <span class="wdot" aria-hidden="true"></span><span id="wallet-label">Connect Wallet</span>
+        </button>
+        <div class="wallet-menu" id="wallet-menu" hidden>
+          <p class="wallet-status" id="wallet-status" role="status">Checking for a Zcash wallet…</p>
+          <p class="wallet-address" id="wallet-address" hidden></p>
+          <div class="wallet-actions">
+            <button class="wallet-action" id="wallet-go" hidden>Connect Noir Wallet</button>
+            <button class="wallet-action ghost" id="wallet-copy" hidden>Copy address</button>
+            <button class="wallet-action ghost" id="wallet-leave" hidden>Disconnect</button>
+          </div>
+          <a class="wallet-install" id="wallet-install" href="https://chromewebstore.google.com/detail/noir-wallet/mfoghjbpfanobmnoemoepenjjcmfpmdn" target="_blank" rel="noopener" hidden>Get Noir Wallet for Chrome</a>
+          <p class="wallet-note">Wallet connection only shares your address. It never moves funds, never asks for a seed phrase, and does not prove ownership.</p>
+        </div>
       </div>
-      <div class="fan-glass" data-text="Protected" style="--r:4;">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>
-        <p class="fan-sub">2-of-3 escrow with AI-checked listings.</p>
-      </div>
-      <div class="fan-glass" data-text="Resolved" style="--r:20;">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16.5 9.5"/></svg>
-        <p class="fan-sub">Released by one-time delivery code.</p>
-      </div>
+      <p class="connect-sep">Connection and escrow stay separate. Approval happens per transaction, in your wallet.</p>
     </div>
   </aside>
 </section>
@@ -1931,6 +1906,7 @@ body {
     if (reduced) draw();
   });
   if (!reduced) tick();
+  var walletPill = document.getElementById('wallet-pill');
   var walletBtn = document.getElementById('wallet-btn');
   var walletMenu = document.getElementById('wallet-menu');
   var walletLabel = document.getElementById('wallet-label');
@@ -1982,6 +1958,10 @@ body {
     if (state === 'connected' && walletAccount) {
       walletBtn.classList.add('connected');
       walletLabel.textContent = shortAddr(walletAccount);
+      if (walletPill) {
+        walletPill.textContent = 'Connected';
+        walletPill.classList.add('on');
+      }
       walletStatus.textContent = 'Connected to Noir Wallet.';
       walletAddress.textContent = walletAccount;
       walletAddress.hidden = false;
@@ -1990,6 +1970,10 @@ body {
     } else {
       walletBtn.classList.remove('connected');
       walletLabel.textContent = 'Connect Wallet';
+      if (walletPill) {
+        walletPill.textContent = 'Not connected';
+        walletPill.classList.remove('on');
+      }
       if (state === 'connecting') {
         walletStatus.textContent = 'Waiting for approval in your wallet…';
         walletGo.hidden = false;
