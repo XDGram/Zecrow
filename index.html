@@ -675,8 +675,14 @@ body {
   min-height: 230px;
 }
 .zc-card--wide:hover,
-.zc-card--wide:focus-visible {
-  min-height: 520px;
+.zc-card--wide:focus-visible,
+.zc-card--wide.playing {
+  min-height: 580px;
+}
+.zc-card--wide.playing .zc-more {
+  opacity: 1;
+  transform: none;
+  transition-delay: 1.6s;
 }
 .code-digits {
   display: flex;
@@ -755,29 +761,15 @@ body {
     transform: scale(1);
   }
 }
-.how-cards.is-visible .code-digit,
-.zc-card--wide:hover .code-digit,
-.zc-card--wide:focus-visible .code-digit {
+.zc-card--wide.playing .code-digit {
   animation: digit-in .45s cubic-bezier(.2,.8,.2,1) both;
 }
-.how-cards.is-visible .code-digit:nth-child(1),
-.zc-card--wide:hover .code-digit:nth-child(1),
-.zc-card--wide:focus-visible .code-digit:nth-child(1) { animation-delay: .05s; }
-.how-cards.is-visible .code-digit:nth-child(2),
-.zc-card--wide:hover .code-digit:nth-child(2),
-.zc-card--wide:focus-visible .code-digit:nth-child(2) { animation-delay: .13s; }
-.how-cards.is-visible .code-digit:nth-child(3),
-.zc-card--wide:hover .code-digit:nth-child(3),
-.zc-card--wide:focus-visible .code-digit:nth-child(3) { animation-delay: .21s; }
-.how-cards.is-visible .code-digit:nth-child(4),
-.zc-card--wide:hover .code-digit:nth-child(4),
-.zc-card--wide:focus-visible .code-digit:nth-child(4) { animation-delay: .29s; }
-.how-cards.is-visible .code-digit:nth-child(5),
-.zc-card--wide:hover .code-digit:nth-child(5),
-.zc-card--wide:focus-visible .code-digit:nth-child(5) { animation-delay: .37s; }
-.how-cards.is-visible .code-digit:nth-child(6),
-.zc-card--wide:hover .code-digit:nth-child(6),
-.zc-card--wide:focus-visible .code-digit:nth-child(6) { animation-delay: .45s; }
+.zc-card--wide.playing .code-digit:nth-child(1) { animation-delay: .05s; }
+.zc-card--wide.playing .code-digit:nth-child(2) { animation-delay: .13s; }
+.zc-card--wide.playing .code-digit:nth-child(3) { animation-delay: .21s; }
+.zc-card--wide.playing .code-digit:nth-child(4) { animation-delay: .29s; }
+.zc-card--wide.playing .code-digit:nth-child(5) { animation-delay: .37s; }
+.zc-card--wide.playing .code-digit:nth-child(6) { animation-delay: .45s; }
 .rel-confirm {
   display: inline-flex;
   align-items: center;
@@ -803,10 +795,8 @@ body {
     transform: translateY(0);
   }
 }
-.how-cards.is-visible .rel-confirm,
-.zc-card--wide:hover .rel-confirm,
-.zc-card--wide:focus-visible .rel-confirm {
-  animation: rel-press .55s ease 1.15s both;
+.zc-card--wide.playing .rel-confirm {
+  animation: rel-press .55s ease 2.9s both;
 }
 @media (prefers-reduced-motion: reduce) {
   .code-digit,
@@ -814,9 +804,8 @@ body {
     animation: none;
   }
 }
-.zc-card:hover .rel-track span,
-.zc-card:focus-visible .rel-track span {
-  animation: rel-grow .9s cubic-bezier(.2,.8,.2,1);
+.zc-card--wide.playing .rel-track span {
+  animation: rel-grow .9s cubic-bezier(.2,.8,.2,1) 2.2s both;
 }
 @keyframes rel-grow {
   from {
@@ -961,20 +950,14 @@ body {
     transform: translateY(0);
   }
 }
-.how-cards.is-visible .rel-minicard,
-.zc-card--wide:hover .rel-minicard,
-.zc-card--wide:focus-visible .rel-minicard {
-  animation: rel-slide-top 1.2s cubic-bezier(0.645, 0.045, 0.355, 1) both;
+.zc-card--wide.playing .rel-minicard {
+  animation: rel-slide-top 1.2s cubic-bezier(0.645, 0.045, 0.355, 1) 1s both;
 }
-.how-cards.is-visible .rel-receipt,
-.zc-card--wide:hover .rel-receipt,
-.zc-card--wide:focus-visible .rel-receipt {
-  animation: rel-slide-post 1s cubic-bezier(0.165, 0.84, 0.44, 1) both;
+.zc-card--wide.playing .rel-receipt {
+  animation: rel-slide-post 1s cubic-bezier(0.165, 0.84, 0.44, 1) 1.2s both;
 }
-.how-cards.is-visible .rel-check,
-.zc-card--wide:hover .rel-check,
-.zc-card--wide:focus-visible .rel-check {
-  animation: rel-fade-in 0.3s 1s backwards;
+.zc-card--wide.playing .rel-check {
+  animation: rel-fade-in 0.3s 2s backwards;
 }
 @media (prefers-reduced-motion: reduce) {
   .rel-track span {
@@ -1024,8 +1007,9 @@ body {
     min-height: 340px;
   }
   .zc-card--wide:hover,
-  .zc-card--wide:focus-visible {
-    min-height: 640px;
+  .zc-card--wide:focus-visible,
+  .zc-card--wide.playing {
+    min-height: 720px;
   }
   .code-digit {
     width: 40px;
@@ -1212,6 +1196,54 @@ body {
       }, { threshold: 0.12 });
       cardObserver.observe(cards);
     }
+  }
+  var releaseCard = document.getElementById('release-code');
+  var LOOP_CYCLE = 7000;
+  var loopTimer = null;
+  function playSequence() {
+    if (!releaseCard || reducedMotion) return;
+    releaseCard.classList.remove('playing');
+    void releaseCard.offsetWidth;
+    releaseCard.classList.add('playing');
+  }
+  function startSequence() {
+    if (loopTimer || !releaseCard || reducedMotion) return;
+    playSequence();
+    loopTimer = setInterval(playSequence, LOOP_CYCLE);
+  }
+  function stopSequence() {
+    if (loopTimer) {
+      clearInterval(loopTimer);
+      loopTimer = null;
+    }
+  }
+  function releaseVisible() {
+    if (!releaseCard) return false;
+    var rect = releaseCard.getBoundingClientRect();
+    return rect.bottom > 0 && rect.top < window.innerHeight;
+  }
+  if (releaseCard && !reducedMotion) {
+    if ('IntersectionObserver' in window) {
+      var releaseObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            startSequence();
+          } else {
+            stopSequence();
+          }
+        });
+      }, { threshold: 0.15 });
+      releaseObserver.observe(releaseCard);
+    } else {
+      startSequence();
+    }
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) {
+        stopSequence();
+      } else if (releaseVisible()) {
+        startSequence();
+      }
+    });
   }
   var canvas = document.getElementById('stars');
   var ctx = canvas.getContext('2d');
