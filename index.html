@@ -96,6 +96,10 @@ body {
 .tab--5:checked ~ .indicator {
   left: calc(130px * 4 + 2px);
 }
+.tab:checked + .tab_label {
+  color: var(--accent);
+  opacity: 1;
+}
 .theme-side {
   position: static;
   z-index: 3;
