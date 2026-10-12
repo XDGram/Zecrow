@@ -127,6 +127,120 @@ body {
   display: flex;
   align-items: center;
 }
+.topbar {
+  flex-wrap: wrap;
+}
+.wallet-wrap {
+  position: relative;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+}
+.wallet-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--panel-border);
+  background: transparent;
+  color: var(--hero-text);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.25s ease;
+}
+.wallet-btn:hover {
+  border-color: var(--accent);
+}
+.wallet-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.wallet-btn .wdot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--hero-muted);
+}
+.wallet-btn.connected .wdot {
+  background: var(--accent);
+}
+.wallet-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 280px;
+  padding: 18px;
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  background: var(--panel-bg);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+.wallet-menu[hidden] {
+  display: none;
+}
+.wallet-status {
+  margin: 0 0 10px;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--hero-muted);
+}
+.wallet-address {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border: 1px dashed var(--panel-border);
+  border-radius: 10px;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.74rem;
+  word-break: break-all;
+  color: var(--hero-text);
+}
+.wallet-actions {
+  display: flex;
+  gap: 10px;
+}
+.wallet-action {
+  flex: 1;
+  min-height: 40px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #101010;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+.wallet-action:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.wallet-action.ghost {
+  background: transparent;
+  color: var(--hero-text);
+  border: 1px solid var(--panel-border);
+}
+.wallet-action:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.wallet-install {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.wallet-note {
+  margin: 12px 0 0;
+  font-size: 0.72rem;
+  line-height: 1.6;
+  color: var(--hero-muted);
+}
 .switch-container {
   position: relative;
   display: inline-block;
@@ -1383,6 +1497,22 @@ body {
   <span class="slider"></span>
 </label>
 </div>
+<div class="wallet-wrap">
+  <button class="wallet-btn" id="wallet-btn" aria-haspopup="true" aria-expanded="false" aria-controls="wallet-menu">
+    <span class="wdot" aria-hidden="true"></span><span id="wallet-label">Connect Wallet</span>
+  </button>
+  <div class="wallet-menu" id="wallet-menu" hidden>
+    <p class="wallet-status" id="wallet-status" role="status">Checking for a Zcash wallet…</p>
+    <p class="wallet-address" id="wallet-address" hidden></p>
+    <div class="wallet-actions">
+      <button class="wallet-action" id="wallet-go" hidden>Connect Noir Wallet</button>
+      <button class="wallet-action ghost" id="wallet-copy" hidden>Copy address</button>
+      <button class="wallet-action ghost" id="wallet-leave" hidden>Disconnect</button>
+    </div>
+    <a class="wallet-install" id="wallet-install" href="https://chromewebstore.google.com/detail/noir-wallet/mfoghjbpfanobmnoemoepenjjcmfpmdn" target="_blank" rel="noopener" hidden>Get Noir Wallet for Chrome</a>
+    <p class="wallet-note">Wallet connection only shares your address. It never moves funds, never asks for a seed phrase, and does not prove ownership.</p>
+  </div>
+</div>
 </header>
 <section class="hero">
   <div class="hero-copy">
@@ -1801,6 +1931,178 @@ body {
     if (reduced) draw();
   });
   if (!reduced) tick();
+  var walletBtn = document.getElementById('wallet-btn');
+  var walletMenu = document.getElementById('wallet-menu');
+  var walletLabel = document.getElementById('wallet-label');
+  var walletStatus = document.getElementById('wallet-status');
+  var walletAddress = document.getElementById('wallet-address');
+  var walletGo = document.getElementById('wallet-go');
+  var walletCopy = document.getElementById('wallet-copy');
+  var walletLeave = document.getElementById('wallet-leave');
+  var walletInstall = document.getElementById('wallet-install');
+  var walletAccount = null;
+  var walletProvider = null;
+  function noirProvider() {
+    try {
+      var w = window.noirwallet;
+      if (w && (w.isNoirWallet || w.zcash || typeof w.request === 'function')) return w;
+    } catch (err) {}
+    return null;
+  }
+  function pickAddress(res) {
+    if (!res) return null;
+    if (typeof res === 'string') return res;
+    if (typeof res !== 'object') return null;
+    var list = Array.isArray(res) ? res : res.accounts;
+    if (Array.isArray(list) && list.length) {
+      var a = list[0];
+      if (typeof a === 'string') return a;
+      if (a && typeof a === 'object') {
+        if (a.addresses) return a.addresses.shielded || a.addresses.transparent || null;
+        return a.address || a.unifiedAddress || a.ua || null;
+      }
+      return null;
+    }
+    return res.shielded || res.transparent || null;
+  }
+  function shortAddr(a) {
+    return a.length > 18 ? a.slice(0, 10) + '…' + a.slice(-6) : a;
+  }
+  function setMenu(open) {
+    walletMenu.hidden = !open;
+    walletBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+  function renderWallet(state, detail) {
+    walletGo.hidden = true;
+    walletCopy.hidden = true;
+    walletLeave.hidden = true;
+    walletInstall.hidden = true;
+    walletAddress.hidden = true;
+    walletGo.disabled = false;
+    if (state === 'connected' && walletAccount) {
+      walletBtn.classList.add('connected');
+      walletLabel.textContent = shortAddr(walletAccount);
+      walletStatus.textContent = 'Connected to Noir Wallet.';
+      walletAddress.textContent = walletAccount;
+      walletAddress.hidden = false;
+      walletCopy.hidden = false;
+      walletLeave.hidden = false;
+    } else {
+      walletBtn.classList.remove('connected');
+      walletLabel.textContent = 'Connect Wallet';
+      if (state === 'connecting') {
+        walletStatus.textContent = 'Waiting for approval in your wallet…';
+        walletGo.hidden = false;
+        walletGo.disabled = true;
+        walletGo.textContent = 'Connecting…';
+      } else if (state === 'ready') {
+        walletStatus.textContent = 'Noir Wallet detected. Nothing is shared until you approve.';
+        walletGo.hidden = false;
+        walletGo.textContent = 'Connect Noir Wallet';
+      } else if (state === 'rejected') {
+        walletStatus.textContent = 'The connection request was rejected in the wallet. Nothing was shared.';
+        walletGo.hidden = false;
+        walletGo.textContent = 'Try again';
+      } else if (state === 'error') {
+        walletStatus.textContent = 'Connection failed' + (detail ? ': ' + detail : '.') + ' Nothing was shared.';
+        walletGo.hidden = false;
+        walletGo.textContent = 'Try again';
+      } else {
+        walletStatus.textContent = 'No compatible Zcash wallet detected in this browser.';
+        walletInstall.hidden = false;
+      }
+    }
+  }
+  function watchAccounts(p) {
+    if (p && typeof p.on === 'function') {
+      try {
+        p.on('accountsChanged', function () { refreshWallet(false); });
+      } catch (err) {}
+    }
+  }
+  async function refreshWallet(announceReady) {
+    var p = noirProvider();
+    if (!p || typeof p.request !== 'function') {
+      if (!walletAccount) renderWallet('unsupported');
+      return;
+    }
+    walletProvider = p;
+    watchAccounts(p);
+    try {
+      var addr = pickAddress(await p.request({ method: 'zcash_getAccounts' }));
+      if (addr) {
+        walletAccount = addr;
+        renderWallet('connected');
+      } else if (!walletAccount && announceReady !== false) {
+        renderWallet('ready');
+      } else if (!walletAccount) {
+        renderWallet('ready');
+      }
+    } catch (err) {
+      if (!walletAccount) renderWallet('ready');
+    }
+  }
+  async function connectWallet() {
+    var p = noirProvider();
+    if (!p || typeof p.request !== 'function') {
+      renderWallet('unsupported');
+      setMenu(true);
+      return;
+    }
+    walletProvider = p;
+    watchAccounts(p);
+    renderWallet('connecting');
+    try {
+      var addr = pickAddress(await p.request({ method: 'zcash_requestAccounts' }));
+      if (!addr) throw new Error('the wallet returned no accounts');
+      walletAccount = addr;
+      renderWallet('connected');
+    } catch (err) {
+      var msg = err && err.message ? err.message : String(err);
+      if (/reject|denied|cancel|dismiss|user closed/i.test(msg)) {
+        renderWallet('rejected');
+      } else {
+        renderWallet('error', msg);
+      }
+    }
+  }
+  async function disconnectWallet() {
+    var p = walletProvider || noirProvider();
+    if (p && typeof p.request === 'function') {
+      try { await p.request({ method: 'zcash_disconnect' }); } catch (err) {}
+    }
+    walletAccount = null;
+    walletProvider = null;
+    renderWallet(noirProvider() ? 'ready' : 'unsupported');
+  }
+  walletBtn.addEventListener('click', function () {
+    var open = walletMenu.hidden;
+    if (open && !walletAccount) refreshWallet();
+    setMenu(open);
+  });
+  document.addEventListener('click', function (e) {
+    if (!walletMenu.hidden && !e.target.closest('.wallet-wrap')) setMenu(false);
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !walletMenu.hidden) {
+      setMenu(false);
+      walletBtn.focus();
+    }
+  });
+  walletGo.addEventListener('click', connectWallet);
+  walletLeave.addEventListener('click', disconnectWallet);
+  walletCopy.addEventListener('click', async function () {
+    if (!walletAccount) return;
+    try {
+      await navigator.clipboard.writeText(walletAccount);
+      walletCopy.textContent = 'Copied';
+    } catch (err) {
+      walletCopy.textContent = 'Copy failed';
+    }
+    setTimeout(function () { walletCopy.textContent = 'Copy address'; }, 1600);
+  });
+  window.addEventListener('noirwallet#initialized', function () { refreshWallet(); });
+  refreshWallet();
 })();
 </script>
 </body>
