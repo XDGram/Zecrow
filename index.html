@@ -451,19 +451,29 @@ body {
 }
 .fan-glass {
   position: relative;
-  width: 170px;
-  height: 200px;
+  width: 200px;
+  height: 244px;
   background: linear-gradient(rgba(255,255,255,.09), transparent);
   border: 1px solid rgba(255,255,255,.12);
   box-shadow: 0 25px 25px rgba(0,0,0,.25);
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 12px;
+  padding: 20px 16px 60px;
   transition: transform .5s ease, margin .5s ease;
   border-radius: 12px;
   margin: 0 -40px;
   backdrop-filter: blur(10px);
   transform: rotate(calc(var(--r) * 1deg));
+}
+.fan-sub {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  text-align: center;
+  color: var(--hero-muted);
 }
 .carbon-stage:not(.dark-mode) .fan-glass {
   background: linear-gradient(rgba(20,20,18,.06), transparent);
@@ -517,8 +527,8 @@ body {
     margin: 0;
   }
   .fan-glass {
-    width: 140px;
-    height: 172px;
+    width: 160px;
+    height: 208px;
     margin: 0 -30px;
   }
 }
@@ -1095,12 +1105,15 @@ body {
     <div class="fan-wrap">
       <div class="fan-glass" data-text="Private" style="--r:-12;">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l7.5 2.8v5.7c0 4.6-3.2 7.9-7.5 10.2-4.3-2.3-7.5-5.6-7.5-10.2V5.3z"/></svg>
+        <p class="fan-sub">Shielded payments, no buyer account needed.</p>
       </div>
       <div class="fan-glass" data-text="Protected" style="--r:4;">
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>
+        <p class="fan-sub">2-of-3 escrow with AI-checked listings.</p>
       </div>
       <div class="fan-glass" data-text="Resolved" style="--r:20;">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16.5 9.5"/></svg>
+        <p class="fan-sub">Released by one-time delivery code.</p>
       </div>
     </div>
   </aside>
