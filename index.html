@@ -24,6 +24,15 @@ body {
   color: #888;
   text-align: center;
 }
+.topbar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 14px 16px 0;
+}
 .tab-container {
   position: relative;
   z-index: 2;
@@ -31,16 +40,16 @@ body {
   flex-direction: row;
   align-items: flex-start;
   width: fit-content;
-  margin: 12px auto 0;
+  margin: 0;
   padding: 2px;
-  background-color: #dadadb;
+  background-color: var(--pill);
   border-radius: 9px;
 }
 .indicator {
   content: "";
   width: 130px;
   height: 28px;
-  background: #ffffff;
+  background: var(--indicator-bg);
   position: absolute;
   top: 2px;
   left: 2px;
@@ -68,6 +77,7 @@ body {
   justify-content: center;
   border: 0;
   font-size: 0.75rem;
+  color: var(--tab-text);
   opacity: 0.6;
   cursor: pointer;
 }
@@ -87,12 +97,12 @@ body {
   left: calc(130px * 4 + 2px);
 }
 .theme-side {
-  position: absolute;
-  top: 12px;
-  right: 16px;
+  position: static;
   z-index: 3;
   transform: scale(0.65);
-  transform-origin: top right;
+  transform-origin: center;
+  display: flex;
+  align-items: center;
 }
 .switch-container {
   position: relative;
@@ -148,6 +158,17 @@ body {
   width: 100%;
   min-height: 100vh;
   overflow: clip;
+  --pill: #dadadb;
+  --tab-text: #1a1a1a;
+  --indicator-bg: #ffffff;
+  background: #ffffff;
+  color-scheme: light;
+}
+.carbon-stage.dark-mode {
+  --pill: #202022;
+  --tab-text: #f2f2ef;
+  --indicator-bg: #343438;
+  color-scheme: dark;
 }
 .carbon-layer {
   position: absolute;
@@ -192,14 +213,54 @@ body {
   background-size: 4px 4px;
   opacity: .03;
 }
+.carbon-stage:not(.dark-mode) .carbon-base {
+  background: radial-gradient(
+    circle at 50% 12%,
+    #ffffff 0%,
+    #f1f1ee 45%,
+    #e2e2de 100%
+  );
+}
+.carbon-stage:not(.dark-mode) .carbon-spotlight {
+  background-image: radial-gradient(
+    circle at 50% 0%,
+    rgba(0, 0, 0, .08) 0%,
+    transparent 46%
+  );
+  opacity: .6;
+}
+.carbon-stage:not(.dark-mode) .carbon-vignette {
+  background-image: radial-gradient(
+    circle at center,
+    transparent 55%,
+    rgba(0, 0, 0, .12) 100%
+  );
+}
+.carbon-stage:not(.dark-mode) .carbon-grain {
+  background-image: radial-gradient(
+    circle at center,
+    rgba(0, 0, 0, .55) 1px,
+    transparent 1px
+  );
+  background-size: 4px 4px;
+  opacity: .05;
+}
+.stars {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
 </style>
 </head>
 <body>
-<main class="carbon-stage dark-mode">
+<main class="carbon-stage dark-mode" id="stage">
   <div class="carbon-layer carbon-base" aria-hidden="true"></div>
   <div class="carbon-layer carbon-spotlight" aria-hidden="true"></div>
   <div class="carbon-layer carbon-vignette" aria-hidden="true"></div>
   <div class="carbon-layer carbon-grain" aria-hidden="true"></div>
+  <canvas class="stars" id="stars" aria-hidden="true"></canvas>
+<header class="topbar">
 <div class="tab-container">
   <input type="radio" name="tab" id="tab1" class="tab tab--1" />
   <label class="tab_label" for="tab1">Zecrow</label>
@@ -220,10 +281,92 @@ body {
 </div>
 <div class="theme-side">
 <label class="switch-container">
-  <input type="checkbox">
+  <input type="checkbox" id="theme-toggle" aria-label="Toggle light and dark mode">
   <span class="slider"></span>
 </label>
 </div>
+</header>
 </main>
+<script>
+(function () {
+  var toggle = document.getElementById('theme-toggle');
+  var stage = document.getElementById('stage');
+  toggle.addEventListener('change', function () {
+    stage.classList.toggle('dark-mode', !toggle.checked);
+  });
+  var canvas = document.getElementById('stars');
+  var ctx = canvas.getContext('2d');
+  var particles = [];
+  var W = 0, H = 0;
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function size() {
+    W = canvas.width = stage.clientWidth;
+    H = canvas.height = stage.clientHeight;
+  }
+  function make() {
+    particles = [];
+    var n = Math.max(30, Math.min(90, Math.floor(W * H / 18000)));
+    for (var i = 0; i < n; i++) {
+      particles.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        vx: (Math.random() - 0.5) * 0.35,
+        vy: (Math.random() - 0.5) * 0.35,
+        r: 0.6 + Math.random() * 1.2
+      });
+    }
+  }
+  function theme() {
+    return stage.classList.contains('dark-mode') ? '255,255,255' : '25,25,28';
+  }
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    var col = theme();
+    for (var i = 0; i < particles.length; i++) {
+      for (var j = i + 1; j < particles.length; j++) {
+        var a = particles[i], b = particles[j];
+        var dx = a.x - b.x, dy = a.y - b.y;
+        var d2 = dx * dx + dy * dy;
+        if (d2 < 14400) {
+          var o = (1 - Math.sqrt(d2) / 120) * 0.35;
+          ctx.strokeStyle = 'rgba(' + col + ',' + o.toFixed(3) + ')';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.stroke();
+        }
+      }
+    }
+    for (var k = 0; k < particles.length; k++) {
+      var p = particles[k];
+      ctx.fillStyle = 'rgba(' + col + ',.8)';
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, 6.2832);
+      ctx.fill();
+    }
+  }
+  function tick() {
+    for (var i = 0; i < particles.length; i++) {
+      var p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.x < 0 || p.x > W) p.vx *= -1;
+      if (p.y < 0 || p.y > H) p.vy *= -1;
+    }
+    draw();
+    requestAnimationFrame(tick);
+  }
+  size();
+  make();
+  draw();
+  window.addEventListener('resize', function () {
+    size();
+    make();
+    if (reduced) draw();
+  });
+  if (!reduced) tick();
+})();
+</script>
 </body>
 </html>
