@@ -40,7 +40,10 @@ body {
 }
 #stage,
 #how-it-works,
-#release-code {
+#release-code,
+#buyer-protection,
+#for-merchants,
+#why-zecrow {
   scroll-margin-top: 90px;
 }
 .tab-container {
@@ -1055,6 +1058,196 @@ body {
     padding: 56px 24px 96px;
   }
 }
+.lane {
+  position: relative;
+  z-index: 2;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 84px 32px;
+  border-top: 1px solid var(--panel-border);
+}
+.lane-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+.lane-grid.flip > .lane-copy {
+  order: 2;
+}
+.lane-copy {
+  max-width: 34rem;
+}
+.tick {
+  list-style: none;
+  margin: 30px 0 0;
+  padding: 0;
+}
+.tick li {
+  position: relative;
+  padding: 12px 0 12px 30px;
+  border-top: 1px solid var(--panel-border);
+  font-size: 0.93rem;
+  line-height: 1.65;
+  color: var(--hero-muted);
+}
+.tick li:last-child {
+  border-bottom: 1px solid var(--panel-border);
+}
+.tick li::before {
+  content: "✓";
+  position: absolute;
+  left: 4px;
+  color: var(--accent);
+  font-weight: 700;
+}
+.tick strong {
+  color: var(--hero-text);
+  font-weight: 650;
+}
+.lane-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 20px;
+  align-items: center;
+  margin-top: 32px;
+}
+.preview {
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  background: var(--panel-bg);
+  overflow: hidden;
+  max-width: 420px;
+}
+.lane-grid.flip .preview {
+  justify-self: start;
+}
+.preview-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--panel-border);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--hero-muted);
+}
+.preview-rows {
+  padding: 6px 20px 14px;
+  font-size: 0.87rem;
+}
+.preview-rows .row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px dashed var(--panel-border);
+  color: var(--hero-muted);
+}
+.preview-rows .row:last-child {
+  border-bottom: none;
+}
+.preview-rows .v {
+  color: var(--hero-text);
+  text-align: right;
+}
+.preview-status {
+  margin: 0 20px 16px;
+  padding: 10px 16px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  text-align: center;
+}
+.preview-link {
+  margin: 0 20px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 16px;
+  border: 1px dashed var(--panel-border);
+  border-radius: 10px;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.8rem;
+  color: var(--hero-muted);
+}
+.preview-link .copy {
+  flex: none;
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  padding: 5px 12px;
+}
+.diff {
+  margin: 50px 0 0;
+  max-width: 48rem;
+}
+.diff-item {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 20px;
+  padding: 26px 0;
+  border-top: 1px solid var(--panel-border);
+}
+.diff-item:last-child {
+  border-bottom: 1px solid var(--panel-border);
+}
+.diff-glyph {
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.diff-glyph svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.diff-item h3 {
+  margin: 2px 0 8px;
+  font-size: 1.15rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--hero-text);
+}
+.diff-item p {
+  margin: 0;
+  font-size: 0.93rem;
+  line-height: 1.7;
+  color: var(--hero-muted);
+}
+@media (max-width: 920px) {
+  .lane {
+    padding: 64px 24px;
+  }
+  .lane-grid {
+    grid-template-columns: 1fr;
+    gap: 44px;
+  }
+  .lane-grid.flip > .lane-copy {
+    order: 0;
+  }
+  .preview {
+    max-width: 480px;
+  }
+}
 </style>
 </head>
 <body>
@@ -1194,6 +1387,89 @@ body {
     <a class="btn-primary" href="#start-payment">Explore Zecrow</a>
   </div>
 </section>
+<section class="lane" id="buyer-protection">
+  <div class="lane-grid">
+    <div class="lane-copy">
+      <p class="how-eyebrow">For buyers</p>
+      <h2 class="how-title">Pay with a plan, not just a promise.</h2>
+      <p class="how-lede">From the moment a payment link arrives to the second funds release, the buyer always knows what was agreed, what happens next, and where the money sits.</p>
+      <ul class="tick">
+        <li><strong>Review first.</strong> Transaction details and agreed terms are on the table before a cent moves.</li>
+        <li><strong>Escrow holds it.</strong> Funds sit under the proposed 2-of-3 arrangement. No single key moves them.</li>
+        <li><strong>Delivery, defined.</strong> What counts as delivered is written down, not assumed.</li>
+        <li><strong>Evidence counts.</strong> Messages, files, and tracking can support either side in a dispute.</li>
+        <li><strong>Reviewed fairly.</strong> AI organizes the evidence into a summary, and an arbitrator decides.</li>
+        <li><strong>Always visible.</strong> Clear statuses track payment and delivery at every step.</li>
+      </ul>
+      <div class="lane-cta">
+        <a class="link-secondary" href="#how-it-works">See How Buyer Protection Works →</a>
+      </div>
+    </div>
+    <div class="preview" role="img" aria-label="Illustrative buyer order review showing terms and payment status">
+      <div class="preview-head"><span>Order review</span><span class="zc-tag">Proposed experience</span></div>
+      <div class="preview-rows">
+        <div class="row"><span>Item</span><span class="v">Logo package, 3 formats</span></div>
+        <div class="row"><span>Amount</span><span class="v">2.50 ZEC</span></div>
+        <div class="row"><span>Delivery</span><span class="v">Files via private link</span></div>
+        <div class="row"><span>Release</span><span class="v">Buyer confirms with code</span></div>
+      </div>
+      <p class="preview-status">Funds secured · Awaiting delivery</p>
+    </div>
+  </div>
+</section>
+<section class="lane" id="for-merchants">
+  <div class="lane-grid flip">
+    <div class="lane-copy">
+      <p class="how-eyebrow">Built for sellers</p>
+      <h2 class="how-title">Close the deal. Deliver with confidence.</h2>
+      <p class="how-lede">Zecrow is meant for the stranger sale. A customer who does not know or trust you yet can still pay with confidence.</p>
+      <ul class="tick">
+        <li><strong>Create in minutes.</strong> Start a transaction or payment request with no storefront needed.</li>
+        <li><strong>Define everything.</strong> Product or service, amount, delivery expectations, and release conditions.</li>
+        <li><strong>Share one link.</strong> Send the customer a single payment link.</li>
+        <li><strong>Track progress.</strong> Follow funding, delivery, and release as each stage completes.</li>
+        <li><strong>Prove delivery.</strong> Submit files, tracking, or records as evidence if a dispute arises.</li>
+        <li><strong>Know the rules.</strong> Escrow authorization and the dispute process are explained upfront.</li>
+      </ul>
+      <div class="lane-cta">
+        <a class="link-secondary" href="#release-code">Explore Merchant Payments →</a>
+      </div>
+    </div>
+    <div class="preview" role="img" aria-label="Illustrative merchant payment link creator with example listing">
+      <div class="preview-head"><span>New payment link</span><span class="zc-tag">Proposed experience</span></div>
+      <div class="preview-rows">
+        <div class="row"><span>Listing</span><span class="v">Logo package, 3 formats</span></div>
+        <div class="row"><span>Price</span><span class="v">2.50 ZEC</span></div>
+        <div class="row"><span>Delivery</span><span class="v">7 days, files via link</span></div>
+        <div class="row"><span>Release</span><span class="v">Buyer code, 2-of-3 rule</span></div>
+      </div>
+      <p class="preview-link"><span>zecrow.pay/m/7f3a9c</span><span class="copy">Copy</span></p>
+    </div>
+  </div>
+</section>
+<section class="lane" id="why-zecrow">
+  <p class="how-eyebrow">Why Zecrow</p>
+  <h2 class="how-title">More than a payment link.</h2>
+  <p class="how-lede">Four ideas set the intended design apart. None of them asks for blind trust.</p>
+  <div class="diff">
+    <div class="diff-item">
+      <span class="diff-glyph" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2.5l7.5 2.8v5.7c0 4.6-3.2 7.9-7.5 10.2-4.3-2.3-7.5-5.6-7.5-10.2V5.3z"/><path d="M9 11.5l2.2 2.2 4-4.5"/></svg></span>
+      <div><h3>Privacy-conscious payments</h3><p>Built around the Zcash ecosystem, with honest boundaries. Shielded transfers keep payment details out of public view, while transparent-address multisignature activity stays visible on-chain. What is private and what is not gets stated plainly.</p></div>
+    </div>
+    <div class="diff-item">
+      <span class="diff-glyph" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="12" r="5.5"/><circle cx="15" cy="12" r="5.5"/></svg></span>
+      <div><h3>Shared fund authorization</h3><p>The proposed 2-of-3 multisignature arrangement prevents any single participant from authorizing a payout alone. Two keys approve, one key approves nothing.</p></div>
+    </div>
+    <div class="diff-item">
+      <span class="diff-glyph" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 15.5h6"/></svg></span>
+      <div><h3>AI-assisted evidence review</h3><p>AI helps organize evidence, identify inconsistencies, and prepare summaries for dispute review. It never controls funds and never replaces the arbitrator.</p></div>
+    </div>
+    <div class="diff-item">
+      <span class="diff-glyph" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 7.5L12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5L12 12l8.5-4.5M12 12v9"/></svg></span>
+      <div><h3>Designed for real commerce</h3><p>Digital downloads, freelance services, and shipped goods each get agreed delivery conditions, so files, work, and parcels are judged by terms written for them.</p></div>
+    </div>
+  </div>
+</section>
 </main>
 <script>
 (function () {
@@ -1210,7 +1486,7 @@ body {
     void cards.offsetWidth;
     setTimeout(function () { cards.classList.add('is-visible'); }, 300);
   }
-  var tabTargets = { tab1: 'stage', tab2: 'how-it-works', tab3: 'release-code' };
+  var tabTargets = { tab1: 'stage', tab2: 'how-it-works', tab3: 'buyer-protection', tab4: 'for-merchants' };
   Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (radio) {
     radio.addEventListener('change', function () {
       var target = document.getElementById(tabTargets[radio.id]);
