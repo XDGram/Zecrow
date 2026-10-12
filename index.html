@@ -343,6 +343,9 @@ body {
 .btn-primary {
   display: inline-flex;
   align-items: center;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
   padding: 15px 30px;
   border-radius: 999px;
   background: var(--accent);
@@ -350,10 +353,21 @@ body {
   font-size: 0.95rem;
   font-weight: 700;
   text-decoration: none;
-  transition: background 0.25s ease;
 }
-.btn-primary:hover {
-  background: var(--accent-hover);
+.btn-primary::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(to right, #FFC53D 0%, var(--accent) 100%);
+  transition: width 0.45s ease;
+  z-index: -1;
+}
+.btn-primary:hover::before {
+  width: 100%;
 }
 .link-secondary {
   display: inline-flex;
