@@ -136,9 +136,70 @@ body {
   transform: translateX(100%);
   box-shadow: inset 8px -4px 0px 0px #f8f8f4;
 }
+:root {
+  background: #050505;
+  color-scheme: dark;
+  --accent: #cfef00;
+  --accent-hover: #c4e201;
+}
+.carbon-stage {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: 100vh;
+  overflow: clip;
+}
+.carbon-layer {
+  position: absolute;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+  transition: opacity .35s ease, background .35s ease;
+}
+.dark-mode {
+  background: #0c0c0c;
+}
+.dark-mode .carbon-base {
+  background: radial-gradient(
+    circle at 50% 12%,
+    #1c1c1c 0%,
+    #121212 36%,
+    #0c0c0c 68%,
+    #050505 100%
+  );
+}
+.dark-mode .carbon-spotlight {
+  background-image: radial-gradient(
+    circle at 50% 0%,
+    rgba(255, 255, 255, .14) 0%,
+    transparent 46%
+  );
+  opacity: .5;
+}
+.dark-mode .carbon-vignette {
+  background-image: radial-gradient(
+    circle at center,
+    transparent 42%,
+    rgba(0, 0, 0, .55) 100%
+  );
+}
+.dark-mode .carbon-grain {
+  background-image: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, .7) 1px,
+    transparent 1px
+  );
+  background-size: 4px 4px;
+  opacity: .03;
+}
 </style>
 </head>
 <body>
+<main class="carbon-stage dark-mode">
+  <div class="carbon-layer carbon-base" aria-hidden="true"></div>
+  <div class="carbon-layer carbon-spotlight" aria-hidden="true"></div>
+  <div class="carbon-layer carbon-vignette" aria-hidden="true"></div>
+  <div class="carbon-layer carbon-grain" aria-hidden="true"></div>
 <div class="tab-container">
   <input type="radio" name="tab" id="tab1" class="tab tab--1" />
   <label class="tab_label" for="tab1">Zecrow</label>
@@ -163,5 +224,6 @@ body {
   <span class="slider"></span>
 </label>
 </div>
+</main>
 </body>
 </html>
