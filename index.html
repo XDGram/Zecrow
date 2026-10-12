@@ -553,7 +553,7 @@ body {
 }
 .zc-card {
   position: relative;
-  min-height: 0;
+  min-height: 190px;
   padding: 24px;
   border-radius: 20px;
   overflow: hidden;
@@ -592,6 +592,7 @@ body {
 .how-cards.is-visible .zc-card:nth-child(6) { transition-delay: .80s, .80s, .80s, .80s, 0s, 0s, 0s; }
 .zc-card:hover,
 .zc-card:focus-visible {
+  min-height: 320px;
   transform: translate3d(0, -4px, 0) rotateX(0deg) rotateZ(0deg) scale(1);
 }
 .carbon-stage.dark-mode .zc-card {
@@ -652,8 +653,9 @@ body {
   line-height: 1.7;
   letter-spacing: 0.002em;
   color: var(--hero-muted);
-  opacity: 1;
-  transform: none;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity .28s ease .08s, transform .35s ease .08s;
 }
 .zc-card:hover .zc-more,
 .zc-card:focus-visible .zc-more {
@@ -695,12 +697,12 @@ body {
   color: var(--hero-muted);
 }
 .zc-card--wide {
-  min-height: 0;
+  min-height: 230px;
 }
 .zc-card--wide:hover,
 .zc-card--wide:focus-visible,
 .zc-card--wide.playing {
-  min-height: 0;
+  min-height: 580px;
 }
 .zc-card--wide.playing .zc-more {
   opacity: 1;
@@ -1024,22 +1026,15 @@ body {
     grid-template-columns: 1fr;
   }
   .zc-card {
-    min-height: 0;
-  }
-  .zc-card:hover,
-  .zc-card:focus-visible,
-  .zc-card--wide:hover,
-  .zc-card--wide:focus-visible,
-  .zc-card--wide.playing {
-    min-height: 0;
+    min-height: 170px;
   }
   .zc-card--wide {
-    min-height: 0;
+    min-height: 340px;
   }
   .zc-card--wide:hover,
   .zc-card--wide:focus-visible,
   .zc-card--wide.playing {
-    min-height: 0;
+    min-height: 720px;
   }
   .code-digit {
     width: 40px;
@@ -1121,19 +1116,19 @@ body {
       <div class="zc-top"><span class="zc-step">The problem</span></div>
       <h3>Trade breaks where trust breaks.</h3>
       <p class="zc-lead">Online commerce runs on whoever moves first, hoping the other side follows.</p>
-      <p class="zc-more">Buyers pay upfront and hope goods arrive. Sellers deliver and hope payment is secure. Traditional escrow inserts another intermediary with its own fees, delays, and custody, asking both sides to trust one more stranger.</p>
+      <p class="zc-more">Buyers pay upfront hoping goods arrive; sellers deliver hoping payment is secure. Traditional escrow adds another intermediary, more fees, and one more party both sides must trust.</p>
     </article>
     <article class="zc-card" tabindex="0">
       <div class="zc-top"><span class="zc-step">Shared control</span></div>
       <h3>No single key moves the money.</h3>
       <p class="zc-lead">Buyer, seller, and arbitrator each hold a key, and any two together authorize a payout.</p>
-      <p class="zc-more">That 2-of-3 rule is the whole trick. Buyer plus seller releases payment. Buyer plus arbitrator, or seller plus arbitrator, resolves a dispute. No single key can move funds alone, not even the arbitrator's.</p>
+      <p class="zc-more">The proposed 2-of-3 multisignature arrangement means no participant can act alone. Agreement pays the seller; dispute brings the arbitrator into a signed resolution.</p>
     </article>
     <article class="zc-card" tabindex="0">
       <div class="zc-top"><span class="zc-step">Rules in code</span></div>
       <h3>Cryptography enforces the agreement.</h3>
       <p class="zc-lead">Amount, delivery terms, and release conditions are set before money moves.</p>
-      <p class="zc-more">Terms are set first, then every outcome is authorized under a visible 2-of-3 rule signed by real keys. Nothing releases automatically and no smart contract stands behind it. Code is the rulebook here, and signatures are the only hand that executes it.</p>
+      <p class="zc-more">Signatures authorize each outcome under a visible 2-of-3 rule. Nothing releases automatically and no smart contract stands behind it. Every payout follows the agreed rules through real signatures.</p>
     </article>
     <article class="zc-card" tabindex="0">
       <div class="zc-top"><span class="zc-step">AI evidence review</span></div>
@@ -1146,7 +1141,7 @@ body {
       <div class="zc-top"><span class="zc-step">Digital goods</span></div>
       <h3>Delivered online, judged by the terms.</h3>
       <p class="zc-lead">Files and freelance work deliver instantly, but acceptance still follows the agreement.</p>
-      <p class="zc-more">The seller submits the deliverable, and the AI compares it against the acceptance criteria, flagging format gaps, missing pieces, and mismatches for the record. The buyer confirms or disputes. Upload alone releases nothing, and no automatic verdict on quality is ever claimed.</p>
+      <p class="zc-more">The seller submits the deliverable; the buyer confirms or disputes. Upload alone releases nothing, and no automatic check of file quality is claimed. The evidence decides.</p>
     </article>
     <article class="zc-card" tabindex="0">
       <div class="zc-top"><span class="zc-step">Physical goods</span></div>
