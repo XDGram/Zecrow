@@ -486,6 +486,284 @@ body {
     max-width: 420px;
   }
 }
+.how {
+  position: relative;
+  z-index: 2;
+}
+.how-block {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 84px 32px;
+}
+.how-block + .how-block {
+  border-top: 1px solid var(--panel-border);
+}
+.how-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  color: var(--hero-muted);
+}
+.how-eyebrow::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+.how-title {
+  margin: 0 0 18px;
+  max-width: 22ch;
+  font-size: clamp(2rem, 4.4vw, 3.1rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  font-weight: 650;
+  color: var(--hero-text);
+  text-wrap: balance;
+}
+.how-lede {
+  margin: 0;
+  max-width: 44rem;
+  font-size: 1.02rem;
+  line-height: 1.7;
+  color: var(--hero-muted);
+}
+.how-figure {
+  margin: 52px 0 0;
+}
+.how-figure svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.how-figure figcaption {
+  margin-top: 14px;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  color: var(--hero-muted);
+}
+.how svg text {
+  font-family: inherit;
+}
+.svg-label {
+  fill: var(--hero-text);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+.svg-sub {
+  fill: var(--hero-muted);
+  font-size: 12px;
+}
+.svg-note {
+  fill: var(--hero-muted);
+  font-size: 12px;
+  font-style: italic;
+}
+.svg-gold-text {
+  fill: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+.svg-line {
+  stroke: var(--panel-border);
+  stroke-width: 1.5;
+}
+.svg-ink {
+  stroke: var(--hero-muted);
+  stroke-width: 1.5;
+  fill: none;
+}
+.svg-gold {
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  fill: none;
+}
+.svg-panel {
+  fill: var(--panel-bg);
+  stroke: var(--panel-border);
+  stroke-width: 1.5;
+}
+.svg-gold-fill {
+  fill: var(--accent);
+}
+.svg-ivory-fill {
+  fill: var(--hero-text);
+}
+.journey {
+  list-style: none;
+  margin: 52px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+}
+.journey li {
+  position: relative;
+  padding-top: 28px;
+}
+.journey li::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 0;
+  right: -40px;
+  border-top: 1px solid var(--panel-border);
+}
+.journey li:last-child::before {
+  right: 0;
+}
+.journey li::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 0;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--panel-bg);
+  border: 1px solid var(--hero-muted);
+}
+.journey li:last-child::after {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.j-num {
+  font-size: 2.4rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--hero-text);
+  opacity: 0.28;
+}
+.j-title {
+  margin: 12px 0 10px;
+  font-size: 1.15rem;
+  font-weight: 650;
+  color: var(--hero-text);
+}
+.j-copy {
+  margin: 0 0 16px;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: var(--hero-muted);
+}
+.j-status {
+  display: inline-block;
+  padding: 7px 14px;
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--hero-muted);
+}
+.j-status.gold {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 52px;
+}
+.split-side {
+  padding: 8px 48px 8px 0;
+}
+.split-side + .split-side {
+  padding: 8px 0 8px 48px;
+  border-left: 1px solid var(--panel-border);
+}
+.split-side svg {
+  display: block;
+  width: 100%;
+  max-width: 380px;
+  height: auto;
+  margin-bottom: 26px;
+}
+.split-side h3 {
+  margin: 0 0 12px;
+  font-size: 1.35rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--hero-text);
+}
+.split-side p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--hero-muted);
+}
+.how-closing {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 96px 32px 120px;
+  border-top: 1px solid var(--panel-border);
+  text-align: center;
+}
+.how-closing h2 {
+  margin: 0 auto 18px;
+  max-width: 24ch;
+  font-size: clamp(1.9rem, 4vw, 2.9rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-weight: 650;
+  color: var(--hero-text);
+  text-wrap: balance;
+}
+.how-closing p {
+  margin: 0 auto 36px;
+  max-width: 42rem;
+  font-size: 1.02rem;
+  line-height: 1.7;
+  color: var(--hero-muted);
+}
+@media (max-width: 920px) {
+  .how-block {
+    padding: 64px 24px;
+  }
+  .journey {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+  .journey li {
+    padding-top: 0;
+    padding-left: 28px;
+  }
+  .journey li::before {
+    top: 0;
+    bottom: -36px;
+    left: 4px;
+    right: auto;
+    border-top: none;
+    border-left: 1px solid var(--panel-border);
+  }
+  .journey li:last-child::before {
+    display: none;
+  }
+  .journey li::after {
+    top: 6px;
+    left: 0;
+  }
+  .split {
+    grid-template-columns: 1fr;
+  }
+  .split-side {
+    padding: 0 0 40px;
+  }
+  .split-side + .split-side {
+    padding: 40px 0 0;
+    border-left: none;
+    border-top: 1px solid var(--panel-border);
+  }
+  .how-closing {
+    padding: 72px 24px 96px;
+  }
+}
 </style>
 </head>
 <body>
@@ -545,6 +823,158 @@ body {
       <div class="escrow-foot">Releases when the buyer confirms delivery</div>
     </div>
   </aside>
+</section>
+<section class="how" id="how-it-works">
+  <div class="how-block">
+    <p class="how-eyebrow">Why online trade needs to change</p>
+    <h2 class="how-title">Buying online shouldn&rsquo;t be a leap of faith.</h2>
+    <p class="how-lede">Buyers fear paying for something that never arrives. Sellers fear delivering something they never get paid for. Traditional escrow can help, but it introduces another party to trust, extra steps, fees, and delays.</p>
+    <figure class="how-figure">
+      <svg viewBox="0 0 960 320" role="img" aria-label="Buyer sends payment with uncertainty while the seller ships on faith, separated by a trust gap">
+        <circle cx="110" cy="110" r="34" class="svg-panel"/>
+        <circle cx="110" cy="100" r="9" class="svg-ink"/>
+        <path d="M92,128 q18,-16 36,0" class="svg-ink"/>
+        <text x="110" y="172" text-anchor="middle" class="svg-label">BUYER</text>
+        <text x="110" y="190" text-anchor="middle" class="svg-sub">sends payment</text>
+        <line x1="162" y1="110" x2="352" y2="110" class="svg-gold" stroke-dasharray="6 6"/>
+        <polygon points="352,110 340,104 340,116" class="svg-gold-fill"/>
+        <circle cx="257" cy="110" r="11" class="svg-panel"/>
+        <text x="257" y="114" text-anchor="middle" class="svg-gold-text" style="letter-spacing:0">?</text>
+        <text x="257" y="92" text-anchor="middle" class="svg-sub">payment sent</text>
+        <line x1="430" y1="44" x2="430" y2="216" class="svg-line" stroke-dasharray="4 5"/>
+        <line x1="530" y1="44" x2="530" y2="216" class="svg-line" stroke-dasharray="4 5"/>
+        <text x="480" y="30" text-anchor="middle" class="svg-gold-text">TRUST GAP</text>
+        <line x1="505" y1="150" x2="458" y2="150" class="svg-ink"/>
+        <polygon points="458,150 468,144 468,156" class="svg-ivory-fill"/>
+        <line x1="455" y1="180" x2="502" y2="180" class="svg-ink"/>
+        <polygon points="502,180 492,174 492,186" class="svg-ivory-fill"/>
+        <line x1="588" y1="110" x2="798" y2="110" class="svg-ink" stroke-dasharray="6 6"/>
+        <polygon points="798,110 786,104 786,116" class="svg-ivory-fill"/>
+        <text x="693" y="92" text-anchor="middle" class="svg-sub">product shipped?</text>
+        <circle cx="850" cy="110" r="34" class="svg-panel"/>
+        <rect x="838" y="100" width="24" height="18" class="svg-ink"/>
+        <line x1="838" y1="106" x2="862" y2="106" class="svg-ink"/>
+        <text x="850" y="172" text-anchor="middle" class="svg-label">SELLER</text>
+        <text x="850" y="190" text-anchor="middle" class="svg-sub">ships on faith</text>
+        <text x="40" y="268" class="svg-note">Paid &#8212; nothing arrived.</text>
+        <text x="920" y="268" text-anchor="end" class="svg-note">Delivered &#8212; never paid.</text>
+      </svg>
+      <figcaption>One side moves first, the other hopes. The gap between them is where trade breaks down.</figcaption>
+    </figure>
+  </div>
+  <div class="how-block">
+    <p class="how-eyebrow">A better way to transact</p>
+    <h2 class="how-title">Neither side should have to trust the other with everything.</h2>
+    <p class="how-lede">Zecrow is designed around shared control. Instead of allowing one participant to authorize an escrow payout alone, a 2-of-3 multisignature arrangement requires two keys to approve a transaction.</p>
+    <figure class="how-figure">
+      <svg viewBox="0 0 960 590" role="img" aria-label="Buyer, seller, and arbitrator connect to a central escrow vault requiring two of three signatures, branching into agreement or dispute outcomes">
+        <circle cx="150" cy="64" r="30" class="svg-panel"/>
+        <circle cx="150" cy="55" r="8" class="svg-ink"/>
+        <path d="M134,80 q16,-14 32,0" class="svg-ink"/>
+        <text x="150" y="118" text-anchor="middle" class="svg-label">BUYER</text>
+        <text x="150" y="136" text-anchor="middle" class="svg-sub">funds the deal</text>
+        <circle cx="480" cy="64" r="30" class="svg-panel"/>
+        <path d="M480,48 l13,5 v9 c0,9 -5,15 -13,19 c-8,-4 -13,-10 -13,-19 v-9 z" class="svg-ink"/>
+        <polyline points="473,64 479,70 488,60" class="svg-gold" style="stroke-width:2"/>
+        <text x="480" y="118" text-anchor="middle" class="svg-label">ARBITRATOR</text>
+        <text x="480" y="136" text-anchor="middle" class="svg-sub">resolves disputes</text>
+        <circle cx="810" cy="64" r="30" class="svg-panel"/>
+        <rect x="799" y="55" width="22" height="16" class="svg-ink"/>
+        <line x1="799" y1="60" x2="821" y2="60" class="svg-ink"/>
+        <text x="810" y="118" text-anchor="middle" class="svg-label">SELLER</text>
+        <text x="810" y="136" text-anchor="middle" class="svg-sub">fulfills the order</text>
+        <line x1="150" y1="96" x2="380" y2="238" class="svg-gold"/>
+        <line x1="480" y1="96" x2="480" y2="198" class="svg-line" stroke-dasharray="5 5"/>
+        <line x1="810" y1="96" x2="580" y2="238" class="svg-line"/>
+        <text x="252" y="168" text-anchor="middle" class="svg-gold-text">FUNDS</text>
+        <rect x="380" y="200" width="200" height="120" rx="12" class="svg-panel"/>
+        <rect x="462" y="244" width="36" height="30" rx="4" class="svg-ink"/>
+        <path d="M468,244 v-8 a12,12 0 0 1 24,0 v8" class="svg-gold" style="stroke-width:2.5"/>
+        <circle cx="480" cy="258" r="3" class="svg-gold-fill"/>
+        <text x="480" y="300" text-anchor="middle" class="svg-label">ESCROW VAULT</text>
+        <rect x="358" y="336" width="244" height="34" rx="17" style="fill:none;stroke:var(--accent);stroke-width:1.5"/>
+        <text x="480" y="358" text-anchor="middle" class="svg-gold-text">2 OF 3 SIGNATURES REQUIRED</text>
+        <path d="M480,370 C400,380 340,420 300,458" class="svg-line"/>
+        <path d="M480,370 C560,380 620,420 660,458" class="svg-line"/>
+        <circle cx="270" cy="488" r="26" class="svg-panel"/>
+        <polyline points="259,488 267,496 282,480" class="svg-gold" style="stroke-width:2.5"/>
+        <text x="270" y="534" text-anchor="middle" class="svg-label">AGREEMENT</text>
+        <text x="270" y="552" text-anchor="middle" class="svg-sub">buyer + seller sign &#8594; seller paid</text>
+        <circle cx="690" cy="488" r="26" class="svg-panel"/>
+        <path d="M690,476 l11,4 v7 c0,8 -4,12 -11,16 c-7,-4 -11,-8 -11,-16 v-7 z" class="svg-ink"/>
+        <text x="690" y="534" text-anchor="middle" class="svg-label">DISPUTE</text>
+        <text x="690" y="552" text-anchor="middle" class="svg-sub">arbitrator reviews &#8594; signed resolution</text>
+      </svg>
+      <figcaption>A proposed 2-of-3 arrangement: no single participant can move the funds alone.</figcaption>
+    </figure>
+  </div>
+  <div class="how-block">
+    <p class="how-eyebrow">The transaction journey</p>
+    <h2 class="how-title">One continuous transaction, start to finish.</h2>
+    <ol class="journey">
+      <li>
+        <div class="j-num">01</div>
+        <h3 class="j-title">Agree on the terms</h3>
+        <p class="j-copy">Before money moves, both sides understand what is being purchased, what delivery means, and how the transaction will be completed.</p>
+        <span class="j-status">Terms set</span>
+      </li>
+      <li>
+        <div class="j-num">02</div>
+        <h3 class="j-title">Secure the funds</h3>
+        <p class="j-copy">The buyer funds the escrow arrangement. A single participant cannot authorize the payout alone.</p>
+        <span class="j-status">Awaiting completion</span>
+      </li>
+      <li>
+        <div class="j-num">03</div>
+        <h3 class="j-title">Complete the deal</h3>
+        <p class="j-copy">When the agreed conditions are met, the required signers authorize the payout. If the parties disagree, the defined dispute process determines the next step.</p>
+        <span class="j-status gold">Payout authorized</span>
+      </li>
+    </ol>
+  </div>
+  <div class="how-block">
+    <p class="how-eyebrow">Built for both kinds of commerce</p>
+    <h2 class="how-title">Digital or physical, the protection follows the terms.</h2>
+    <div class="split">
+      <div class="split-side">
+        <svg viewBox="0 0 380 210" role="img" aria-label="Laptop showing a delivered digital file with escrow awaiting release">
+          <rect x="110" y="36" width="160" height="104" rx="8" class="svg-panel"/>
+          <rect x="124" y="52" width="52" height="66" class="svg-line"/>
+          <line x1="132" y1="66" x2="168" y2="66" class="svg-ink"/>
+          <line x1="132" y1="78" x2="168" y2="78" class="svg-ink"/>
+          <line x1="132" y1="90" x2="158" y2="90" class="svg-ink"/>
+          <circle cx="222" cy="85" r="20" class="svg-panel"/>
+          <polyline points="213,85 219,91 231,79" class="svg-gold" style="stroke-width:2.5"/>
+          <polygon points="95,140 285,140 297,156 83,156" class="svg-panel"/>
+          <text x="190" y="188" text-anchor="middle" class="svg-sub">deliverable received</text>
+          <text x="190" y="206" text-anchor="middle" class="svg-gold-text">ESCROW: AWAITING RELEASE</text>
+        </svg>
+        <h3>Delivered online. Protected by agreement.</h3>
+        <p>From software and digital downloads to design work and freelance services, the transaction can define what counts as delivery before funds are released.</p>
+      </div>
+      <div class="split-side">
+        <svg viewBox="0 0 380 210" role="img" aria-label="Parcel travelling from seller to buyer with tracking and receipt confirmation">
+          <circle cx="40" cy="130" r="7" class="svg-gold-fill"/>
+          <text x="40" y="152" text-anchor="middle" class="svg-sub">seller</text>
+          <line x1="52" y1="130" x2="300" y2="130" class="svg-ink" stroke-dasharray="6 6"/>
+          <text x="176" y="112" text-anchor="middle" class="svg-sub">tracked</text>
+          <rect x="168" y="100" width="40" height="32" class="svg-panel"/>
+          <line x1="188" y1="100" x2="188" y2="132" class="svg-ink"/>
+          <polygon points="312,130 330,112 330,124 344,124 344,136 330,136 330,148" class="svg-ink" style="fill:none"/>
+          <text x="328" y="170" text-anchor="middle" class="svg-sub">buyer</text>
+          <text x="190" y="188" text-anchor="middle" class="svg-sub">shipped &#8594; receipt confirmed</text>
+          <text x="190" y="206" text-anchor="middle" class="svg-gold-text">ESCROW: AWAITING RELEASE</text>
+        </svg>
+        <h3>Shipped in the real world. Protected by clear terms.</h3>
+        <p>For physical products, agreed terms can account for shipping, tracking, receipt confirmation, and disputes. Delivery evidence must come from an actual verification process, not from the multisignature mechanism itself.</p>
+      </div>
+    </div>
+  </div>
+  <div class="how-closing">
+    <h2>Trust the process, not just the promise.</h2>
+    <p>Zecrow brings privacy-conscious payments and shared authorization into one transaction experience, giving buyers and sellers a clearer way to agree, transact, and resolve problems.</p>
+    <a class="btn-primary" href="#start-payment">Explore Zecrow</a>
+  </div>
 </section>
 </main>
 <script>
