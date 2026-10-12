@@ -764,6 +764,280 @@ body {
     padding: 72px 24px 96px;
   }
 }
+.challenge-list {
+  list-style: none;
+  margin: 36px 0 0;
+  padding: 0;
+  max-width: 48rem;
+}
+.challenge-list li {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 18px;
+  padding: 15px 0;
+  border-top: 1px solid var(--panel-border);
+  font-size: 0.93rem;
+  line-height: 1.65;
+  color: var(--hero-muted);
+}
+.challenge-list li:last-child {
+  border-bottom: 1px solid var(--panel-border);
+}
+.challenge-list strong {
+  color: var(--hero-text);
+  font-weight: 650;
+}
+.challenge-list .n {
+  color: var(--accent);
+  font-weight: 700;
+}
+.design-note {
+  margin: 28px 0 0;
+  max-width: 46rem;
+  padding-left: 16px;
+  border-left: 2px solid var(--accent);
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: var(--hero-muted);
+}
+.signing {
+  margin: 52px 0 0;
+  max-width: 660px;
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  background: var(--panel-bg);
+  overflow: hidden;
+}
+.signing-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--panel-border);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--hero-muted);
+}
+.signing-head .tag {
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  padding: 4px 12px;
+  white-space: nowrap;
+}
+.signing-rows {
+  padding: 8px 20px 16px;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.84rem;
+}
+.signing-rows .row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px dashed var(--panel-border);
+  color: var(--hero-muted);
+}
+.signing-rows .row:last-child {
+  border-bottom: none;
+}
+.signing-rows .k {
+  flex: none;
+}
+.signing-rows .v {
+  color: var(--hero-text);
+  text-align: right;
+}
+.key {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1px solid var(--hero-muted);
+  margin-right: 7px;
+}
+.key.signed {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.state-ok {
+  color: var(--accent);
+  font-weight: 700;
+}
+.pipeline {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 40px 0 4px;
+}
+.pipeline .step {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--hero-text);
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  padding: 9px 18px;
+}
+.pipeline .step.hot {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.pipeline .arr {
+  color: var(--accent);
+  font-weight: 700;
+}
+.ai-panel {
+  margin-top: 30px;
+  max-width: 740px;
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  background: var(--panel-bg);
+  overflow: hidden;
+}
+.ai-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--panel-border);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--hero-muted);
+}
+.ai-panel-head .tag {
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  padding: 4px 12px;
+  white-space: nowrap;
+}
+.e-row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 16px;
+  padding: 13px 20px;
+  border-bottom: 1px solid var(--panel-border);
+  font-size: 0.87rem;
+  line-height: 1.6;
+}
+.e-row .ek {
+  color: var(--hero-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding-top: 3px;
+}
+.e-row .ev {
+  color: var(--hero-text);
+}
+.e-row .ev ul {
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.e-row .ev li {
+  padding-left: 18px;
+  position: relative;
+  margin-bottom: 6px;
+  color: var(--hero-muted);
+}
+.e-row .ev li::before {
+  content: "–";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+}
+.e-row .ev li.flagged {
+  color: var(--hero-text);
+}
+.pill {
+  display: inline-block;
+  padding: 6px 14px;
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--hero-muted);
+}
+.pill.gold {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.arch {
+  margin: 52px 0 0;
+  max-width: 46rem;
+}
+.arch-layer {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 18px;
+  padding: 20px 0;
+  border-top: 1px solid var(--panel-border);
+}
+.arch-layer.last {
+  border-bottom: 1px solid var(--panel-border);
+}
+.arch-num {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.arch-layer h3 {
+  margin: 2px 0 6px;
+  font-size: 1.05rem;
+  font-weight: 650;
+  color: var(--hero-text);
+}
+.arch-layer p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: var(--hero-muted);
+}
+.arch-flow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0 8px 74px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+}
+.flow-line {
+  stroke-dasharray: 7 7;
+  animation: dash-flow 1.1s linear infinite;
+}
+@keyframes dash-flow {
+  to {
+    stroke-dashoffset: -28;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flow-line {
+    animation: none;
+  }
+}
+@media (max-width: 920px) {
+  .challenge-list li {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .e-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .arch-flow {
+    padding-left: 0;
+  }
+}
 </style>
 </head>
 <body>
@@ -827,45 +1101,48 @@ body {
 <section class="how" id="how-it-works">
   <div class="how-block">
     <p class="how-eyebrow">Why online trade needs to change</p>
-    <h2 class="how-title">Buying online shouldn&rsquo;t be a leap of faith.</h2>
-    <p class="how-lede">Buyers fear paying for something that never arrives. Sellers fear delivering something they never get paid for. Traditional escrow can help, but it introduces another party to trust, extra steps, fees, and delays.</p>
+    <h2 class="how-title">Online commerce runs on trust. What happens when trust breaks?</h2>
+    <p class="how-lede">Buyers risk paying for products that never arrive. Sellers risk delivering goods or completing work without getting paid. Traditional escrow can reduce that risk, but it often introduces another intermediary, extra fees, delays, and a new party both sides must trust.</p>
+    <ul class="challenge-list">
+      <li><strong>For buyers</strong><span>Paying upfront without certainty that the seller will deliver.</span></li>
+      <li><strong>For sellers</strong><span>Handing over goods or completing work before knowing whether payment is secure.</span></li>
+      <li><strong>For digital goods</strong><span>Files, software, and creative work deliver instantly, but quality or compliance with requirements may be disputed.</span></li>
+      <li><strong>For physical goods</strong><span>Shipping, tracking, receipt confirmation, and delivery disputes complicate the transaction.</span></li>
+      <li><strong>For traditional escrow</strong><span>Depending on a central operator to control funds and decide how disagreements are resolved.</span></li>
+    </ul>
     <figure class="how-figure">
-      <svg viewBox="0 0 960 320" role="img" aria-label="Buyer sends payment with uncertainty while the seller ships on faith, separated by a trust gap">
+      <svg viewBox="0 0 960 320" role="img" aria-label="Buyer sends payment while the seller prepares goods, but the transaction breaks down in dispute between them">
         <circle cx="110" cy="110" r="34" class="svg-panel"/>
         <circle cx="110" cy="100" r="9" class="svg-ink"/>
         <path d="M92,128 q18,-16 36,0" class="svg-ink"/>
         <text x="110" y="172" text-anchor="middle" class="svg-label">BUYER</text>
-        <text x="110" y="190" text-anchor="middle" class="svg-sub">sends payment</text>
-        <line x1="162" y1="110" x2="352" y2="110" class="svg-gold" stroke-dasharray="6 6"/>
-        <polygon points="352,110 340,104 340,116" class="svg-gold-fill"/>
-        <circle cx="257" cy="110" r="11" class="svg-panel"/>
-        <text x="257" y="114" text-anchor="middle" class="svg-gold-text" style="letter-spacing:0">?</text>
-        <text x="257" y="92" text-anchor="middle" class="svg-sub">payment sent</text>
-        <line x1="430" y1="44" x2="430" y2="216" class="svg-line" stroke-dasharray="4 5"/>
-        <line x1="530" y1="44" x2="530" y2="216" class="svg-line" stroke-dasharray="4 5"/>
-        <text x="480" y="30" text-anchor="middle" class="svg-gold-text">TRUST GAP</text>
-        <line x1="505" y1="150" x2="458" y2="150" class="svg-ink"/>
-        <polygon points="458,150 468,144 468,156" class="svg-ivory-fill"/>
-        <line x1="455" y1="180" x2="502" y2="180" class="svg-ink"/>
-        <polygon points="502,180 492,174 492,186" class="svg-ivory-fill"/>
-        <line x1="588" y1="110" x2="798" y2="110" class="svg-ink" stroke-dasharray="6 6"/>
-        <polygon points="798,110 786,104 786,116" class="svg-ivory-fill"/>
-        <text x="693" y="92" text-anchor="middle" class="svg-sub">product shipped?</text>
+        <text x="110" y="190" text-anchor="middle" class="svg-sub">sends money</text>
+        <line x1="162" y1="110" x2="398" y2="110" class="svg-gold flow-line"/>
+        <polygon points="398,110 386,104 386,116" class="svg-gold-fill"/>
+        <text x="280" y="92" text-anchor="middle" class="svg-sub">payment sent</text>
+        <polygon points="480,84 504,126 456,126" style="fill:none;stroke:var(--accent);stroke-width:2"/>
+        <text x="480" y="117" text-anchor="middle" class="svg-gold-text" style="letter-spacing:0">!</text>
+        <text x="480" y="66" text-anchor="middle" class="svg-gold-text">DISPUTED</text>
+        <polyline points="480,140 472,160 488,178 476,200 486,220" class="svg-ink"/>
+        <line x1="562" y1="110" x2="798" y2="110" class="svg-ink" stroke-dasharray="6 6"/>
+        <polygon points="562,110 574,104 574,116" class="svg-ivory-fill"/>
+        <text x="680" y="92" text-anchor="middle" class="svg-sub">delivery contested</text>
         <circle cx="850" cy="110" r="34" class="svg-panel"/>
         <rect x="838" y="100" width="24" height="18" class="svg-ink"/>
         <line x1="838" y1="106" x2="862" y2="106" class="svg-ink"/>
         <text x="850" y="172" text-anchor="middle" class="svg-label">SELLER</text>
-        <text x="850" y="190" text-anchor="middle" class="svg-sub">ships on faith</text>
-        <text x="40" y="268" class="svg-note">Paid &#8212; nothing arrived.</text>
-        <text x="920" y="268" text-anchor="end" class="svg-note">Delivered &#8212; never paid.</text>
+        <text x="850" y="190" text-anchor="middle" class="svg-sub">prepares goods</text>
+        <text x="40" y="268" class="svg-note">Buyer paid &#8212; nothing arrived.</text>
+        <text x="920" y="268" text-anchor="end" class="svg-note">Seller delivered &#8212; never paid.</text>
       </svg>
-      <figcaption>One side moves first, the other hopes. The gap between them is where trade breaks down.</figcaption>
+      <figcaption>Payment and delivery split apart the moment the two sides disagree about what happened.</figcaption>
     </figure>
+    <p class="design-note">Zecrow&rsquo;s proposed answer: shared cryptographic authorization instead of blind trust, structured evidence both sides can see, and AI-assisted review when stories conflict.</p>
   </div>
   <div class="how-block">
-    <p class="how-eyebrow">A better way to transact</p>
-    <h2 class="how-title">Neither side should have to trust the other with everything.</h2>
-    <p class="how-lede">Zecrow is designed around shared control. Instead of allowing one participant to authorize an escrow payout alone, a 2-of-3 multisignature arrangement requires two keys to approve a transaction.</p>
+    <p class="how-eyebrow">Introducing Zecrow</p>
+    <h2 class="how-title">Your funds. Shared control. Evidence that matters.</h2>
+    <p class="how-lede">Zecrow is designed to combine Zcash-based payments with a 2-of-3 multisignature escrow arrangement and AI-assisted evidence review. The goal is to reduce dependence on blind trust by making authorization rules, transaction terms, and dispute evidence central to the process.</p>
     <figure class="how-figure">
       <svg viewBox="0 0 960 590" role="img" aria-label="Buyer, seller, and arbitrator connect to a central escrow vault requiring two of three signatures, branching into agreement or dispute outcomes">
         <circle cx="150" cy="64" r="30" class="svg-panel"/>
@@ -883,7 +1160,7 @@ body {
         <line x1="799" y1="60" x2="821" y2="60" class="svg-ink"/>
         <text x="810" y="118" text-anchor="middle" class="svg-label">SELLER</text>
         <text x="810" y="136" text-anchor="middle" class="svg-sub">fulfills the order</text>
-        <line x1="150" y1="96" x2="380" y2="238" class="svg-gold"/>
+        <line x1="150" y1="96" x2="380" y2="238" class="svg-gold flow-line"/>
         <line x1="480" y1="96" x2="480" y2="198" class="svg-line" stroke-dasharray="5 5"/>
         <line x1="810" y1="96" x2="580" y2="238" class="svg-line"/>
         <text x="252" y="168" text-anchor="middle" class="svg-gold-text">FUNDS</text>
@@ -894,7 +1171,7 @@ body {
         <text x="480" y="300" text-anchor="middle" class="svg-label">ESCROW VAULT</text>
         <rect x="358" y="336" width="244" height="34" rx="17" style="fill:none;stroke:var(--accent);stroke-width:1.5"/>
         <text x="480" y="358" text-anchor="middle" class="svg-gold-text">2 OF 3 SIGNATURES REQUIRED</text>
-        <path d="M480,370 C400,380 340,420 300,458" class="svg-line"/>
+        <path d="M480,370 C400,380 340,420 300,458" class="svg-gold flow-line"/>
         <path d="M480,370 C560,380 620,420 660,458" class="svg-line"/>
         <circle cx="270" cy="488" r="26" class="svg-panel"/>
         <polyline points="259,488 267,496 282,480" class="svg-gold" style="stroke-width:2.5"/>
@@ -905,74 +1182,175 @@ body {
         <text x="690" y="534" text-anchor="middle" class="svg-label">DISPUTE</text>
         <text x="690" y="552" text-anchor="middle" class="svg-sub">arbitrator reviews &#8594; signed resolution</text>
       </svg>
-      <figcaption>A proposed 2-of-3 arrangement: no single participant can move the funds alone.</figcaption>
+      <figcaption>Agreement pays the seller; dispute brings the arbitrator in &#8212; either way, two keys approve the payout. The AI reviews evidence: it never holds keys or overrides signatures.</figcaption>
     </figure>
+    <p class="design-note">Payment privacy and multisignature security are different properties. The proposed escrow uses transparent addresses, so its on-chain activity is visible &#8212; shielding payments and sharing authorization solve different problems.</p>
   </div>
   <div class="how-block">
-    <p class="how-eyebrow">The transaction journey</p>
-    <h2 class="how-title">One continuous transaction, start to finish.</h2>
+    <p class="how-eyebrow">The technology behind the trust</p>
+    <h2 class="how-title">Rules enforced by cryptography, not promises.</h2>
+    <p class="how-lede">Think of the escrow as a vault with three keyholes &#8212; buyer, seller, arbitrator. Any two keys together can authorize a payout, and no single key can move funds alone.</p>
     <ol class="journey">
       <li>
         <div class="j-num">01</div>
-        <h3 class="j-title">Agree on the terms</h3>
-        <p class="j-copy">Before money moves, both sides understand what is being purchased, what delivery means, and how the transaction will be completed.</p>
+        <h3 class="j-title">Establish the transaction</h3>
+        <p class="j-copy">The buyer and seller agree on the amount, item or service, delivery requirements, and release conditions.</p>
         <span class="j-status">Terms set</span>
       </li>
       <li>
         <div class="j-num">02</div>
         <h3 class="j-title">Secure the funds</h3>
-        <p class="j-copy">The buyer funds the escrow arrangement. A single participant cannot authorize the payout alone.</p>
-        <span class="j-status">Awaiting completion</span>
+        <p class="j-copy">The buyer funds the designated escrow arrangement. Spending requires two valid signatures from the three authorized participants.</p>
+        <span class="j-status">2 of 3 to authorize</span>
       </li>
       <li>
         <div class="j-num">03</div>
-        <h3 class="j-title">Complete the deal</h3>
-        <p class="j-copy">When the agreed conditions are met, the required signers authorize the payout. If the parties disagree, the defined dispute process determines the next step.</p>
-        <span class="j-status gold">Payout authorized</span>
+        <h3 class="j-title">Authorize the outcome</h3>
+        <p class="j-copy">When the transaction is completed or resolved, the required signers authorize the relevant payout according to the agreed rules.</p>
+        <span class="j-status gold">Payout signed</span>
       </li>
     </ol>
+    <figure class="how-figure">
+      <div class="signing" role="img" aria-label="Illustrative example of the intended transaction signing pattern">
+        <div class="signing-head"><span>Transaction signing &#8212; illustrative example</span><span class="tag">Intended design</span></div>
+        <div class="signing-rows">
+          <div class="row"><span class="k">vault</span><span class="v">zecrow-escrow-7f3a (example)</span></div>
+          <div class="row"><span class="k">amount</span><span class="v">2.50 ZEC</span></div>
+          <div class="row"><span class="k">buyer key</span><span class="v"><span class="key signed"></span>signed</span></div>
+          <div class="row"><span class="k">seller key</span><span class="v"><span class="key signed"></span>signed</span></div>
+          <div class="row"><span class="k">arbitrator key</span><span class="v"><span class="key"></span>standby</span></div>
+          <div class="row"><span class="k">rule</span><span class="v">2 of 3 required &#8212; <span class="state-ok">satisfied</span></span></div>
+          <div class="row"><span class="k">payout</span><span class="v state-ok">authorized &#8594; seller</span></div>
+        </div>
+      </div>
+      <figcaption>How authorization is meant to work: two signatures satisfy the rule and release the payout. A mock of the pattern &#8212; not a live system.</figcaption>
+    </figure>
+    <ul class="challenge-list">
+      <li><strong>No single control</strong><span>One participant cannot authorize a payout alone.</span></li>
+      <li><strong>Limited arbitrator power</strong><span>The arbitrator can help resolve disputes without unrestricted unilateral control over funds.</span></li>
+      <li><strong>AI stays separate</strong><span>The authorization rules are enforced by signatures &#8212; independent of the AI review process.</span></li>
+    </ul>
+    <p class="design-note">Nothing here releases funds automatically, and there is no smart contract behind it &#8212; every payout follows the agreed rules through real signatures.</p>
   </div>
   <div class="how-block">
-    <p class="how-eyebrow">Built for both kinds of commerce</p>
-    <h2 class="how-title">Digital or physical, the protection follows the terms.</h2>
-    <div class="split">
-      <div class="split-side">
-        <svg viewBox="0 0 380 210" role="img" aria-label="Laptop showing a delivered digital file with escrow awaiting release">
-          <rect x="110" y="36" width="160" height="104" rx="8" class="svg-panel"/>
-          <rect x="124" y="52" width="52" height="66" class="svg-line"/>
-          <line x1="132" y1="66" x2="168" y2="66" class="svg-ink"/>
-          <line x1="132" y1="78" x2="168" y2="78" class="svg-ink"/>
-          <line x1="132" y1="90" x2="158" y2="90" class="svg-ink"/>
-          <circle cx="222" cy="85" r="20" class="svg-panel"/>
-          <polyline points="213,85 219,91 231,79" class="svg-gold" style="stroke-width:2.5"/>
-          <polygon points="95,140 285,140 297,156 83,156" class="svg-panel"/>
-          <text x="190" y="188" text-anchor="middle" class="svg-sub">deliverable received</text>
-          <text x="190" y="206" text-anchor="middle" class="svg-gold-text">ESCROW: AWAITING RELEASE</text>
-        </svg>
-        <h3>Delivered online. Protected by agreement.</h3>
-        <p>From software and digital downloads to design work and freelance services, the transaction can define what counts as delivery before funds are released.</p>
+    <p class="how-eyebrow">Intelligence for disputed transactions</p>
+    <h2 class="how-title">When stories conflict, examine the evidence.</h2>
+    <p class="how-lede">AI is intended to help organize and assess transaction evidence, identify inconsistencies, and prepare a useful review summary for the arbitrator &#8212; a major part of how Zecrow handles disagreement, not a side feature.</p>
+    <div class="pipeline" aria-label="Evidence pipeline: collect, compare, identify, summarize">
+      <span class="step">Collect</span><span class="arr">&#8594;</span>
+      <span class="step">Compare</span><span class="arr">&#8594;</span>
+      <span class="step">Identify</span><span class="arr">&#8594;</span>
+      <span class="step hot">Summarize</span>
+    </div>
+    <figure class="how-figure">
+      <div class="ai-panel" role="img" aria-label="Illustrative example of an AI evidence review for a disputed logo package">
+        <div class="ai-panel-head"><span>Disputed transaction &#8212; logo package (example)</span><span class="tag">Intended design</span></div>
+        <div class="e-row"><span class="ek">Agreement</span><span class="ev">Deliver a logo package containing three agreed formats.</span></div>
+        <div class="e-row"><span class="ek">Seller evidence</span><span class="ev">Files submitted: SVG, PNG, PDF.</span></div>
+        <div class="e-row"><span class="ek">Buyer claim</span><span class="ev">The submitted files do not match the agreed requirements.</span></div>
+        <div class="e-row"><span class="ek">AI review</span><span class="ev"><ul>
+          <li>The submission appears to contain all three requested file formats.</li>
+          <li class="flagged">The review identifies the specific requirement the buyer says was not met.</li>
+          <li>Additional evidence or clarification is needed before the disagreement can be resolved.</li>
+        </ul></span></div>
+        <div class="e-row"><span class="ek">Status</span><span class="ev"><span class="pill gold">Awaiting arbitrator review</span></span></div>
       </div>
-      <div class="split-side">
-        <svg viewBox="0 0 380 210" role="img" aria-label="Parcel travelling from seller to buyer with tracking and receipt confirmation">
-          <circle cx="40" cy="130" r="7" class="svg-gold-fill"/>
-          <text x="40" y="152" text-anchor="middle" class="svg-sub">seller</text>
-          <line x1="52" y1="130" x2="300" y2="130" class="svg-ink" stroke-dasharray="6 6"/>
-          <text x="176" y="112" text-anchor="middle" class="svg-sub">tracked</text>
-          <rect x="168" y="100" width="40" height="32" class="svg-panel"/>
-          <line x1="188" y1="100" x2="188" y2="132" class="svg-ink"/>
-          <polygon points="312,130 330,112 330,124 344,124 344,136 330,136 330,148" class="svg-ink" style="fill:none"/>
-          <text x="328" y="170" text-anchor="middle" class="svg-sub">buyer</text>
-          <text x="190" y="188" text-anchor="middle" class="svg-sub">shipped &#8594; receipt confirmed</text>
-          <text x="190" y="206" text-anchor="middle" class="svg-gold-text">ESCROW: AWAITING RELEASE</text>
-        </svg>
-        <h3>Shipped in the real world. Protected by clear terms.</h3>
-        <p>For physical products, agreed terms can account for shipping, tracking, receipt confirmation, and disputes. Delivery evidence must come from an actual verification process, not from the multisignature mechanism itself.</p>
+      <figcaption>A realistic walkthrough: the AI organizes what each side provided, checks it against the agreement, and flags what a human still needs to decide.</figcaption>
+    </figure>
+    <ul class="challenge-list">
+      <li><strong>Assistant, not judge</strong><span>AI helps review evidence; it is not the final decision-maker.</span></li>
+      <li><strong>No invented proof</strong><span>AI cannot fabricate proof or treat an unverified claim as established fact.</span></li>
+      <li><strong>No keys</strong><span>AI does not possess private keys and cannot independently authorize payouts.</span></li>
+      <li><strong>Process decides</strong><span>Disputed outcomes follow the defined authorization and arbitration process.</span></li>
+    </ul>
+    <p class="design-note">An AI review engine is not implemented yet &#8212; this panel shows the intended design, including what the AI must never do, not a live system.</p>
+  </div>
+  <div class="how-block">
+    <p class="how-eyebrow">Built for the digital economy</p>
+    <h2 class="how-title">Delivered online. Protected by agreed terms.</h2>
+    <p class="how-lede">From software and freelance work to downloads and design files &#8212; delivery alone does not prove requirements were met. The original agreement and supporting evidence decide.</p>
+    <ul class="challenge-list">
+      <li><strong><span class="n">01</span> Agree</strong><span>Buyer and seller agree on the deliverable and acceptance criteria.</span></li>
+      <li><strong><span class="n">02</span> Fund</strong><span>The escrow arrangement is funded.</span></li>
+      <li><strong><span class="n">03</span> Submit</strong><span>The seller submits the agreed deliverable.</span></li>
+      <li><strong><span class="n">04</span> Confirm or dispute</strong><span>The buyer confirms completion, or a disagreement triggers evidence review.</span></li>
+      <li><strong><span class="n">05</span> AI organizes</strong><span>The available evidence is organized for the arbitrator.</span></li>
+      <li><strong><span class="n">06</span> Resolve</strong><span>The required signers authorize the resolution.</span></li>
+    </ul>
+    <figure class="how-figure">
+      <svg viewBox="0 0 380 210" role="img" aria-label="Laptop showing a delivered digital file with escrow awaiting release" style="max-width:420px">
+        <rect x="110" y="36" width="160" height="104" rx="8" class="svg-panel"/>
+        <rect x="124" y="52" width="52" height="66" class="svg-line"/>
+        <line x1="132" y1="66" x2="168" y2="66" class="svg-ink"/>
+        <line x1="132" y1="78" x2="168" y2="78" class="svg-ink"/>
+        <line x1="132" y1="90" x2="158" y2="90" class="svg-ink"/>
+        <circle cx="222" cy="85" r="20" class="svg-panel"/>
+        <polyline points="213,85 219,91 231,79" class="svg-gold" style="stroke-width:2.5"/>
+        <polygon points="95,140 285,140 297,156 83,156" class="svg-panel"/>
+        <text x="190" y="188" text-anchor="middle" class="svg-sub">deliverable received</text>
+        <text x="190" y="206" text-anchor="middle" class="svg-gold-text">ESCROW: AWAITING RELEASE</text>
+      </svg>
+      <figcaption>A design file delivered &#8212; but escrow waits on the agreed release conditions, not on the upload alone.</figcaption>
+    </figure>
+    <p class="design-note">No automatic verification of file quality is claimed &#8212; acceptance follows the agreement and the evidence, not the delivery event.</p>
+  </div>
+  <div class="how-block">
+    <p class="how-eyebrow">Protection beyond the screen</p>
+    <h2 class="how-title">Shipped in the real world. Governed by clear rules.</h2>
+    <p class="how-lede">The seller prepares a package, the parcel ships, tracking evidence becomes available, and the buyer receives or disputes the delivery &#8212; with evidence reviewed when necessary.</p>
+    <ul class="challenge-list">
+      <li><strong>Shipping &amp; tracking</strong><span>Records follow the parcel from seller to doorstep.</span></li>
+      <li><strong>Delivery confirmation</strong><span>Receipt is confirmed against the agreed expectations.</span></li>
+      <li><strong>Agreed deadlines</strong><span>Terms set how long each stage may take.</span></li>
+      <li><strong>Both sides heard</strong><span>Evidence can be submitted by buyer or seller.</span></li>
+      <li><strong>Defined disputes</strong><span>A clear process decides disagreements &#8212; not whoever shouts loudest.</span></li>
+    </ul>
+    <figure class="how-figure">
+      <svg viewBox="0 0 380 210" role="img" aria-label="Parcel travelling from seller to buyer with tracking and receipt confirmation" style="max-width:520px">
+        <circle cx="40" cy="130" r="7" class="svg-gold-fill"/>
+        <text x="40" y="152" text-anchor="middle" class="svg-sub">seller</text>
+        <line x1="52" y1="130" x2="300" y2="130" class="svg-ink flow-line"/>
+        <text x="176" y="112" text-anchor="middle" class="svg-sub">tracked</text>
+        <rect x="168" y="100" width="40" height="32" class="svg-panel"/>
+        <line x1="188" y1="100" x2="188" y2="132" class="svg-ink"/>
+        <polygon points="312,130 330,112 330,124 344,124 344,136 330,136 330,148" class="svg-ink" style="fill:none"/>
+        <text x="328" y="170" text-anchor="middle" class="svg-sub">buyer</text>
+        <text x="190" y="188" text-anchor="middle" class="svg-sub">shipped &#8594; receipt confirmed</text>
+        <text x="190" y="206" text-anchor="middle" class="svg-gold-text">ESCROW: AWAITING RELEASE</text>
+      </svg>
+      <figcaption>The parcel moves; the status follows the evidence &#8212; tracking, confirmation, or dispute.</figcaption>
+    </figure>
+    <p class="design-note">AI can organize tracking records and highlight inconsistencies, but it cannot independently prove a package arrived &#8212; reliable verification needs real evidence or a delivery integration.</p>
+  </div>
+  <div class="how-block">
+    <p class="how-eyebrow">How the system fits together</p>
+    <h2 class="how-title">Four layers. One clearer transaction process.</h2>
+    <div class="arch">
+      <div class="arch-layer">
+        <span class="arch-num">01</span>
+        <div><h3>Payment</h3><p>Zcash-based payments and the relevant transaction information move value into the process.</p></div>
+      </div>
+      <div class="arch-flow"><span>&#8595;</span><span>Funds enter escrow</span></div>
+      <div class="arch-layer">
+        <span class="arch-num">02</span>
+        <div><h3>Escrow authorization</h3><p>The proposed 2-of-3 multisignature arrangement governs every authorization of fund transfers &#8212; two keys approve, one key alone approves nothing.</p></div>
+      </div>
+      <div class="arch-flow"><span>&#8595;</span><span>Terms and delivery recorded</span></div>
+      <div class="arch-layer">
+        <span class="arch-num">03</span>
+        <div><h3>Transaction evidence</h3><p>Agreed terms, delivery records, tracking information, and relevant communications form the shared record.</p></div>
+      </div>
+      <div class="arch-flow"><span>&#8595;</span><span>Evidence reviewed</span></div>
+      <div class="arch-layer last">
+        <span class="arch-num">04</span>
+        <div><h3>AI-assisted review</h3><p>Evidence organization, comparison against agreed requirements, inconsistency detection, and review summaries prepare disputes for human decision.</p></div>
       </div>
     </div>
+    <p class="design-note">Each layer has its own job: the AI reviews information and assists decisions, while the multisignature arrangement governs authorization &#8212; neither does the other&rsquo;s job.</p>
   </div>
   <div class="how-closing">
-    <h2>Trust the process, not just the promise.</h2>
-    <p>Zecrow brings privacy-conscious payments and shared authorization into one transaction experience, giving buyers and sellers a clearer way to agree, transact, and resolve problems.</p>
+    <h2>Private payments. Shared control. Better-informed decisions.</h2>
+    <p>Zecrow is designed to bring privacy-conscious payments, shared control over escrow funds, and AI-assisted evidence review into one transaction experience, helping buyers and sellers navigate online commerce with greater confidence.</p>
     <a class="btn-primary" href="#start-payment">Explore Zecrow</a>
   </div>
 </section>
