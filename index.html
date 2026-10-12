@@ -245,10 +245,19 @@ body {
   background-size: 4px 4px;
   opacity: .05;
 }
+:root:not(.dark-mode) {
+  background: #ffffff;
+  color-scheme: light;
+}
+.carbon-spotlight,
+.carbon-vignette,
+.carbon-grain {
+  z-index: 1;
+}
 .stars {
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: -5;
   pointer-events: none;
 }
 </style>
@@ -293,6 +302,7 @@ body {
   var stage = document.getElementById('stage');
   toggle.addEventListener('change', function () {
     stage.classList.toggle('dark-mode', !toggle.checked);
+    document.documentElement.classList.toggle('dark-mode', !toggle.checked);
   });
   var canvas = document.getElementById('stars');
   var ctx = canvas.getContext('2d');
@@ -305,19 +315,24 @@ body {
   }
   function make() {
     particles = [];
-    var n = Math.max(30, Math.min(90, Math.floor(W * H / 18000)));
+    var n = Math.max(60, Math.min(220, Math.floor(W * H / 7000)));
     for (var i = 0; i < n; i++) {
       particles.push({
         x: Math.random() * W,
         y: Math.random() * H,
         vx: (Math.random() - 0.5) * 0.35,
         vy: (Math.random() - 0.5) * 0.35,
-        r: 0.6 + Math.random() * 1.2
+        r: 0.6 + Math.random() * 1.2,
+        ph: Math.random() * 6.2832
       });
     }
   }
   function theme() {
     return stage.classList.contains('dark-mode') ? '255,255,255' : '25,25,28';
+  }
+  var T = 0;
+  function twinkle(ph) {
+    return 0.55 + 0.45 * Math.sin(T * 0.002 + ph);
   }
   function draw() {
     ctx.clearRect(0, 0, W, H);
@@ -327,8 +342,9 @@ body {
         var a = particles[i], b = particles[j];
         var dx = a.x - b.x, dy = a.y - b.y;
         var d2 = dx * dx + dy * dy;
-        if (d2 < 14400) {
-          var o = (1 - Math.sqrt(d2) / 120) * 0.35;
+        if (d2 < 16900) {
+          var pulse = (twinkle(a.ph) + twinkle(b.ph)) / 2;
+          var o = (1 - Math.sqrt(d2) / 130) * 0.35 * pulse;
           ctx.strokeStyle = 'rgba(' + col + ',' + o.toFixed(3) + ')';
           ctx.lineWidth = 1;
           ctx.beginPath();
@@ -340,13 +356,15 @@ body {
     }
     for (var k = 0; k < particles.length; k++) {
       var p = particles[k];
-      ctx.fillStyle = 'rgba(' + col + ',.8)';
+      var tw = twinkle(p.ph);
+      ctx.fillStyle = 'rgba(' + col + ',' + (0.3 + 0.5 * tw).toFixed(3) + ')';
       ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, 6.2832);
+      ctx.arc(p.x, p.y, p.r * (0.7 + 0.5 * tw), 0, 6.2832);
       ctx.fill();
     }
   }
-  function tick() {
+  function tick(ts) {
+    T = ts || 0;
     for (var i = 0; i < particles.length; i++) {
       var p = particles[i];
       p.x += p.vx;
