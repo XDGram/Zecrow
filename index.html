@@ -1248,6 +1248,126 @@ body {
     max-width: 480px;
   }
 }
+.how-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 20px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--hero-muted);
+}
+.how-eyebrow::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--accent);
+  flex: none;
+}
+.how-title {
+  margin: 0 0 18px;
+  max-width: 22ch;
+  font-size: clamp(2rem, 4.4vw, 3.1rem);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  font-weight: 650;
+  color: var(--hero-text);
+  text-wrap: balance;
+}
+.lane .how-title::after,
+.how-cards-head .how-title::after {
+  content: "";
+  display: block;
+  width: 56px;
+  height: 3px;
+  margin-top: 22px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+.how-lede {
+  margin: 0;
+  max-width: 44rem;
+  font-size: 1.02rem;
+  line-height: 1.7;
+  color: var(--hero-muted);
+}
+.buyflow {
+  display: flex;
+  list-style: none;
+  margin: 56px 0 0;
+  padding: 0;
+}
+.buyflow li {
+  flex: 1;
+  position: relative;
+  padding: 28px 16px 0 0;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--hero-muted);
+}
+.buyflow li::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 0;
+  right: 0;
+  border-top: 1px solid var(--panel-border);
+}
+.buyflow li:last-child::before {
+  right: 0;
+}
+.buyflow li::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 0;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--panel-bg);
+  border: 1px solid var(--hero-muted);
+}
+.buyflow li.done::after {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.buyflow li.now::after {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(244,183,40,.15);
+}
+.buyflow strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.88rem;
+  color: var(--hero-text);
+}
+@media (max-width: 920px) {
+  .buyflow {
+    flex-direction: column;
+    gap: 26px;
+  }
+  .buyflow li {
+    padding: 0 0 0 28px;
+  }
+  .buyflow li::before {
+    top: 0;
+    bottom: -26px;
+    left: 5px;
+    right: auto;
+    border-top: none;
+    border-left: 1px solid var(--panel-border);
+  }
+  .buyflow li:last-child::before {
+    display: none;
+  }
+  .buyflow li::after {
+    top: 4px;
+    left: 0;
+  }
+}
 </style>
 </head>
 <body>
@@ -1416,6 +1536,13 @@ body {
       <p class="preview-status">Funds secured · Awaiting delivery</p>
     </div>
   </div>
+  <ol class="buyflow" aria-label="Buyer journey">
+    <li class="done"><strong>Link arrives</strong>Payment request lands, terms attached.</li>
+    <li class="done"><strong>Terms reviewed</strong>Buyer reads what was agreed.</li>
+    <li class="done"><strong>Funds secured</strong>ZEC locked under the 2-of-3 rule.</li>
+    <li class="now"><strong>Delivery</strong>Goods or files on the way.</li>
+    <li><strong>Confirm release</strong>Code entered, seller paid.</li>
+  </ol>
 </section>
 <section class="lane" id="for-merchants">
   <div class="lane-grid flip">
