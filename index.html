@@ -76,18 +76,24 @@ body {
 .tab--3:checked ~ .indicator {
   left: calc(130px * 2 + 2px);
 }
+.tab--4:checked ~ .indicator {
+  left: calc(130px * 3 + 2px);
+}
 </style>
 </head>
 <body>
 <div class="tab-container">
   <input type="radio" name="tab" id="tab1" class="tab tab--1" />
-  <label class="tab_label" for="tab1">Profile</label>
+  <label class="tab_label" for="tab1">Home</label>
 
   <input type="radio" name="tab" id="tab2" class="tab tab--2" />
-  <label class="tab_label" for="tab2">Settings</label>
+  <label class="tab_label" for="tab2">Explore</label>
 
   <input type="radio" name="tab" id="tab3" class="tab tab--3" />
-  <label class="tab_label" for="tab3">Notifications</label>
+  <label class="tab_label" for="tab3">How It Works</label>
+
+  <input type="radio" name="tab" id="tab4" class="tab tab--4" />
+  <label class="tab_label" for="tab4">FAQ</label>
 
   <div class="indicator"></div>
 </div>
