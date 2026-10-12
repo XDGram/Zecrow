@@ -5,11 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Zecrow</title>
 <style>
+html {
+  scroll-behavior: smooth;
+}
 body {
   background: #ffffff;
   margin: 0;
   min-height: 100vh;
   position: relative;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 .component-title {
   width: 100%;
@@ -25,13 +29,19 @@ body {
   text-align: center;
 }
 .topbar {
-  position: relative;
-  z-index: 2;
+  position: sticky;
+  top: 12px;
+  z-index: 50;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 14px;
   margin: 14px 16px 0;
+}
+#stage,
+#how-it-works,
+#release-code {
+  scroll-margin-top: 90px;
 }
 .tab-container {
   position: relative;
@@ -99,6 +109,12 @@ body {
 .tab:checked + .tab_label {
   color: var(--accent);
   opacity: 1;
+}
+.carbon-stage:not(.dark-mode) .tab-container {
+  background: var(--accent);
+}
+.carbon-stage:not(.dark-mode) .tab:checked + .tab_label {
+  color: #101010;
 }
 .theme-side {
   position: static;
@@ -422,12 +438,6 @@ body {
   letter-spacing: 0.14em;
   color: var(--hero-muted);
 }
-.escrow-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--accent);
-}
 .escrow-amount {
   font-size: 2.1rem;
   font-weight: 700;
@@ -586,20 +596,13 @@ body {
 .zc-top {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
 }
 .zc-step {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
   color: var(--hero-muted);
-}
-.zc-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 0 5px rgba(244,183,40,.10);
 }
 .zc-card h3 {
   margin: 22px 0 0;
@@ -758,6 +761,9 @@ body {
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
   .zc-card {
     opacity: 1;
     filter: none;
@@ -848,7 +854,7 @@ body {
   </div>
   <aside class="hero-visual" aria-label="Protected payment in progress">
     <div class="escrow-card">
-      <div class="escrow-head"><span class="escrow-dot" aria-hidden="true"></span>Payment in escrow</div>
+      <div class="escrow-head">Payment in escrow</div>
       <div class="escrow-amount">2.50 ZEC</div>
       <div class="escrow-sub">Shielded · held until delivery</div>
       <ol class="escrow-steps">
@@ -868,44 +874,44 @@ body {
   </div>
   <div class="zc-grid">
     <article class="zc-card" tabindex="0">
-      <div class="zc-top"><span class="zc-step">01 &#8212; THE PROBLEM</span><span class="zc-dot" aria-hidden="true"></span></div>
+      <div class="zc-top"><span class="zc-step">01 &#8212; THE PROBLEM</span></div>
       <h3>Trade breaks where trust breaks.</h3>
       <p class="zc-lead">Online commerce runs on whoever moves first &#8212; and hopes the other side follows.</p>
       <p class="zc-more">Buyers pay upfront hoping goods arrive; sellers deliver hoping payment is secure. Traditional escrow adds another intermediary, more fees, and one more party both sides must trust.</p>
     </article>
     <article class="zc-card" tabindex="0">
-      <div class="zc-top"><span class="zc-step">02 &#8212; SHARED CONTROL</span><span class="zc-dot" aria-hidden="true"></span></div>
+      <div class="zc-top"><span class="zc-step">02 &#8212; SHARED CONTROL</span></div>
       <h3>No single key moves the money.</h3>
       <p class="zc-lead">Buyer, seller, and arbitrator each hold a key &#8212; any two together authorize a payout.</p>
       <p class="zc-more">The proposed 2-of-3 multisignature arrangement means no participant can act alone. Agreement pays the seller; dispute brings the arbitrator into a signed resolution.</p>
     </article>
     <article class="zc-card" tabindex="0">
-      <div class="zc-top"><span class="zc-step">03 &#8212; RULES IN CODE</span><span class="zc-dot" aria-hidden="true"></span></div>
+      <div class="zc-top"><span class="zc-step">03 &#8212; RULES IN CODE</span></div>
       <h3>Cryptography enforces the agreement.</h3>
       <p class="zc-lead">Amount, delivery terms, and release conditions are set before money moves.</p>
       <p class="zc-more">Signatures authorize each outcome under a visible 2-of-3 rule. Nothing releases automatically and no smart contract stands behind it &#8212; every payout follows the agreed rules through real signatures.</p>
     </article>
     <article class="zc-card" tabindex="0">
-      <div class="zc-top"><span class="zc-step">04 &#8212; AI EVIDENCE REVIEW</span><span class="zc-dot" aria-hidden="true"></span></div>
+      <div class="zc-top"><span class="zc-step">04 &#8212; AI EVIDENCE REVIEW</span></div>
       <h3>Disputes get examined, not ignored.</h3>
-      <p class="zc-lead">Collect &#8594; compare &#8594; identify &#8594; summarize: evidence organized for a human decision.</p>
-      <p class="zc-more">The intended pipeline checks messages, files, and tracking against the agreement and flags what stays uncertain. It never holds keys and never decides &#8212; the arbitrator does.</p>
+      <p class="zc-lead">An AI pipeline built for one job: turning messy dispute evidence into a review the arbitrator can act on.</p>
+      <p class="zc-more">Every case runs four passes. <strong>Collect</strong> gathers the agreement, messages, delivery records, files, and tracking. <strong>Compare</strong> checks each item against the original terms and both sides&rsquo; claims. <strong>Identify</strong> flags what conflicts, what is missing, and which requirements look unmet. <strong>Summarize</strong> reports what the evidence supports, what stays uncertain, and what needs a human &#8212; a logo package with all three formats present but one requirement contested, for example. The boundaries are hard: the AI holds no keys, authorizes no payouts, invents no proof, and never decides. The arbitrator decides.</p>
       <span class="zc-tag">Intended design</span>
     </article>
     <article class="zc-card" tabindex="0">
-      <div class="zc-top"><span class="zc-step">05 &#8212; DIGITAL GOODS</span><span class="zc-dot" aria-hidden="true"></span></div>
+      <div class="zc-top"><span class="zc-step">05 &#8212; DIGITAL GOODS</span></div>
       <h3>Delivered online, judged by the terms.</h3>
       <p class="zc-lead">Files and freelance work deliver instantly &#8212; acceptance still follows the agreement.</p>
       <p class="zc-more">The seller submits the deliverable; the buyer confirms or disputes. Upload alone releases nothing, and no automatic check of file quality is claimed &#8212; the evidence decides.</p>
     </article>
     <article class="zc-card" tabindex="0">
-      <div class="zc-top"><span class="zc-step">06 &#8212; PHYSICAL GOODS</span><span class="zc-dot" aria-hidden="true"></span></div>
+      <div class="zc-top"><span class="zc-step">06 &#8212; PHYSICAL GOODS</span></div>
       <h3>Shipped in the real world, tracked end to end.</h3>
       <p class="zc-lead">Parcels, tracking records, deadlines, and receipt confirmation feed one shared record.</p>
       <p class="zc-more">Prepare, ship, track, receive or dispute &#8212; gaps and conflicts trigger the same review path. Proof of arrival needs real evidence, never the signature mechanism alone.</p>
     </article>
-    <article class="zc-card zc-card--wide" tabindex="0">
-      <div class="zc-top"><span class="zc-step">07 &#8212; RELEASE CODE</span><span class="zc-dot" aria-hidden="true"></span></div>
+    <article class="zc-card zc-card--wide" id="release-code" tabindex="0">
+      <div class="zc-top"><span class="zc-step">07 &#8212; RELEASE CODE</span></div>
       <h3>One code releases the funds.</h3>
       <p class="zc-lead">The buyer confirms receipt with a one-time delivery code &#8212; a valid code triggers the normal release.</p>
       <div class="code-digits" role="img" aria-label="Example delivery code 4 8 1 5 2 9">
@@ -938,6 +944,21 @@ body {
     document.documentElement.classList.toggle('dark-mode', !toggle.checked);
   });
   var cards = document.querySelector('.how-cards');
+  function replayCards() {
+    if (!cards) return;
+    cards.classList.remove('is-visible');
+    void cards.offsetWidth;
+    setTimeout(function () { cards.classList.add('is-visible'); }, 300);
+  }
+  var tabTargets = { tab1: 'stage', tab2: 'how-it-works', tab3: 'release-code' };
+  Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (radio) {
+    radio.addEventListener('change', function () {
+      var target = document.getElementById(tabTargets[radio.id]);
+      if (!target) return;
+      if (radio.id === 'tab2') replayCards();
+      target.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
+    });
+  });
   var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (cards) {
     if (reducedMotion || !('IntersectionObserver' in window)) {
