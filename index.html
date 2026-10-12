@@ -500,226 +500,156 @@ body {
     max-width: 420px;
   }
 }
-.how {
+.how-cards {
   position: relative;
   z-index: 2;
-}
-.how-block {
   max-width: 1120px;
   margin: 0 auto;
-  padding: 84px 32px;
+  padding: 84px 32px 0;
 }
-.how-block + .how-block {
-  border-top: 1px solid var(--panel-border);
+.how-cards-head {
+  max-width: 640px;
+  margin-bottom: 44px;
 }
-.how-eyebrow {
+.zc-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+}
+.zc-card {
+  position: relative;
+  min-height: 190px;
+  padding: 24px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid transparent;
+  outline: none;
+  cursor: default;
+  opacity: 0;
+  filter: blur(8px);
+  transform: translate3d(0, 70px, -170px) rotateX(8deg) rotateZ(-1.2deg) scale(.95);
+  transform-origin: center;
+  transition:
+    min-height .46s cubic-bezier(.2,.8,.2,1),
+    opacity .72s cubic-bezier(.16,1,.3,1),
+    filter .72s ease,
+    transform .95s cubic-bezier(.16,1,.3,1),
+    border-color .35s ease,
+    background-color .35s ease,
+    box-shadow .35s ease;
+}
+.zc-card:nth-child(even) {
+  transform: translate3d(0, 70px, -170px) rotateX(8deg) rotateZ(1.2deg) scale(.95);
+}
+.how-cards.is-visible .zc-card {
+  opacity: 1;
+  filter: blur(0);
+  transform: translate3d(0, 0, 0) rotateX(0deg) rotateZ(-1.2deg) scale(1);
+}
+.how-cards.is-visible .zc-card:nth-child(even) {
+  transform: translate3d(0, 0, 0) rotateX(0deg) rotateZ(1.2deg) scale(1);
+}
+.how-cards.is-visible .zc-card:nth-child(1) { transition-delay: .28s, .28s, .28s, .28s, 0s, 0s, 0s; }
+.how-cards.is-visible .zc-card:nth-child(2) { transition-delay: .38s, .38s, .38s, .38s, 0s, 0s, 0s; }
+.how-cards.is-visible .zc-card:nth-child(3) { transition-delay: .49s, .49s, .49s, .49s, 0s, 0s, 0s; }
+.how-cards.is-visible .zc-card:nth-child(4) { transition-delay: .60s, .60s, .60s, .60s, 0s, 0s, 0s; }
+.how-cards.is-visible .zc-card:nth-child(5) { transition-delay: .70s, .70s, .70s, .70s, 0s, 0s, 0s; }
+.how-cards.is-visible .zc-card:nth-child(6) { transition-delay: .80s, .80s, .80s, .80s, 0s, 0s, 0s; }
+.zc-card:hover,
+.zc-card:focus-visible {
+  min-height: 320px;
+  transform: translate3d(0, -4px, 0) rotateX(0deg) rotateZ(0deg) scale(1);
+}
+.carbon-stage.dark-mode .zc-card {
+  background: rgba(45,45,45,.34);
+  border: 1px solid rgba(255,255,255,.08);
+  border-bottom-color: rgba(255,255,255,.18);
+  box-shadow: -18px 26px 34px rgba(0,0,0,.22);
+  backdrop-filter: blur(16px);
+}
+.carbon-stage.dark-mode .zc-card:hover,
+.carbon-stage.dark-mode .zc-card:focus-visible {
+  border-color: rgba(244,183,40,.30);
+  background: rgba(50,50,50,.48);
+}
+.carbon-stage:not(.dark-mode) .zc-card {
+  background: rgba(255,255,255,.58);
+  border: 1px solid rgba(17,17,17,.07);
+  border-bottom-color: rgba(17,17,17,.12);
+  box-shadow: -16px 22px 32px rgba(36,36,30,.10);
+  backdrop-filter: blur(16px);
+}
+.carbon-stage:not(.dark-mode) .zc-card:hover,
+.carbon-stage:not(.dark-mode) .zc-card:focus-visible {
+  border-color: rgba(244,183,40,.45);
+}
+.zc-top {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin: 0 0 20px;
-  font-size: 0.72rem;
+  justify-content: space-between;
+}
+.zc-step {
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.24em;
+  letter-spacing: 0.08em;
   color: var(--hero-muted);
 }
-.how-eyebrow::before {
-  content: "";
-  width: 8px;
-  height: 8px;
-  border-radius: 2px;
-  background: var(--accent);
-}
-.how-title {
-  margin: 0 0 18px;
-  max-width: 22ch;
-  font-size: clamp(2rem, 4.4vw, 3.1rem);
-  line-height: 1.08;
-  letter-spacing: -0.02em;
-  font-weight: 650;
-  color: var(--hero-text);
-  text-wrap: balance;
-}
-.how-lede {
-  margin: 0;
-  max-width: 44rem;
-  font-size: 1.02rem;
-  line-height: 1.7;
-  color: var(--hero-muted);
-}
-.how-figure {
-  margin: 52px 0 0;
-}
-.how-figure svg {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-.how-figure figcaption {
-  margin-top: 14px;
-  font-size: 0.8rem;
-  letter-spacing: 0.04em;
-  color: var(--hero-muted);
-}
-.how svg text {
-  font-family: inherit;
-}
-.svg-label {
-  fill: var(--hero-text);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 2px;
-}
-.svg-sub {
-  fill: var(--hero-muted);
-  font-size: 12px;
-}
-.svg-note {
-  fill: var(--hero-muted);
-  font-size: 12px;
-  font-style: italic;
-}
-.svg-gold-text {
-  fill: var(--accent);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 2px;
-}
-.svg-line {
-  stroke: var(--panel-border);
-  stroke-width: 1.5;
-}
-.svg-ink {
-  stroke: var(--hero-muted);
-  stroke-width: 1.5;
-  fill: none;
-}
-.svg-gold {
-  stroke: var(--accent);
-  stroke-width: 1.5;
-  fill: none;
-}
-.svg-panel {
-  fill: var(--panel-bg);
-  stroke: var(--panel-border);
-  stroke-width: 1.5;
-}
-.svg-gold-fill {
-  fill: var(--accent);
-}
-.svg-ivory-fill {
-  fill: var(--hero-text);
-}
-.journey {
-  list-style: none;
-  margin: 52px 0 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 40px;
-}
-.journey li {
-  position: relative;
-  padding-top: 28px;
-}
-.journey li::before {
-  content: "";
-  position: absolute;
-  top: 8px;
-  left: 0;
-  right: -40px;
-  border-top: 1px solid var(--panel-border);
-}
-.journey li:last-child::before {
-  right: 0;
-}
-.journey li::after {
-  content: "";
-  position: absolute;
-  top: 3px;
-  left: 0;
-  width: 9px;
-  height: 9px;
+.zc-dot {
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: var(--panel-bg);
-  border: 1px solid var(--hero-muted);
-}
-.journey li:last-child::after {
   background: var(--accent);
-  border-color: var(--accent);
+  box-shadow: 0 0 0 5px rgba(244,183,40,.10);
 }
-.j-num {
-  font-size: 2.4rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  color: var(--hero-text);
-  opacity: 0.28;
-}
-.j-title {
-  margin: 12px 0 10px;
-  font-size: 1.15rem;
+.zc-card h3 {
+  margin: 22px 0 0;
+  max-width: 440px;
+  font-size: clamp(26px, 2.6vw, 38px);
+  line-height: 1;
+  letter-spacing: -0.03em;
   font-weight: 650;
   color: var(--hero-text);
 }
-.j-copy {
-  margin: 0 0 16px;
-  font-size: 0.92rem;
+.zc-lead {
+  max-width: 430px;
+  margin: 10px 0 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--hero-muted);
+}
+.zc-more {
+  max-width: 480px;
+  margin: 12px 0 0;
+  font-size: 12.5px;
   line-height: 1.65;
   color: var(--hero-muted);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity .28s ease .08s, transform .35s ease .08s;
 }
-.j-status {
+.zc-card:hover .zc-more,
+.zc-card:focus-visible .zc-more {
+  opacity: 1;
+  transform: none;
+}
+.zc-tag {
   display: inline-block;
-  padding: 7px 14px;
-  border: 1px solid var(--panel-border);
+  margin-top: 14px;
+  padding: 5px 12px;
+  border: 1px solid var(--accent);
   border-radius: 999px;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 700;
-  letter-spacing: 0.16em;
-  color: var(--hero-muted);
-}
-.j-status.gold {
-  border-color: var(--accent);
+  letter-spacing: 0.14em;
   color: var(--accent);
 }
-.split {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  margin-top: 52px;
-}
-.split-side {
-  padding: 8px 48px 8px 0;
-}
-.split-side + .split-side {
-  padding: 8px 0 8px 48px;
-  border-left: 1px solid var(--panel-border);
-}
-.split-side svg {
-  display: block;
-  width: 100%;
-  max-width: 380px;
-  height: auto;
-  margin-bottom: 26px;
-}
-.split-side h3 {
-  margin: 0 0 12px;
-  font-size: 1.35rem;
-  font-weight: 650;
-  letter-spacing: -0.01em;
-  color: var(--hero-text);
-}
-.split-side p {
-  margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.7;
-  color: var(--hero-muted);
-}
-.how-closing {
+.how-cards-foot {
   max-width: 1120px;
   margin: 0 auto;
-  padding: 96px 32px 120px;
-  border-top: 1px solid var(--panel-border);
+  padding: 72px 32px 120px;
   text-align: center;
 }
-.how-closing h2 {
+.how-cards-foot h2 {
   margin: 0 auto 18px;
   max-width: 24ch;
   font-size: clamp(1.9rem, 4vw, 2.9rem);
@@ -729,327 +659,42 @@ body {
   color: var(--hero-text);
   text-wrap: balance;
 }
-.how-closing p {
+.how-cards-foot p {
   margin: 0 auto 36px;
   max-width: 42rem;
   font-size: 1.02rem;
   line-height: 1.7;
   color: var(--hero-muted);
 }
-@media (max-width: 920px) {
-  .how-block {
-    padding: 64px 24px;
-  }
-  .journey {
-    grid-template-columns: 1fr;
-    gap: 36px;
-  }
-  .journey li {
-    padding-top: 0;
-    padding-left: 28px;
-  }
-  .journey li::before {
-    top: 0;
-    bottom: -36px;
-    left: 4px;
-    right: auto;
-    border-top: none;
-    border-left: 1px solid var(--panel-border);
-  }
-  .journey li:last-child::before {
-    display: none;
-  }
-  .journey li::after {
-    top: 6px;
-    left: 0;
-  }
-  .split {
-    grid-template-columns: 1fr;
-  }
-  .split-side {
-    padding: 0 0 40px;
-  }
-  .split-side + .split-side {
-    padding: 40px 0 0;
-    border-left: none;
-    border-top: 1px solid var(--panel-border);
-  }
-  .how-closing {
-    padding: 72px 24px 96px;
-  }
-}
-.challenge-list {
-  list-style: none;
-  margin: 36px 0 0;
-  padding: 0;
-  max-width: 48rem;
-}
-.challenge-list li {
-  display: grid;
-  grid-template-columns: 150px 1fr;
-  gap: 18px;
-  padding: 15px 0;
-  border-top: 1px solid var(--panel-border);
-  font-size: 0.93rem;
-  line-height: 1.65;
-  color: var(--hero-muted);
-}
-.challenge-list li:last-child {
-  border-bottom: 1px solid var(--panel-border);
-}
-.challenge-list strong {
-  color: var(--hero-text);
-  font-weight: 650;
-}
-.challenge-list .n {
-  color: var(--accent);
-  font-weight: 700;
-}
-.design-note {
-  margin: 28px 0 0;
-  max-width: 46rem;
-  padding-left: 16px;
-  border-left: 2px solid var(--accent);
-  font-size: 0.88rem;
-  line-height: 1.7;
-  color: var(--hero-muted);
-}
-.signing {
-  margin: 52px 0 0;
-  max-width: 660px;
-  border: 1px solid var(--panel-border);
-  border-radius: 12px;
-  background: var(--panel-bg);
-  overflow: hidden;
-}
-.signing-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px 20px;
-  border-bottom: 1px solid var(--panel-border);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  color: var(--hero-muted);
-}
-.signing-head .tag {
-  color: var(--accent);
-  border: 1px solid var(--accent);
-  border-radius: 999px;
-  padding: 4px 12px;
-  white-space: nowrap;
-}
-.signing-rows {
-  padding: 8px 20px 16px;
-  font-family: ui-monospace, Menlo, Consolas, monospace;
-  font-size: 0.84rem;
-}
-.signing-rows .row {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 10px 0;
-  border-bottom: 1px dashed var(--panel-border);
-  color: var(--hero-muted);
-}
-.signing-rows .row:last-child {
-  border-bottom: none;
-}
-.signing-rows .k {
-  flex: none;
-}
-.signing-rows .v {
-  color: var(--hero-text);
-  text-align: right;
-}
-.key {
-  display: inline-block;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  border: 1px solid var(--hero-muted);
-  margin-right: 7px;
-}
-.key.signed {
-  background: var(--accent);
-  border-color: var(--accent);
-}
-.state-ok {
-  color: var(--accent);
-  font-weight: 700;
-}
-.pipeline {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 40px 0 4px;
-}
-.pipeline .step {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  color: var(--hero-text);
-  border: 1px solid var(--panel-border);
-  border-radius: 999px;
-  padding: 9px 18px;
-}
-.pipeline .step.hot {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-.pipeline .arr {
-  color: var(--accent);
-  font-weight: 700;
-}
-.ai-panel {
-  margin-top: 30px;
-  max-width: 740px;
-  border: 1px solid var(--panel-border);
-  border-radius: 12px;
-  background: var(--panel-bg);
-  overflow: hidden;
-}
-.ai-panel-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px 20px;
-  border-bottom: 1px solid var(--panel-border);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  color: var(--hero-muted);
-}
-.ai-panel-head .tag {
-  color: var(--accent);
-  border: 1px solid var(--accent);
-  border-radius: 999px;
-  padding: 4px 12px;
-  white-space: nowrap;
-}
-.e-row {
-  display: grid;
-  grid-template-columns: 140px 1fr;
-  gap: 16px;
-  padding: 13px 20px;
-  border-bottom: 1px solid var(--panel-border);
-  font-size: 0.87rem;
-  line-height: 1.6;
-}
-.e-row .ek {
-  color: var(--hero-muted);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  padding-top: 3px;
-}
-.e-row .ev {
-  color: var(--hero-text);
-}
-.e-row .ev ul {
-  margin: 4px 0 0;
-  padding: 0;
-  list-style: none;
-}
-.e-row .ev li {
-  padding-left: 18px;
-  position: relative;
-  margin-bottom: 6px;
-  color: var(--hero-muted);
-}
-.e-row .ev li::before {
-  content: "–";
-  position: absolute;
-  left: 0;
-  color: var(--accent);
-}
-.e-row .ev li.flagged {
-  color: var(--hero-text);
-}
-.pill {
-  display: inline-block;
-  padding: 6px 14px;
-  border: 1px solid var(--panel-border);
-  border-radius: 999px;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  color: var(--hero-muted);
-}
-.pill.gold {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-.arch {
-  margin: 52px 0 0;
-  max-width: 46rem;
-}
-.arch-layer {
-  display: grid;
-  grid-template-columns: 56px 1fr;
-  gap: 18px;
-  padding: 20px 0;
-  border-top: 1px solid var(--panel-border);
-}
-.arch-layer.last {
-  border-bottom: 1px solid var(--panel-border);
-}
-.arch-num {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--accent);
-}
-.arch-layer h3 {
-  margin: 2px 0 6px;
-  font-size: 1.05rem;
-  font-weight: 650;
-  color: var(--hero-text);
-}
-.arch-layer p {
-  margin: 0;
-  font-size: 0.92rem;
-  line-height: 1.65;
-  color: var(--hero-muted);
-}
-.arch-flow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 0 8px 74px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  color: var(--accent);
-}
-.flow-line {
-  stroke-dasharray: 7 7;
-  animation: dash-flow 1.1s linear infinite;
-}
-@keyframes dash-flow {
-  to {
-    stroke-dashoffset: -28;
-  }
-}
 @media (prefers-reduced-motion: reduce) {
-  .flow-line {
-    animation: none;
+  .zc-card {
+    opacity: 1;
+    filter: none;
+    transform: none;
+    transition: border-color .2s ease, background-color .2s ease;
+  }
+  .zc-card:hover,
+  .zc-card:focus-visible {
+    min-height: 190px;
+    transform: none;
+  }
+  .zc-card .zc-more {
+    opacity: 1;
+    transform: none;
   }
 }
 @media (max-width: 920px) {
-  .challenge-list li {
-    grid-template-columns: 1fr;
-    gap: 4px;
+  .how-cards {
+    padding: 64px 24px 0;
   }
-  .e-row {
+  .zc-grid {
     grid-template-columns: 1fr;
-    gap: 4px;
   }
-  .arch-flow {
-    padding-left: 0;
+  .zc-card {
+    min-height: 170px;
+  }
+  .how-cards-foot {
+    padding: 56px 24px 96px;
   }
 }
 </style>
@@ -1112,259 +757,54 @@ body {
     </div>
   </aside>
 </section>
-<section class="how" id="how-it-works">
-  <div class="how-block">
-    <p class="how-eyebrow">Why online trade needs to change</p>
-    <h2 class="how-title">Online commerce runs on trust. What happens when trust breaks?</h2>
-    <p class="how-lede">Buyers risk paying for products that never arrive. Sellers risk delivering goods or completing work without getting paid. Traditional escrow can reduce that risk, but it often introduces another intermediary, extra fees, delays, and a new party both sides must trust.</p>
-    <ul class="challenge-list">
-      <li><strong>For buyers</strong><span>Paying upfront without certainty that the seller will deliver.</span></li>
-      <li><strong>For sellers</strong><span>Handing over goods or completing work before knowing whether payment is secure.</span></li>
-      <li><strong>For digital goods</strong><span>Files, software, and creative work deliver instantly, but quality or compliance with requirements may be disputed.</span></li>
-      <li><strong>For physical goods</strong><span>Shipping, tracking, receipt confirmation, and delivery disputes complicate the transaction.</span></li>
-      <li><strong>For traditional escrow</strong><span>Depending on a central operator to control funds and decide how disagreements are resolved.</span></li>
-    </ul>
-    <figure class="how-figure">
-      <svg viewBox="0 0 960 320" role="img" aria-label="Buyer sends payment while the seller prepares goods, but the transaction breaks down in dispute between them">
-        <circle cx="110" cy="110" r="34" class="svg-panel"/>
-        <circle cx="110" cy="100" r="9" class="svg-ink"/>
-        <path d="M92,128 q18,-16 36,0" class="svg-ink"/>
-        <text x="110" y="172" text-anchor="middle" class="svg-label">BUYER</text>
-        <text x="110" y="190" text-anchor="middle" class="svg-sub">sends money</text>
-        <line x1="162" y1="110" x2="398" y2="110" class="svg-gold flow-line"/>
-        <polygon points="398,110 386,104 386,116" class="svg-gold-fill"/>
-        <text x="280" y="92" text-anchor="middle" class="svg-sub">payment sent</text>
-        <polygon points="480,84 504,126 456,126" style="fill:none;stroke:var(--accent);stroke-width:2"/>
-        <text x="480" y="117" text-anchor="middle" class="svg-gold-text" style="letter-spacing:0">!</text>
-        <text x="480" y="66" text-anchor="middle" class="svg-gold-text">DISPUTED</text>
-        <polyline points="480,140 472,160 488,178 476,200 486,220" class="svg-ink"/>
-        <line x1="562" y1="110" x2="798" y2="110" class="svg-ink" stroke-dasharray="6 6"/>
-        <polygon points="562,110 574,104 574,116" class="svg-ivory-fill"/>
-        <text x="680" y="92" text-anchor="middle" class="svg-sub">delivery contested</text>
-        <circle cx="850" cy="110" r="34" class="svg-panel"/>
-        <rect x="838" y="100" width="24" height="18" class="svg-ink"/>
-        <line x1="838" y1="106" x2="862" y2="106" class="svg-ink"/>
-        <text x="850" y="172" text-anchor="middle" class="svg-label">SELLER</text>
-        <text x="850" y="190" text-anchor="middle" class="svg-sub">prepares goods</text>
-        <text x="40" y="268" class="svg-note">Buyer paid &#8212; nothing arrived.</text>
-        <text x="920" y="268" text-anchor="end" class="svg-note">Seller delivered &#8212; never paid.</text>
-      </svg>
-      <figcaption>Payment and delivery split apart the moment the two sides disagree about what happened.</figcaption>
-    </figure>
-    <p class="design-note">Zecrow&rsquo;s proposed answer: shared cryptographic authorization instead of blind trust, structured evidence both sides can see, and AI-assisted review when stories conflict.</p>
+<section class="how-cards" id="how-it-works">
+  <div class="how-cards-head">
+    <p class="how-eyebrow">How Zecrow works</p>
+    <h2 class="how-title">Protection you can follow.</h2>
+    <p class="how-lede">Six ideas carry every transaction &#8212; from first payment to final resolution. Hover or focus a card to open it.</p>
   </div>
-  <div class="how-block">
-    <p class="how-eyebrow">Introducing Zecrow</p>
-    <h2 class="how-title">Your funds. Shared control. Evidence that matters.</h2>
-    <p class="how-lede">Zecrow is designed to combine Zcash-based payments with a 2-of-3 multisignature escrow arrangement and AI-assisted evidence review. The goal is to reduce dependence on blind trust by making authorization rules, transaction terms, and dispute evidence central to the process.</p>
-    <figure class="how-figure">
-      <svg viewBox="0 0 960 590" role="img" aria-label="Buyer, seller, and arbitrator connect to a central escrow vault requiring two of three signatures, branching into agreement or dispute outcomes">
-        <circle cx="150" cy="64" r="30" class="svg-panel"/>
-        <circle cx="150" cy="55" r="8" class="svg-ink"/>
-        <path d="M134,80 q16,-14 32,0" class="svg-ink"/>
-        <text x="150" y="118" text-anchor="middle" class="svg-label">BUYER</text>
-        <text x="150" y="136" text-anchor="middle" class="svg-sub">funds the deal</text>
-        <circle cx="480" cy="64" r="30" class="svg-panel"/>
-        <path d="M480,48 l13,5 v9 c0,9 -5,15 -13,19 c-8,-4 -13,-10 -13,-19 v-9 z" class="svg-ink"/>
-        <polyline points="473,64 479,70 488,60" class="svg-gold" style="stroke-width:2"/>
-        <text x="480" y="118" text-anchor="middle" class="svg-label">ARBITRATOR</text>
-        <text x="480" y="136" text-anchor="middle" class="svg-sub">resolves disputes</text>
-        <circle cx="810" cy="64" r="30" class="svg-panel"/>
-        <rect x="799" y="55" width="22" height="16" class="svg-ink"/>
-        <line x1="799" y1="60" x2="821" y2="60" class="svg-ink"/>
-        <text x="810" y="118" text-anchor="middle" class="svg-label">SELLER</text>
-        <text x="810" y="136" text-anchor="middle" class="svg-sub">fulfills the order</text>
-        <line x1="150" y1="96" x2="380" y2="238" class="svg-gold flow-line"/>
-        <line x1="480" y1="96" x2="480" y2="198" class="svg-line" stroke-dasharray="5 5"/>
-        <line x1="810" y1="96" x2="580" y2="238" class="svg-line"/>
-        <text x="252" y="168" text-anchor="middle" class="svg-gold-text">FUNDS</text>
-        <rect x="380" y="200" width="200" height="120" rx="12" class="svg-panel"/>
-        <rect x="462" y="244" width="36" height="30" rx="4" class="svg-ink"/>
-        <path d="M468,244 v-8 a12,12 0 0 1 24,0 v8" class="svg-gold" style="stroke-width:2.5"/>
-        <circle cx="480" cy="258" r="3" class="svg-gold-fill"/>
-        <text x="480" y="300" text-anchor="middle" class="svg-label">ESCROW VAULT</text>
-        <rect x="358" y="336" width="244" height="34" rx="17" style="fill:none;stroke:var(--accent);stroke-width:1.5"/>
-        <text x="480" y="358" text-anchor="middle" class="svg-gold-text">2 OF 3 SIGNATURES REQUIRED</text>
-        <path d="M480,370 C400,380 340,420 300,458" class="svg-gold flow-line"/>
-        <path d="M480,370 C560,380 620,420 660,458" class="svg-line"/>
-        <circle cx="270" cy="488" r="26" class="svg-panel"/>
-        <polyline points="259,488 267,496 282,480" class="svg-gold" style="stroke-width:2.5"/>
-        <text x="270" y="534" text-anchor="middle" class="svg-label">AGREEMENT</text>
-        <text x="270" y="552" text-anchor="middle" class="svg-sub">buyer + seller sign &#8594; seller paid</text>
-        <circle cx="690" cy="488" r="26" class="svg-panel"/>
-        <path d="M690,476 l11,4 v7 c0,8 -4,12 -11,16 c-7,-4 -11,-8 -11,-16 v-7 z" class="svg-ink"/>
-        <text x="690" y="534" text-anchor="middle" class="svg-label">DISPUTE</text>
-        <text x="690" y="552" text-anchor="middle" class="svg-sub">arbitrator reviews &#8594; signed resolution</text>
-      </svg>
-      <figcaption>Agreement pays the seller; dispute brings the arbitrator in &#8212; either way, two keys approve the payout. The AI reviews evidence: it never holds keys or overrides signatures.</figcaption>
-    </figure>
-    <p class="design-note">Payment privacy and multisignature security are different properties. The proposed escrow uses transparent addresses, so its on-chain activity is visible &#8212; shielding payments and sharing authorization solve different problems.</p>
+  <div class="zc-grid">
+    <article class="zc-card" tabindex="0">
+      <div class="zc-top"><span class="zc-step">01 &#8212; THE PROBLEM</span><span class="zc-dot" aria-hidden="true"></span></div>
+      <h3>Trade breaks where trust breaks.</h3>
+      <p class="zc-lead">Online commerce runs on whoever moves first &#8212; and hopes the other side follows.</p>
+      <p class="zc-more">Buyers pay upfront hoping goods arrive; sellers deliver hoping payment is secure. Traditional escrow adds another intermediary, more fees, and one more party both sides must trust.</p>
+    </article>
+    <article class="zc-card" tabindex="0">
+      <div class="zc-top"><span class="zc-step">02 &#8212; SHARED CONTROL</span><span class="zc-dot" aria-hidden="true"></span></div>
+      <h3>No single key moves the money.</h3>
+      <p class="zc-lead">Buyer, seller, and arbitrator each hold a key &#8212; any two together authorize a payout.</p>
+      <p class="zc-more">The proposed 2-of-3 multisignature arrangement means no participant can act alone. Agreement pays the seller; dispute brings the arbitrator into a signed resolution.</p>
+    </article>
+    <article class="zc-card" tabindex="0">
+      <div class="zc-top"><span class="zc-step">03 &#8212; RULES IN CODE</span><span class="zc-dot" aria-hidden="true"></span></div>
+      <h3>Cryptography enforces the agreement.</h3>
+      <p class="zc-lead">Amount, delivery terms, and release conditions are set before money moves.</p>
+      <p class="zc-more">Signatures authorize each outcome under a visible 2-of-3 rule. Nothing releases automatically and no smart contract stands behind it &#8212; every payout follows the agreed rules through real signatures.</p>
+    </article>
+    <article class="zc-card" tabindex="0">
+      <div class="zc-top"><span class="zc-step">04 &#8212; AI EVIDENCE REVIEW</span><span class="zc-dot" aria-hidden="true"></span></div>
+      <h3>Disputes get examined, not ignored.</h3>
+      <p class="zc-lead">Collect &#8594; compare &#8594; identify &#8594; summarize: evidence organized for a human decision.</p>
+      <p class="zc-more">The intended pipeline checks messages, files, and tracking against the agreement and flags what stays uncertain. It never holds keys and never decides &#8212; the arbitrator does.</p>
+      <span class="zc-tag">Intended design</span>
+    </article>
+    <article class="zc-card" tabindex="0">
+      <div class="zc-top"><span class="zc-step">05 &#8212; DIGITAL GOODS</span><span class="zc-dot" aria-hidden="true"></span></div>
+      <h3>Delivered online, judged by the terms.</h3>
+      <p class="zc-lead">Files and freelance work deliver instantly &#8212; acceptance still follows the agreement.</p>
+      <p class="zc-more">The seller submits the deliverable; the buyer confirms or disputes. Upload alone releases nothing, and no automatic check of file quality is claimed &#8212; the evidence decides.</p>
+    </article>
+    <article class="zc-card" tabindex="0">
+      <div class="zc-top"><span class="zc-step">06 &#8212; PHYSICAL GOODS</span><span class="zc-dot" aria-hidden="true"></span></div>
+      <h3>Shipped in the real world, tracked end to end.</h3>
+      <p class="zc-lead">Parcels, tracking records, deadlines, and receipt confirmation feed one shared record.</p>
+      <p class="zc-more">Prepare, ship, track, receive or dispute &#8212; gaps and conflicts trigger the same review path. Proof of arrival needs real evidence, never the signature mechanism alone.</p>
+    </article>
   </div>
-  <div class="how-block">
-    <p class="how-eyebrow">The technology behind the trust</p>
-    <h2 class="how-title">Rules enforced by cryptography, not promises.</h2>
-    <p class="how-lede">Think of the escrow as a vault with three keyholes &#8212; buyer, seller, arbitrator. Any two keys together can authorize a payout, and no single key can move funds alone.</p>
-    <ol class="journey">
-      <li>
-        <div class="j-num">01</div>
-        <h3 class="j-title">Establish the transaction</h3>
-        <p class="j-copy">The buyer and seller agree on the amount, item or service, delivery requirements, and release conditions.</p>
-        <span class="j-status">Terms set</span>
-      </li>
-      <li>
-        <div class="j-num">02</div>
-        <h3 class="j-title">Secure the funds</h3>
-        <p class="j-copy">The buyer funds the designated escrow arrangement. Spending requires two valid signatures from the three authorized participants.</p>
-        <span class="j-status">2 of 3 to authorize</span>
-      </li>
-      <li>
-        <div class="j-num">03</div>
-        <h3 class="j-title">Authorize the outcome</h3>
-        <p class="j-copy">When the transaction is completed or resolved, the required signers authorize the relevant payout according to the agreed rules.</p>
-        <span class="j-status gold">Payout signed</span>
-      </li>
-    </ol>
-    <figure class="how-figure">
-      <div class="signing" role="img" aria-label="Illustrative example of the intended transaction signing pattern">
-        <div class="signing-head"><span>Transaction signing &#8212; illustrative example</span><span class="tag">Intended design</span></div>
-        <div class="signing-rows">
-          <div class="row"><span class="k">vault</span><span class="v">zecrow-escrow-7f3a (example)</span></div>
-          <div class="row"><span class="k">amount</span><span class="v">2.50 ZEC</span></div>
-          <div class="row"><span class="k">buyer key</span><span class="v"><span class="key signed"></span>signed</span></div>
-          <div class="row"><span class="k">seller key</span><span class="v"><span class="key signed"></span>signed</span></div>
-          <div class="row"><span class="k">arbitrator key</span><span class="v"><span class="key"></span>standby</span></div>
-          <div class="row"><span class="k">rule</span><span class="v">2 of 3 required &#8212; <span class="state-ok">satisfied</span></span></div>
-          <div class="row"><span class="k">payout</span><span class="v state-ok">authorized &#8594; seller</span></div>
-        </div>
-      </div>
-      <figcaption>How authorization is meant to work: two signatures satisfy the rule and release the payout. A mock of the pattern &#8212; not a live system.</figcaption>
-    </figure>
-    <ul class="challenge-list">
-      <li><strong>No single control</strong><span>One participant cannot authorize a payout alone.</span></li>
-      <li><strong>Limited arbitrator power</strong><span>The arbitrator can help resolve disputes without unrestricted unilateral control over funds.</span></li>
-      <li><strong>AI stays separate</strong><span>The authorization rules are enforced by signatures &#8212; independent of the AI review process.</span></li>
-    </ul>
-    <p class="design-note">Nothing here releases funds automatically, and there is no smart contract behind it &#8212; every payout follows the agreed rules through real signatures.</p>
-  </div>
-  <div class="how-block">
-    <p class="how-eyebrow">Intelligence for disputed transactions</p>
-    <h2 class="how-title">When stories conflict, examine the evidence.</h2>
-    <p class="how-lede">AI is intended to help organize and assess transaction evidence, identify inconsistencies, and prepare a useful review summary for the arbitrator &#8212; a major part of how Zecrow handles disagreement, not a side feature.</p>
-    <div class="pipeline" aria-label="Evidence pipeline: collect, compare, identify, summarize">
-      <span class="step">Collect</span><span class="arr">&#8594;</span>
-      <span class="step">Compare</span><span class="arr">&#8594;</span>
-      <span class="step">Identify</span><span class="arr">&#8594;</span>
-      <span class="step hot">Summarize</span>
-    </div>
-    <figure class="how-figure">
-      <div class="ai-panel" role="img" aria-label="Illustrative example of an AI evidence review for a disputed logo package">
-        <div class="ai-panel-head"><span>Disputed transaction &#8212; logo package (example)</span><span class="tag">Intended design</span></div>
-        <div class="e-row"><span class="ek">Agreement</span><span class="ev">Deliver a logo package containing three agreed formats.</span></div>
-        <div class="e-row"><span class="ek">Seller evidence</span><span class="ev">Files submitted: SVG, PNG, PDF.</span></div>
-        <div class="e-row"><span class="ek">Buyer claim</span><span class="ev">The submitted files do not match the agreed requirements.</span></div>
-        <div class="e-row"><span class="ek">AI review</span><span class="ev"><ul>
-          <li>The submission appears to contain all three requested file formats.</li>
-          <li class="flagged">The review identifies the specific requirement the buyer says was not met.</li>
-          <li>Additional evidence or clarification is needed before the disagreement can be resolved.</li>
-        </ul></span></div>
-        <div class="e-row"><span class="ek">Status</span><span class="ev"><span class="pill gold">Awaiting arbitrator review</span></span></div>
-      </div>
-      <figcaption>A realistic walkthrough: the AI organizes what each side provided, checks it against the agreement, and flags what a human still needs to decide.</figcaption>
-    </figure>
-    <ul class="challenge-list">
-      <li><strong>Assistant, not judge</strong><span>AI helps review evidence; it is not the final decision-maker.</span></li>
-      <li><strong>No invented proof</strong><span>AI cannot fabricate proof or treat an unverified claim as established fact.</span></li>
-      <li><strong>No keys</strong><span>AI does not possess private keys and cannot independently authorize payouts.</span></li>
-      <li><strong>Process decides</strong><span>Disputed outcomes follow the defined authorization and arbitration process.</span></li>
-    </ul>
-    <p class="design-note">An AI review engine is not implemented yet &#8212; this panel shows the intended design, including what the AI must never do, not a live system.</p>
-  </div>
-  <div class="how-block">
-    <p class="how-eyebrow">Built for the digital economy</p>
-    <h2 class="how-title">Delivered online. Protected by agreed terms.</h2>
-    <p class="how-lede">From software and freelance work to downloads and design files &#8212; delivery alone does not prove requirements were met. The original agreement and supporting evidence decide.</p>
-    <ul class="challenge-list">
-      <li><strong><span class="n">01</span> Agree</strong><span>Buyer and seller agree on the deliverable and acceptance criteria.</span></li>
-      <li><strong><span class="n">02</span> Fund</strong><span>The escrow arrangement is funded.</span></li>
-      <li><strong><span class="n">03</span> Submit</strong><span>The seller submits the agreed deliverable.</span></li>
-      <li><strong><span class="n">04</span> Confirm or dispute</strong><span>The buyer confirms completion, or a disagreement triggers evidence review.</span></li>
-      <li><strong><span class="n">05</span> AI organizes</strong><span>The available evidence is organized for the arbitrator.</span></li>
-      <li><strong><span class="n">06</span> Resolve</strong><span>The required signers authorize the resolution.</span></li>
-    </ul>
-    <figure class="how-figure">
-      <svg viewBox="0 0 380 210" role="img" aria-label="Laptop showing a delivered digital file with escrow awaiting release" style="max-width:420px">
-        <rect x="110" y="36" width="160" height="104" rx="8" class="svg-panel"/>
-        <rect x="124" y="52" width="52" height="66" class="svg-line"/>
-        <line x1="132" y1="66" x2="168" y2="66" class="svg-ink"/>
-        <line x1="132" y1="78" x2="168" y2="78" class="svg-ink"/>
-        <line x1="132" y1="90" x2="158" y2="90" class="svg-ink"/>
-        <circle cx="222" cy="85" r="20" class="svg-panel"/>
-        <polyline points="213,85 219,91 231,79" class="svg-gold" style="stroke-width:2.5"/>
-        <polygon points="95,140 285,140 297,156 83,156" class="svg-panel"/>
-        <text x="190" y="188" text-anchor="middle" class="svg-sub">deliverable received</text>
-        <text x="190" y="206" text-anchor="middle" class="svg-gold-text">ESCROW: AWAITING RELEASE</text>
-      </svg>
-      <figcaption>A design file delivered &#8212; but escrow waits on the agreed release conditions, not on the upload alone.</figcaption>
-    </figure>
-    <p class="design-note">No automatic verification of file quality is claimed &#8212; acceptance follows the agreement and the evidence, not the delivery event.</p>
-  </div>
-  <div class="how-block">
-    <p class="how-eyebrow">Protection beyond the screen</p>
-    <h2 class="how-title">Shipped in the real world. Governed by clear rules.</h2>
-    <p class="how-lede">The seller prepares a package, the parcel ships, tracking evidence becomes available, and the buyer receives or disputes the delivery &#8212; with evidence reviewed when necessary.</p>
-    <ul class="challenge-list">
-      <li><strong>Shipping &amp; tracking</strong><span>Records follow the parcel from seller to doorstep.</span></li>
-      <li><strong>Delivery confirmation</strong><span>Receipt is confirmed against the agreed expectations.</span></li>
-      <li><strong>Agreed deadlines</strong><span>Terms set how long each stage may take.</span></li>
-      <li><strong>Both sides heard</strong><span>Evidence can be submitted by buyer or seller.</span></li>
-      <li><strong>Defined disputes</strong><span>A clear process decides disagreements &#8212; not whoever shouts loudest.</span></li>
-    </ul>
-    <figure class="how-figure">
-      <svg viewBox="0 0 380 210" role="img" aria-label="Parcel travelling from seller to buyer with tracking and receipt confirmation" style="max-width:520px">
-        <circle cx="40" cy="130" r="7" class="svg-gold-fill"/>
-        <text x="40" y="152" text-anchor="middle" class="svg-sub">seller</text>
-        <line x1="52" y1="130" x2="300" y2="130" class="svg-ink flow-line"/>
-        <text x="176" y="112" text-anchor="middle" class="svg-sub">tracked</text>
-        <rect x="168" y="100" width="40" height="32" class="svg-panel"/>
-        <line x1="188" y1="100" x2="188" y2="132" class="svg-ink"/>
-        <polygon points="312,130 330,112 330,124 344,124 344,136 330,136 330,148" class="svg-ink" style="fill:none"/>
-        <text x="328" y="170" text-anchor="middle" class="svg-sub">buyer</text>
-        <text x="190" y="188" text-anchor="middle" class="svg-sub">shipped &#8594; receipt confirmed</text>
-        <text x="190" y="206" text-anchor="middle" class="svg-gold-text">ESCROW: AWAITING RELEASE</text>
-      </svg>
-      <figcaption>The parcel moves; the status follows the evidence &#8212; tracking, confirmation, or dispute.</figcaption>
-    </figure>
-    <p class="design-note">AI can organize tracking records and highlight inconsistencies, but it cannot independently prove a package arrived &#8212; reliable verification needs real evidence or a delivery integration.</p>
-  </div>
-  <div class="how-block">
-    <p class="how-eyebrow">How the system fits together</p>
-    <h2 class="how-title">Four layers. One clearer transaction process.</h2>
-    <div class="arch">
-      <div class="arch-layer">
-        <span class="arch-num">01</span>
-        <div><h3>Payment</h3><p>Zcash-based payments and the relevant transaction information move value into the process.</p></div>
-      </div>
-      <div class="arch-flow"><span>&#8595;</span><span>Funds enter escrow</span></div>
-      <div class="arch-layer">
-        <span class="arch-num">02</span>
-        <div><h3>Escrow authorization</h3><p>The proposed 2-of-3 multisignature arrangement governs every authorization of fund transfers &#8212; two keys approve, one key alone approves nothing.</p></div>
-      </div>
-      <div class="arch-flow"><span>&#8595;</span><span>Terms and delivery recorded</span></div>
-      <div class="arch-layer">
-        <span class="arch-num">03</span>
-        <div><h3>Transaction evidence</h3><p>Agreed terms, delivery records, tracking information, and relevant communications form the shared record.</p></div>
-      </div>
-      <div class="arch-flow"><span>&#8595;</span><span>Evidence reviewed</span></div>
-      <div class="arch-layer last">
-        <span class="arch-num">04</span>
-        <div><h3>AI-assisted review</h3><p>Evidence organization, comparison against agreed requirements, inconsistency detection, and review summaries prepare disputes for human decision.</p></div>
-      </div>
-    </div>
-    <p class="design-note">Each layer has its own job: the AI reviews information and assists decisions, while the multisignature arrangement governs authorization &#8212; neither does the other&rsquo;s job.</p>
-  </div>
-  <div class="how-closing">
+  <div class="how-cards-foot">
     <h2>Private payments. Shared control. Better-informed decisions.</h2>
-    <p>Zecrow is designed to bring privacy-conscious payments, shared control over escrow funds, and AI-assisted evidence review into one transaction experience, helping buyers and sellers navigate online commerce with greater confidence.</p>
+    <p>Zecrow is designed to bring privacy-conscious payments, shared control over escrow funds, and AI-assisted evidence review into one transaction experience.</p>
     <a class="btn-primary" href="#start-payment">Explore Zecrow</a>
   </div>
 </section>
@@ -1377,6 +817,23 @@ body {
     stage.classList.toggle('dark-mode', !toggle.checked);
     document.documentElement.classList.toggle('dark-mode', !toggle.checked);
   });
+  var cards = document.querySelector('.how-cards');
+  var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (cards) {
+    if (reducedMotion || !('IntersectionObserver' in window)) {
+      cards.classList.add('is-visible');
+    } else {
+      var cardObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            cards.classList.add('is-visible');
+            cardObserver.disconnect();
+          }
+        });
+      }, { threshold: 0.12 });
+      cardObserver.observe(cards);
+    }
+  }
   var canvas = document.getElementById('stars');
   var ctx = canvas.getContext('2d');
   var particles = [];
