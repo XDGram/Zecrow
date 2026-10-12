@@ -666,6 +666,97 @@ body {
   line-height: 1.7;
   color: var(--hero-muted);
 }
+.zc-card--wide {
+  min-height: 230px;
+}
+.zc-card--wide:hover,
+.zc-card--wide:focus-visible {
+  min-height: 520px;
+}
+.code-digits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 20px 0 6px;
+}
+.code-digit {
+  width: 46px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--hero-text);
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+}
+.code-digit.key {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.rel-rows {
+  margin-top: 18px;
+  max-width: 480px;
+}
+.rel-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 9px 0;
+  border-top: 1px solid var(--panel-border);
+  font-size: 0.82rem;
+  color: var(--hero-muted);
+}
+.rel-row:last-child {
+  border-bottom: 1px solid var(--panel-border);
+}
+.rel-row strong {
+  color: var(--hero-text);
+  font-weight: 650;
+}
+.rel-row .ok {
+  color: var(--accent);
+  font-weight: 700;
+}
+.rel-track {
+  height: 8px;
+  margin: 20px 0 4px;
+  max-width: 480px;
+  border-radius: 99px;
+  overflow: hidden;
+  background: var(--panel-border);
+}
+.rel-track span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transform-origin: left;
+}
+.zc-card:hover .rel-track span,
+.zc-card:focus-visible .rel-track span {
+  animation: rel-grow .9s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes rel-grow {
+  from {
+    transform: scaleX(.2);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rel-track span {
+    animation: none;
+  }
+  .zc-card,
+  .zc-card--wide {
+    min-height: 0;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .zc-card {
     opacity: 1;
@@ -692,6 +783,18 @@ body {
   }
   .zc-card {
     min-height: 170px;
+  }
+  .zc-card--wide {
+    min-height: 340px;
+  }
+  .zc-card--wide:hover,
+  .zc-card--wide:focus-visible {
+    min-height: 640px;
+  }
+  .code-digit {
+    width: 40px;
+    height: 50px;
+    font-size: 1.2rem;
   }
   .how-cards-foot {
     padding: 56px 24px 96px;
@@ -800,6 +903,23 @@ body {
       <h3>Shipped in the real world, tracked end to end.</h3>
       <p class="zc-lead">Parcels, tracking records, deadlines, and receipt confirmation feed one shared record.</p>
       <p class="zc-more">Prepare, ship, track, receive or dispute &#8212; gaps and conflicts trigger the same review path. Proof of arrival needs real evidence, never the signature mechanism alone.</p>
+    </article>
+    <article class="zc-card zc-card--wide" tabindex="0">
+      <div class="zc-top"><span class="zc-step">07 &#8212; RELEASE CODE</span><span class="zc-dot" aria-hidden="true"></span></div>
+      <h3>One code releases the funds.</h3>
+      <p class="zc-lead">The buyer confirms receipt with a one-time delivery code &#8212; a valid code triggers the normal release.</p>
+      <div class="code-digits" role="img" aria-label="Example delivery code 4 8 1 5 2 9">
+        <span class="code-digit">4</span><span class="code-digit">8</span><span class="code-digit">1</span><span class="code-digit">5</span><span class="code-digit">2</span><span class="code-digit key">9</span>
+      </div>
+      <div class="zc-more">
+        <div class="rel-rows">
+          <div class="rel-row"><span>Amount</span><strong>2.50 ZEC</strong></div>
+          <div class="rel-row"><span>Code</span><strong class="ok">Valid &#10003;</strong></div>
+          <div class="rel-row"><span>Release</span><strong class="ok">Authorized &#8594; seller</strong></div>
+        </div>
+        <div class="rel-track" aria-hidden="true"><span></span></div>
+      </div>
+      <span class="zc-tag">Example &#8212; codes are hashed, entries rate-limited</span>
     </article>
   </div>
   <div class="how-cards-foot">
