@@ -599,32 +599,34 @@ body {
   justify-content: flex-start;
 }
 .zc-step {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
   color: var(--hero-muted);
 }
 .zc-card h3 {
   margin: 22px 0 0;
   max-width: 440px;
-  font-size: clamp(26px, 2.6vw, 38px);
-  line-height: 1;
-  letter-spacing: -0.03em;
-  font-weight: 650;
+  font-size: clamp(25px, 2.4vw, 35px);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  font-weight: 600;
   color: var(--hero-text);
 }
 .zc-lead {
   max-width: 430px;
-  margin: 10px 0 0;
-  font-size: 13px;
-  line-height: 1.55;
+  margin: 12px 0 0;
+  font-size: 13.5px;
+  line-height: 1.7;
+  letter-spacing: 0.002em;
   color: var(--hero-muted);
 }
 .zc-more {
   max-width: 480px;
   margin: 12px 0 0;
-  font-size: 12.5px;
-  line-height: 1.65;
+  font-size: 13px;
+  line-height: 1.7;
+  letter-spacing: 0.002em;
   color: var(--hero-muted);
   opacity: 0;
   transform: translateY(12px);
@@ -738,6 +740,79 @@ body {
   border-radius: inherit;
   background: var(--accent);
   transform-origin: left;
+}
+@keyframes digit-in {
+  0% {
+    opacity: 0;
+    transform: scale(.6);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.how-cards.is-visible .code-digit,
+.zc-card--wide:hover .code-digit,
+.zc-card--wide:focus-visible .code-digit {
+  animation: digit-in .45s cubic-bezier(.2,.8,.2,1) both;
+}
+.how-cards.is-visible .code-digit:nth-child(1),
+.zc-card--wide:hover .code-digit:nth-child(1),
+.zc-card--wide:focus-visible .code-digit:nth-child(1) { animation-delay: .05s; }
+.how-cards.is-visible .code-digit:nth-child(2),
+.zc-card--wide:hover .code-digit:nth-child(2),
+.zc-card--wide:focus-visible .code-digit:nth-child(2) { animation-delay: .13s; }
+.how-cards.is-visible .code-digit:nth-child(3),
+.zc-card--wide:hover .code-digit:nth-child(3),
+.zc-card--wide:focus-visible .code-digit:nth-child(3) { animation-delay: .21s; }
+.how-cards.is-visible .code-digit:nth-child(4),
+.zc-card--wide:hover .code-digit:nth-child(4),
+.zc-card--wide:focus-visible .code-digit:nth-child(4) { animation-delay: .29s; }
+.how-cards.is-visible .code-digit:nth-child(5),
+.zc-card--wide:hover .code-digit:nth-child(5),
+.zc-card--wide:focus-visible .code-digit:nth-child(5) { animation-delay: .37s; }
+.how-cards.is-visible .code-digit:nth-child(6),
+.zc-card--wide:hover .code-digit:nth-child(6),
+.zc-card--wide:focus-visible .code-digit:nth-child(6) { animation-delay: .45s; }
+.rel-confirm {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 18px;
+  min-height: 44px;
+  padding: 0 26px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #101010;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  box-shadow: 0 5px 0 rgba(154,116,10,.9), 0 10px 18px rgba(0,0,0,.18);
+}
+@keyframes rel-press {
+  0% {
+    transform: translateY(0);
+  }
+  35% {
+    transform: translateY(4px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+.how-cards.is-visible .rel-confirm,
+.zc-card--wide:hover .rel-confirm,
+.zc-card--wide:focus-visible .rel-confirm {
+  animation: rel-press .55s ease 1.15s both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .code-digit,
+  .rel-confirm {
+    animation: none;
+  }
 }
 .zc-card:hover .rel-track span,
 .zc-card:focus-visible .rel-track span {
@@ -874,44 +949,44 @@ body {
   </div>
   <div class="zc-grid">
     <article class="zc-card" tabindex="0">
-      <div class="zc-top"><span class="zc-step">01 &#8212; THE PROBLEM</span></div>
+      <div class="zc-top"><span class="zc-step">The problem</span></div>
       <h3>Trade breaks where trust breaks.</h3>
       <p class="zc-lead">Online commerce runs on whoever moves first &#8212; and hopes the other side follows.</p>
       <p class="zc-more">Buyers pay upfront hoping goods arrive; sellers deliver hoping payment is secure. Traditional escrow adds another intermediary, more fees, and one more party both sides must trust.</p>
     </article>
     <article class="zc-card" tabindex="0">
-      <div class="zc-top"><span class="zc-step">02 &#8212; SHARED CONTROL</span></div>
+      <div class="zc-top"><span class="zc-step">Shared control</span></div>
       <h3>No single key moves the money.</h3>
       <p class="zc-lead">Buyer, seller, and arbitrator each hold a key &#8212; any two together authorize a payout.</p>
       <p class="zc-more">The proposed 2-of-3 multisignature arrangement means no participant can act alone. Agreement pays the seller; dispute brings the arbitrator into a signed resolution.</p>
     </article>
     <article class="zc-card" tabindex="0">
-      <div class="zc-top"><span class="zc-step">03 &#8212; RULES IN CODE</span></div>
+      <div class="zc-top"><span class="zc-step">Rules in code</span></div>
       <h3>Cryptography enforces the agreement.</h3>
       <p class="zc-lead">Amount, delivery terms, and release conditions are set before money moves.</p>
       <p class="zc-more">Signatures authorize each outcome under a visible 2-of-3 rule. Nothing releases automatically and no smart contract stands behind it &#8212; every payout follows the agreed rules through real signatures.</p>
     </article>
     <article class="zc-card" tabindex="0">
-      <div class="zc-top"><span class="zc-step">04 &#8212; AI EVIDENCE REVIEW</span></div>
+      <div class="zc-top"><span class="zc-step">AI evidence review</span></div>
       <h3>Disputes get examined, not ignored.</h3>
       <p class="zc-lead">An AI pipeline built for one job: turning messy dispute evidence into a review the arbitrator can act on.</p>
       <p class="zc-more">Every case runs four passes. <strong>Collect</strong> gathers the agreement, messages, delivery records, files, and tracking. <strong>Compare</strong> checks each item against the original terms and both sides&rsquo; claims. <strong>Identify</strong> flags what conflicts, what is missing, and which requirements look unmet. <strong>Summarize</strong> reports what the evidence supports, what stays uncertain, and what needs a human &#8212; a logo package with all three formats present but one requirement contested, for example. The boundaries are hard: the AI holds no keys, authorizes no payouts, invents no proof, and never decides. The arbitrator decides.</p>
       <span class="zc-tag">Intended design</span>
     </article>
     <article class="zc-card" tabindex="0">
-      <div class="zc-top"><span class="zc-step">05 &#8212; DIGITAL GOODS</span></div>
+      <div class="zc-top"><span class="zc-step">Digital goods</span></div>
       <h3>Delivered online, judged by the terms.</h3>
       <p class="zc-lead">Files and freelance work deliver instantly &#8212; acceptance still follows the agreement.</p>
       <p class="zc-more">The seller submits the deliverable; the buyer confirms or disputes. Upload alone releases nothing, and no automatic check of file quality is claimed &#8212; the evidence decides.</p>
     </article>
     <article class="zc-card" tabindex="0">
-      <div class="zc-top"><span class="zc-step">06 &#8212; PHYSICAL GOODS</span></div>
+      <div class="zc-top"><span class="zc-step">Physical goods</span></div>
       <h3>Shipped in the real world, tracked end to end.</h3>
-      <p class="zc-lead">Parcels, tracking records, deadlines, and receipt confirmation feed one shared record.</p>
-      <p class="zc-more">Prepare, ship, track, receive or dispute &#8212; gaps and conflicts trigger the same review path. Proof of arrival needs real evidence, never the signature mechanism alone.</p>
+      <p class="zc-lead">Physical listings carry AI-checked descriptions from the very start.</p>
+      <p class="zc-more">The seller uploads photos and a full description, and the AI reviews them for strength and consistency before a payment link can even be created. The buyer then approves the complete description before paying &#8212; both sides agree on exactly what is being bought, with the evidence bar set before money moves. Proof of arrival still needs real evidence, never the signature mechanism alone.</p>
     </article>
     <article class="zc-card zc-card--wide" id="release-code" tabindex="0">
-      <div class="zc-top"><span class="zc-step">07 &#8212; RELEASE CODE</span></div>
+      <div class="zc-top"><span class="zc-step">Release code</span></div>
       <h3>One code releases the funds.</h3>
       <p class="zc-lead">The buyer confirms receipt with a one-time delivery code &#8212; a valid code triggers the normal release.</p>
       <div class="code-digits" role="img" aria-label="Example delivery code 4 8 1 5 2 9">
@@ -924,6 +999,7 @@ body {
           <div class="rel-row"><span>Release</span><strong class="ok">Authorized &#8594; seller</strong></div>
         </div>
         <div class="rel-track" aria-hidden="true"><span></span></div>
+        <span class="rel-confirm">Confirm release</span>
       </div>
       <span class="zc-tag">Example &#8212; codes are hashed, entries rate-limited</span>
     </article>
