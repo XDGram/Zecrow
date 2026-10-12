@@ -826,8 +826,163 @@ body {
     transform: scaleX(1);
   }
 }
+.rel-term {
+  display: flex;
+  width: min(100%, 440px);
+  height: 120px;
+  position: relative;
+  overflow: hidden;
+  margin-top: 20px;
+  background-color: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+}
+.rel-slot {
+  width: 130px;
+  height: 120px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--accent), #DDA620);
+}
+.rel-side {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 20px;
+  white-space: nowrap;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--hero-text);
+}
+.rel-arrow {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  color: var(--accent);
+}
+.rel-minicard {
+  width: 70px;
+  height: 46px;
+  background-color: #F5F1E8;
+  border-radius: 6px;
+  position: absolute;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 9px 9px 9px -2px rgba(0, 0, 0, 0.35);
+}
+.rel-mline {
+  width: 56px;
+  height: 12px;
+  background-color: var(--accent);
+  border-radius: 2px;
+  margin-top: 7px;
+}
+.rel-chip {
+  width: 8px;
+  height: 8px;
+  background-color: #101010;
+  box-shadow: 0 -10px 0 0 #3a3a3a, 0 10px 0 0 #3a3a3a;
+  border-radius: 50%;
+  transform: rotate(90deg);
+  margin: 10px 0 0 -30px;
+}
+.rel-receipt {
+  width: 63px;
+  height: 75px;
+  background-color: #F5F1E8;
+  position: absolute;
+  z-index: 11;
+  bottom: 10px;
+  top: 120px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.rel-rline {
+  width: 47px;
+  height: 9px;
+  background-color: #545354;
+  position: absolute;
+  border-radius: 0 0 3px 3px;
+  right: 8px;
+  top: 8px;
+}
+.rel-rscreen {
+  width: 47px;
+  height: 23px;
+  background-color: #101010;
+  position: absolute;
+  top: 22px;
+  right: 8px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--accent);
+}
+@keyframes rel-slide-top {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-70px) rotate(90deg);
+  }
+  60% {
+    transform: translateY(-70px) rotate(90deg);
+  }
+  100% {
+    transform: translateY(-8px) rotate(90deg);
+  }
+}
+@keyframes rel-slide-post {
+  50% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-70px);
+  }
+}
+@keyframes rel-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.how-cards.is-visible .rel-minicard,
+.zc-card--wide:hover .rel-minicard,
+.zc-card--wide:focus-visible .rel-minicard {
+  animation: rel-slide-top 1.2s cubic-bezier(0.645, 0.045, 0.355, 1) both;
+}
+.how-cards.is-visible .rel-receipt,
+.zc-card--wide:hover .rel-receipt,
+.zc-card--wide:focus-visible .rel-receipt {
+  animation: rel-slide-post 1s cubic-bezier(0.165, 0.84, 0.44, 1) both;
+}
+.how-cards.is-visible .rel-check,
+.zc-card--wide:hover .rel-check,
+.zc-card--wide:focus-visible .rel-check {
+  animation: rel-fade-in 0.3s 1s backwards;
+}
 @media (prefers-reduced-motion: reduce) {
   .rel-track span {
+    animation: none;
+  }
+  .rel-minicard,
+  .rel-receipt,
+  .rel-check {
     animation: none;
   }
   .zc-card,
@@ -991,6 +1146,13 @@ body {
       <p class="zc-lead">The buyer confirms receipt with a one-time delivery code &#8212; a valid code triggers the normal release.</p>
       <div class="code-digits" role="img" aria-label="Example delivery code 4 8 1 5 2 9">
         <span class="code-digit">4</span><span class="code-digit">8</span><span class="code-digit">1</span><span class="code-digit">5</span><span class="code-digit">2</span><span class="code-digit key">9</span>
+      </div>
+      <div class="rel-term" aria-hidden="true">
+        <div class="rel-slot">
+          <div class="rel-minicard"><span class="rel-mline"></span><span class="rel-chip"></span></div>
+          <div class="rel-receipt"><span class="rel-rline"></span><span class="rel-rscreen"><span class="rel-check">✓</span></span></div>
+        </div>
+        <div class="rel-side"><span>Release confirmed</span><svg class="rel-arrow" viewBox="0 0 451.846 451.847" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M345.441 248.292L151.154 442.573c-12.359 12.365-32.397 12.365-44.75 0-12.354-12.354-12.354-32.391 0-44.744L278.318 225.92 106.409 54.017c-12.354-12.359-12.354-32.394 0-44.748 12.354-12.359 32.391-12.359 44.75 0l194.287 194.284c6.177 6.18 9.262 14.271 9.262 22.366 0 8.099-3.091 16.196-9.267 22.373z"></path></svg></div>
       </div>
       <div class="zc-more">
         <div class="rel-rows">
