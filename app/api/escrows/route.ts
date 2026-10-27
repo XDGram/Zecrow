@@ -43,7 +43,7 @@ export async function POST(request: Request) {
   const description = typeof body.description === "string" ? body.description.trim() : "";
   const images = Array.isArray(body.images) ? body.images : [];
   const deliveryMethod = type === "digital" && typeof body.deliveryMethod === "string" ? body.deliveryMethod : "";
-  const shipping = "";
+  const shipping = type === "physical" && typeof body.shipping === "string" ? body.shipping.trim().slice(0, 300) : "";
   // Every order uses the platform's one-time code as the release trigger.
   const confirmation = "code";
   const proof = "";

@@ -21,6 +21,8 @@ type Fields = {
   desc: string;
   images: ImageItem[];
   deliveryMethod: string;
+  shippingMethod: string;
+  shippingCustom: string;
   expiry: string;
 };
 
@@ -30,8 +32,29 @@ const INITIAL: Fields = {
   desc: "",
   images: [],
   deliveryMethod: "link",
+  shippingMethod: "tracked",
+  shippingCustom: "",
   expiry: "72",
 };
+
+const SHIPPING_OPTIONS = [
+  { value: "tracked", label: "Tracked courier", description: "DHL, UPS, FedEx or similar, with tracking." },
+  { value: "standard", label: "Standard postal mail", description: "National post; may be untracked." },
+  { value: "express", label: "Express / same-day", description: "Overnight or same-day courier." },
+  { value: "pickup", label: "Local pickup", description: "Buyer collects the item in person." },
+  { value: "freight", label: "Freight / pallet", description: "For large or heavy items." },
+  { value: "custom", label: "Other (type your own)", description: "Describe how the item ships." },
+];
+const SHIPPING_LABELS: Record<string, string> = {
+  tracked: "Tracked courier (DHL/UPS/FedEx or similar)",
+  standard: "Standard postal mail",
+  express: "Express or same-day courier",
+  pickup: "Local pickup, collected in person",
+  freight: "Freight / palletised shipping",
+};
+function resolveShipping(f: Fields): string {
+  return f.shippingMethod === "custom" ? f.shippingCustom.trim() : SHIPPING_LABELS[f.shippingMethod] ?? "";
+}
 
 export default function CreateEscrowWizard() {
   const { session } = useWallet();
@@ -51,7 +74,8 @@ export default function CreateEscrowWizard() {
 
   const draft = useMemo<ListingDraft | null>(() => type ? ({
     stage: step === 0 ? "item" : "terms", type, item: f.item, amount: f.amount, description: f.desc, images: f.images,
-    deliveryMethod: type === "digital" ? f.deliveryMethod : undefined, confirmation: "code",
+    deliveryMethod: type === "digital" ? f.deliveryMethod : undefined,
+    shipping: type === "physical" ? resolveShipping(f) : undefined, confirmation: "code",
     expiryHours: f.expiry,
   }) : null, [type, f, step]);
   const draftSignature = useMemo(() => draft ? JSON.stringify(draft) : null, [draft]);
@@ -95,6 +119,7 @@ export default function CreateEscrowWizard() {
           description: f.desc,
           images: f.images,
           deliveryMethod: f.deliveryMethod,
+          shipping: type === "physical" ? resolveShipping(f) : "",
           linkExpiryHours: f.expiry,
         }),
       });
@@ -151,7 +176,7 @@ export default function CreateEscrowWizard() {
             transition={{ duration: 0.25, ease: "easeOut" }}
           >
             {step === 0 && <StepItem type={type} setType={selectType} f={f} set={set} setF={setF} />}
-            {step === 1 && <StepTerms f={f} setF={setF} />}
+            {step === 1 && <StepTerms type={type!} f={f} setF={setF} />}
             {step === 2 && <StepReview type={type!} f={f} />}
           </motion.div>
         </AnimatePresence>
@@ -317,9 +342,11 @@ function StepItem({
 
 /* ---------- Step 2: terms ---------- */
 function StepTerms({
+  type,
   f,
   setF,
 }: {
+  type: Type;
   f: Fields;
   setF: React.Dispatch<React.SetStateAction<Fields>>;
 }) {
@@ -329,6 +356,29 @@ function StepTerms({
         <PolicyTerm title="Release mechanism" description={CODE_RELEASE_TERMS} icon="code" />
         <PolicyTerm title="Dispute window" description={`${PLATFORM_DISPUTE_WINDOW_DAYS} days, set by Zecrow for every order.`} icon="time" />
       </div>
+
+      {type === "physical" && (
+        <Field label="Shipping method">
+          <ChoiceSelect
+            value={f.shippingMethod}
+            onChange={(value) => setF((previous) => ({ ...previous, shippingMethod: value }))}
+            options={SHIPPING_OPTIONS}
+            ariaLabel="Shipping method"
+          />
+          {f.shippingMethod === "custom" && (
+            <div className="mt-2">
+              <Input
+                value={f.shippingCustom}
+                onChange={(e) => setF((previous) => ({ ...previous, shippingCustom: e.target.value }))}
+                placeholder="e.g. Regional bike courier, delivered in 2–3 days"
+                maxLength={120}
+              />
+            </div>
+          )}
+          <Hint>Tell the buyer how the item ships. Shown on the order and checked in the review.</Hint>
+        </Field>
+      )}
+
       <Field label="Payment link expires">
         <ChoiceSelect
           value={f.expiry}
@@ -363,7 +413,7 @@ function StepReview({ type, f }: { type: Type; f: Fields }) {
     ["Amount", `${f.amount || "0.00"} ZEC`],
     ["Description", f.desc || "Not set"],
     type === "physical"
-      ? ["Delivery details", "Included in the description"]
+      ? ["Shipping method", resolveShipping(f) || "Not set"]
       : ["Delivery", f.deliveryMethod === "link" ? "Download link" : f.deliveryMethod === "file" ? "File upload" : "License key"],
     ["Release mechanism", "One-time Zecrow code after delivery"],
     ["Dispute window", `${PLATFORM_DISPUTE_WINDOW_DAYS} days (platform policy)`],
