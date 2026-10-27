@@ -1,5 +1,5 @@
 /* Dispute-time image-provenance check. Reverse-image / web-detection to see whether
-   a submitted photo also appears elsewhere online. Advisory and consented only — a
+   a submitted photo also appears elsewhere online. Advisory and consented only  -  a
    match is never proof of fraud, and nothing runs without explicit consent. */
 
 export type ProvenanceStatus = "not_run" | "unavailable" | "completed";

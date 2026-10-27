@@ -8,10 +8,10 @@ const PRIVATE = [
 ];
 
 const OPERATOR = [
-  "Controls the escrow spending key and executes authorised transfers",
-  "A valid buyer code triggers release under the agreed terms",
-  "Can see order terms and submitted evidence for a case",
-  "Disputes pause automatic release and refund actions",
+  "Would control the escrow spending key and execute authorised transfers",
+  "A valid buyer code is intended to trigger release under the agreed terms",
+  "Would see order terms and submitted evidence for a case",
+  "Disputes would pause automatic release and refund actions",
 ];
 
 export default function Custody() {
@@ -30,13 +30,13 @@ export default function Custody() {
             </Reveal>
             <Reveal delay={0.1}>
               <p className="mt-6 max-w-md text-[15px] leading-relaxed text-ink-soft">
-                Zecrow runs a{" "}
-                <span className="font-medium text-ink">managed private escrow</span>: the
-                service controls the escrow spending key. After the buyer receives the
-                order, their valid one time code is the release mechanism: it confirms
-                receipt and triggers the transfer to the merchant under the agreed terms.
-                An open dispute pauses automatic release. This is managed custody, not
-                trustless escrow.
+                The intended model is{" "}
+                <span className="font-medium text-ink">managed private escrow</span>:
+                Zecrow would control the escrow spending key. After the buyer receives
+                the order, their valid one time code is the release mechanism: it confirms
+                receipt and authorises the transfer under the agreed terms. An open
+                dispute would pause automatic release. This is managed custody, not
+                trustless escrow. The current prototype does not hold or transfer funds.
               </p>
             </Reveal>
           </div>
@@ -44,7 +44,7 @@ export default function Custody() {
           <div className="grid gap-5 sm:grid-cols-2">
             <Reveal className="h-full">
               <div className="card flex h-full flex-col p-6">
-                <p className="eyebrow font-medium text-ink">Stays private</p>
+                <p className="eyebrow font-medium text-ink">Privacy design</p>
                 <ul className="mt-5 space-y-3.5">
                   {PRIVATE.map((t) => (
                     <li key={t} className="flex gap-3 text-[13.5px] leading-relaxed text-ink-soft">
@@ -57,7 +57,7 @@ export default function Custody() {
             </Reveal>
             <Reveal delay={0.08} className="h-full">
               <div className="card flex h-full flex-col border-accent-soft bg-accent-wash/40 p-6">
-                <p className="eyebrow font-medium text-accent-ink">Operator controls</p>
+                <p className="eyebrow font-medium text-accent-ink">Planned operator controls</p>
                 <ul className="mt-5 space-y-3.5">
                   {OPERATOR.map((t) => (
                     <li key={t} className="flex gap-3 text-[13.5px] leading-relaxed text-ink-soft">

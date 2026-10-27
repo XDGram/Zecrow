@@ -65,7 +65,7 @@ function CaseReviewIllustration() {
           <div className="flex items-center gap-3">
             <EscrowIcon />
             <div>
-              <div className="whitespace-nowrap text-[11px] font-semibold text-ink">Funds held in escrow</div>
+              <div className="whitespace-nowrap text-[11px] font-semibold text-ink">Example: funds held</div>
               <div className="text-[10px] text-ink-mute">Awaiting human review</div>
             </div>
           </div>

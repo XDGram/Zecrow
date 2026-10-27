@@ -6,7 +6,7 @@ import { useEffect, useRef } from "react";
    Zcash coins rendered as spinning 3D metal in Canvas 2D (no WebGL,
    so it works in sandboxed panes). Each coin turns about its vertical
    axis: the face squashes to an ellipse while a stack of offset discs
-   forms the gold cylindrical edge — a real coin-flip look.
+   forms the gold cylindrical edge  -  a real coin-flip look.
 ------------------------------------------------------------------- */
 
 type Coin = {

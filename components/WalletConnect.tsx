@@ -7,7 +7,7 @@ import { useWallet, shortAddress } from "@/components/wallet/WalletProvider";
 
 const TESTNET_EXTENSION_RELEASES = "https://github.com/NoirWallet/noir-wallet-sdk/releases";
 
-/* Gold "Zecrow" shielded wallet card — balance stays masked by design. */
+/* Gold "Zecrow" shielded wallet card  -  balance stays masked by design. */
 function WalletCard({ connection }: { connection: ZcashConnectResult | null }) {
   return (
     <div
@@ -80,7 +80,7 @@ export default function WalletConnect() {
         {isConnected && <span aria-hidden="true" className="h-2 w-2 rounded-full bg-emerald-500" />}
         {isConnected ? (
           <>
-            <span className="sm:hidden">{session ? "Signed in" : "Connected"}</span>
+            <span className="sm:hidden">{session ? "Signature" : "Connected"}</span>
             <span className="hidden sm:inline">{shortAddress(connection!.transparent)}</span>
           </>
         ) : (
@@ -113,11 +113,11 @@ export default function WalletConnect() {
 
                   <div className="mt-5 text-center">
                     <h2 id="wallet-dialog-title" className="text-[20px] font-semibold tracking-tight text-ink">
-                      {session ? "Signed in with Zcash" : isConnected ? "Wallet connected" : "Connect your wallet"}
+                      {session ? "Wallet message signed" : isConnected ? "Wallet connected" : "Connect your wallet"}
                     </h2>
                     <p className="mt-2 text-sm leading-6 text-ink-soft">
                       {session
-                        ? "Your identity is proven with a shielded signature — no funds moved."
+                        ? "The wallet returned a signature to this browser. The server has not verified it and no account session was created."
                         : isConnected
                           ? "Connected on Zcash testnet. Sign in to prove control of this account."
                           : "Connect Noir Wallet on Zcash testnet. Zecrow never asks for your recovery phrase."}
@@ -131,11 +131,11 @@ export default function WalletConnect() {
                       {session ? (
                         <div className="flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-[12.5px] font-medium text-emerald-800">
                           <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4L19 7" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                          Signed in · identity verified
+                          Wallet signature verified for this session
                         </div>
                       ) : (
                         <button type="button" onClick={() => void signIn()} disabled={signingIn} className="btn btn-dark w-full !py-2.5 text-[13px] disabled:opacity-60">
-                          {signingIn ? "Waiting for signature…" : "Sign in with Zcash"}
+                          {signingIn ? "Waiting for signature…" : "Sign wallet message"}
                         </button>
                       )}
 

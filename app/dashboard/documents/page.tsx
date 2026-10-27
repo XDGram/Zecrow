@@ -1,12 +1,12 @@
 import PageHeader from "@/components/dashboard/PageHeader";
 
 const DOCS = [
-  { name: "Escrow agreement — #4817", kind: "Agreement", order: "4817", date: "Jan 31", size: "48 KB" },
-  { name: "Delivery evidence — #4816", kind: "Evidence", order: "4816", date: "Jan 30", size: "2.1 MB" },
-  { name: "Release receipt — #4815", kind: "Receipt", order: "4815", date: "Jan 29", size: "22 KB" },
-  { name: "License key record — #4814", kind: "Record", order: "4814", date: "Jan 29", size: "4 KB" },
-  { name: "Escrow agreement — #4813", kind: "Agreement", order: "4813", date: "Jan 28", size: "47 KB" },
-  { name: "Release receipt — #4812", kind: "Receipt", order: "4812", date: "Jan 27", size: "21 KB" },
+  { name: "Escrow agreement  -  #4817", kind: "Agreement", order: "4817", date: "Jan 31", size: "48 KB" },
+  { name: "Delivery evidence  -  #4816", kind: "Evidence", order: "4816", date: "Jan 30", size: "2.1 MB" },
+  { name: "Release receipt  -  #4815", kind: "Receipt", order: "4815", date: "Jan 29", size: "22 KB" },
+  { name: "License key record  -  #4814", kind: "Record", order: "4814", date: "Jan 29", size: "4 KB" },
+  { name: "Escrow agreement  -  #4813", kind: "Agreement", order: "4813", date: "Jan 28", size: "47 KB" },
+  { name: "Release receipt  -  #4812", kind: "Receipt", order: "4812", date: "Jan 27", size: "21 KB" },
 ];
 
 const KIND_TONE: Record<string, string> = {

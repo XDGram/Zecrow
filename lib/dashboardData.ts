@@ -1,10 +1,11 @@
-/* Demo data for the Zecrow dashboard. Clearly illustrative — not live chain data.
+/* Demo data for the Zecrow dashboard. Clearly illustrative  -  not live chain data.
    Physical + Digital goods only (services parked). */
 
 export type OrderType = "physical" | "digital";
 
 export type OrderStatus =
   | "awaiting_payment"
+  | "expired"
   | "funded"
   | "delivered"
   | "released"
@@ -28,6 +29,7 @@ export const STATUS_META: Record<
   { label: string; tone: "amber" | "blue" | "green" | "red" | "mute" }
 > = {
   awaiting_payment: { label: "Awaiting payment", tone: "mute" },
+  expired: { label: "Link expired", tone: "mute" },
   funded: { label: "Funded", tone: "amber" },
   delivered: { label: "Delivered", tone: "blue" },
   released: { label: "Released", tone: "green" },
@@ -39,11 +41,11 @@ export const ORDERS: Order[] = [
   { id: "4817", item: "Vintage film camera", type: "physical", amountZec: 1.8, counterparty: "u1 fq…9kd2", role: "merchant", status: "disputed", created: "Jan 31", deadline: "Feb 06" },
   { id: "4816", item: "Mechanical keyboard", type: "physical", amountZec: 0.62, counterparty: "u1 7h…b14p", role: "merchant", status: "delivered", created: "Jan 30", deadline: "Feb 04" },
   { id: "4815", item: "Lightroom preset pack", type: "digital", amountZec: 0.12, counterparty: "u1 k9…m02a", role: "merchant", status: "released", created: "Jan 29" },
-  { id: "4814", item: "UI kit — license", type: "digital", amountZec: 0.45, counterparty: "u1 ap…7f3c", role: "merchant", status: "funded", created: "Jan 29", deadline: "Feb 02" },
+  { id: "4814", item: "UI kit  -  license", type: "digital", amountZec: 0.45, counterparty: "u1 ap…7f3c", role: "merchant", status: "funded", created: "Jan 29", deadline: "Feb 02" },
   { id: "4813", item: "Studio monitor (pair)", type: "physical", amountZec: 2.4, counterparty: "u1 d2…x88q", role: "merchant", status: "funded", created: "Jan 28", deadline: "Feb 03" },
-  { id: "4812", item: "Ebook — Zcash dev guide", type: "digital", amountZec: 0.08, counterparty: "u1 zz…4k9r", role: "merchant", status: "released", created: "Jan 27" },
+  { id: "4812", item: "Ebook  -  Zcash dev guide", type: "digital", amountZec: 0.08, counterparty: "u1 zz…4k9r", role: "merchant", status: "released", created: "Jan 27" },
   { id: "4811", item: "Film scanner", type: "physical", amountZec: 1.15, counterparty: "u1 m4…q7t1", role: "merchant", status: "awaiting_payment", created: "Jan 27" },
-  { id: "4810", item: "Sample pack — vol. 3", type: "digital", amountZec: 0.2, counterparty: "u1 8n…55wd", role: "merchant", status: "released", created: "Jan 26" },
+  { id: "4810", item: "Sample pack  -  vol. 3", type: "digital", amountZec: 0.2, counterparty: "u1 8n…55wd", role: "merchant", status: "released", created: "Jan 26" },
 ];
 
 const HELD_STATES: OrderStatus[] = ["funded", "delivered", "disputed"];
@@ -63,7 +65,7 @@ export const ESCROW_SERIES = [1.2, 1.1, 1.6, 2.0, 1.8, 2.6, 3.1, 2.9, 3.8, 4.4, 
 
 export const DEADLINES = [
   { id: "4813", item: "Studio monitor (pair)", due: "in 2 days", type: "physical" as OrderType },
-  { id: "4814", item: "UI kit — license", due: "in 1 day", type: "digital" as OrderType },
+  { id: "4814", item: "UI kit  -  license", due: "in 1 day", type: "digital" as OrderType },
   { id: "4816", item: "Mechanical keyboard", due: "in 3 days", type: "physical" as OrderType },
 ];
 

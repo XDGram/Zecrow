@@ -218,6 +218,66 @@ html.lenis body { height: auto; }
   border-radius: 9999px;
   background: var(--accent-soft);
 }
+/* Adapted from ZacharyCrespin's Uiverse square loader. */
+.zec-review-stage {
+  display: grid;
+  min-height: 144px;
+  justify-items: center;
+  align-content: center;
+  gap: 0;
+  overflow: visible;
+  text-align: center;
+}
+.zec-review-loader {
+  --qc-square-color: #bd963d;
+  position: relative;
+  width: 96px;
+  height: 96px;
+  flex: 0 0 96px;
+  transform: rotate(45deg);
+  transition: --qc-square-color 220ms ease;
+}
+.zec-review-loader.has-issues { --qc-square-color: #d5444a; }
+.zec-review-loader.passed { --qc-square-color: #359768; }
+.zec-review-loader.settled .zec-review-loader__square { animation-play-state: paused; }
+.zec-review-loader__square {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 28px;
+  height: 28px;
+  margin: 2px;
+  border-radius: 0;
+  background: var(--qc-square-color);
+  animation: zec-square-animation 10s ease-in-out infinite both;
+}
+.zec-review-loader__square:nth-child(1) { animation-delay: 0s; }
+.zec-review-loader__square:nth-child(2) { animation-delay: -1.4285714286s; }
+.zec-review-loader__square:nth-child(3) { animation-delay: -2.8571428571s; }
+.zec-review-loader__square:nth-child(4) { animation-delay: -4.2857142857s; }
+.zec-review-loader__square:nth-child(5) { animation-delay: -5.7142857143s; }
+.zec-review-loader__square:nth-child(6) { animation-delay: -7.1428571429s; }
+.zec-review-loader__square:nth-child(7) { animation-delay: -8.5714285714s; }
+@media (max-width: 639px) {
+  .zec-review-stage { min-height: 124px; }
+  .zec-review-loader {
+    width: 72px;
+    height: 72px;
+    flex-basis: 72px;
+    transform: rotate(45deg) scale(.68);
+  }
+}
+@keyframes zec-square-animation {
+  0%, 10.5% { left: 0; top: 0; }
+  12.5%, 23% { left: 32px; top: 0; }
+  25%, 35.5% { left: 64px; top: 0; }
+  37.5%, 48% { left: 64px; top: 32px; }
+  50%, 60.5% { left: 32px; top: 32px; }
+  62.5%, 73% { left: 32px; top: 64px; }
+  75%, 85.5% { left: 0; top: 64px; }
+  87.5%, 98% { left: 0; top: 32px; }
+  100% { left: 0; top: 0; }
+}
 .review-loader::after {
   position: absolute;
   inset: 0 auto 0 0;

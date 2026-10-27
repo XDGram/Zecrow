@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ZecrowMark from "@/components/ZecrowMark";
+import { shortAddress, useWallet } from "@/components/wallet/WalletProvider";
 import { PRIMARY, SECONDARY, isActive } from "./nav";
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { session } = useWallet();
 
   return (
     <aside className="sticky top-0 hidden h-screen w-56 shrink-0 flex-col border-r border-line bg-white px-3 py-5 lg:flex">
@@ -56,10 +58,10 @@ export default function Sidebar() {
           );
         })}
         <div className="mt-2 flex items-center gap-2.5 rounded-xl px-2 py-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent-wash text-[11px] font-bold text-accent-ink">EM</span>
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent-wash text-[11px] font-bold text-accent-ink">Z</span>
           <div className="min-w-0 leading-tight">
             <div className="truncate text-[12.5px] font-semibold text-ink">Merchant</div>
-            <div className="truncate text-[10.5px] text-ink-mute">u1 fq…9kd2</div>
+            <div className="truncate text-[10.5px] text-ink-mute">{session ? shortAddress(session.address) : "Wallet not signed in"}</div>
           </div>
         </div>
       </div>

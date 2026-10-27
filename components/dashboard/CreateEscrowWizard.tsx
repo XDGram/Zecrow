@@ -2,15 +2,18 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { PhysicalIllustration, DigitalIllustration } from "./GoodsIllustration";
 import ListingCheck from "./ListingCheck";
+import ChoiceSelect from "./ChoiceSelect";
+import { CODE_RELEASE_TERMS, PLATFORM_DISPUTE_WINDOW_DAYS, getListingPreflight, validZecAmount, type ListingDraft } from "@/lib/listingCheck";
+import { useWallet } from "@/components/wallet/WalletProvider";
 
 type Type = "physical" | "digital";
 
 const STEPS = ["Item", "Terms", "Review"];
 
-type ImageItem = { name: string; url: string };
+type ImageItem = { name: string; dataUrl: string };
 
 type Fields = {
   item: string;
@@ -18,11 +21,6 @@ type Fields = {
   desc: string;
   images: ImageItem[];
   deliveryMethod: string;
-  shipping: string;
-  confirm: string;
-  proof: string;
-  release: string;
-  dispute: string;
   expiry: string;
 };
 
@@ -32,44 +30,100 @@ const INITIAL: Fields = {
   desc: "",
   images: [],
   deliveryMethod: "link",
-  shipping: "",
-  confirm: "code",
-  proof: "access",
-  release: "",
-  dispute: "7",
   expiry: "72",
 };
 
 export default function CreateEscrowWizard() {
+  const { session } = useWallet();
   const [step, setStep] = useState(0);
-  const [done, setDone] = useState(false);
   const [type, setType] = useState<Type | null>(null);
   const [f, setF] = useState<Fields>(INITIAL);
+  const [reviewedSignature, setReviewedSignature] = useState<string | null>(null);
+  const [approvedItemKey, setApprovedItemKey] = useState<string | null>(null);
+  const [savedOrder, setSavedOrder] = useState<{ number: number; code: string; link: string } | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState("");
 
   const set =
     (k: keyof Fields) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
       setF((prev) => ({ ...prev, [k]: e.target.value }));
 
-  const canNext =
-    step === 0
-      ? Boolean(type && f.item.trim() && f.amount && (type !== "physical" || f.images.length > 0))
-      : true;
+  const draft = useMemo<ListingDraft | null>(() => type ? ({
+    stage: step === 0 ? "item" : "terms", type, item: f.item, amount: f.amount, description: f.desc, images: f.images,
+    deliveryMethod: type === "digital" ? f.deliveryMethod : undefined, confirmation: "code",
+    expiryHours: f.expiry,
+  }) : null, [type, f, step]);
+  const draftSignature = useMemo(() => draft ? JSON.stringify(draft) : null, [draft]);
+  const preflightReady = draft ? getListingPreflight(draft).ready : false;
+  const aiApproved = Boolean(draftSignature && reviewedSignature === draftSignature);
 
-  // Generated client-side after mount to avoid hydration mismatch.
-  const [orderId, setOrderId] = useState(4817);
-  const [link, setLink] = useState("zecrow.app/e/8f2a1c");
-  useEffect(() => {
-    setOrderId(4800 + Math.floor(Math.random() * 199));
-    setLink(`zecrow.app/e/${Math.random().toString(36).slice(2, 8)}`);
-  }, []);
+  // The item step is where the AI meaningfully gates (item, photos, claims). Once it passes,
+  // we remember that approval against the item fields themselves. The terms step holds only
+  // platform-fixed terms plus the expiry choice, so it gates on completeness — not a second
+  // AI pass the seller has no actionable way to satisfy.
+  const itemKey = useMemo(
+    () => (type ? JSON.stringify({ type, item: f.item, amount: f.amount, description: f.desc, images: f.images }) : null),
+    [type, f.item, f.amount, f.desc, f.images],
+  );
+  const itemApproved = Boolean(approvedItemKey && approvedItemKey === itemKey);
+  const canNext = step === 0 ? Boolean(type && aiApproved && preflightReady) : Boolean(itemApproved && preflightReady);
+  const reportReview = useCallback(
+    (signature: string | null) => {
+      setReviewedSignature(signature);
+      if (signature && step === 0) setApprovedItemKey(itemKey);
+    },
+    [step, itemKey],
+  );
+  const selectType = useCallback((nextType: Type) => {
+    if (type !== nextType) setF((previous) => previous.images.length ? { ...previous, images: [] } : previous);
+    setType(nextType);
+  }, [type]);
 
-  if (done) {
-    return <Success orderId={orderId} link={link} item={f.item} amount={f.amount} type={type!} />;
+  const createOrder = async () => {
+    if (!type || !itemApproved || !preflightReady || !session || creating) return;
+    setCreating(true);
+    setCreateError("");
+    try {
+      const response = await fetch("/api/escrows", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          type,
+          item: f.item,
+          amountZec: f.amount,
+          description: f.desc,
+          images: f.images,
+          deliveryMethod: f.deliveryMethod,
+          linkExpiryHours: f.expiry,
+        }),
+      });
+      const result = await response.json() as { order?: { number: number; code: string }; error?: string };
+      if (!response.ok || !result.order) throw new Error(result.error ?? "The order could not be saved.");
+      setSavedOrder({
+        number: result.order.number,
+        code: result.order.code,
+        link: `${window.location.origin}/e/${result.order.code}`,
+      });
+    } catch (error) {
+      setCreateError(error instanceof Error ? error.message : "The order could not be saved. Try again.");
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  if (savedOrder) {
+    return <Success orderId={savedOrder.number} code={savedOrder.code} link={savedOrder.link} item={f.item} amount={f.amount} type={type!} />;
   }
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto max-w-6xl">
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_340px] xl:gap-7">
+      <aside className="min-w-0 lg:sticky lg:top-6 lg:col-start-2 lg:row-start-1">
+        <ListingCheck draft={session ? draft : null} onPass={reportReview} />
+        {!session && <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-[11px] leading-4 text-amber-900">Sign in with Noir Wallet from the top bar to run the listing review and save this order.</p>}
+      </aside>
+      <div className="min-w-0 lg:col-start-1 lg:row-start-1">
       {/* stepper */}
       <div className="mb-6 flex items-center gap-2">
         {STEPS.map((s, i) => (
@@ -96,13 +150,17 @@ export default function CreateEscrowWizard() {
             exit={{ opacity: 0, x: -16 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
           >
-            {step === 0 && <StepItem type={type} setType={setType} f={f} set={set} setF={setF} />}
-            {step === 1 && <StepTerms type={type!} f={f} set={set} />}
-            {step === 2 && <StepReview type={type!} f={f} orderId={orderId} />}
+            {step === 0 && <StepItem type={type} setType={selectType} f={f} set={set} setF={setF} />}
+            {step === 1 && <StepTerms f={f} setF={setF} />}
+            {step === 2 && <StepReview type={type!} f={f} />}
           </motion.div>
         </AnimatePresence>
 
-        <div className="mt-7 flex items-center justify-between border-t border-line pt-5">
+        {!canNext && <p className="mt-5 text-[11px] leading-4 text-amber-800">{!type ? "Choose a listing type to begin." : !preflightReady ? "Resolve the required details listed in the review panel." : step === 0 ? "Continue unlocks after the item passes a strong AI review." : "Select a link expiry to continue."}</p>}
+
+        {createError && <p className="mt-4 rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-[12px] leading-5 text-red-800" role="alert">{createError}</p>}
+
+        <div className="mt-4 flex items-center justify-between border-t border-line pt-5">
           {step === 0 ? (
             <Link href="/dashboard/orders" className="text-[13px] font-medium text-ink-mute hover:text-ink">
               Cancel
@@ -122,29 +180,15 @@ export default function CreateEscrowWizard() {
               Continue
             </button>
           ) : (
-            <button type="button" onClick={() => setDone(true)} className="btn btn-dark !py-2.5 text-[13px]">
-              Create escrow
+            <button type="button" disabled={!itemApproved || !preflightReady || !session || creating} onClick={createOrder} className="btn btn-dark !py-2.5 text-[13px] disabled:opacity-40">
+              {creating ? "Saving order…" : "Create order link"}
             </button>
           )}
         </div>
       </div>
-      <p className="mt-3 text-center text-[11px] text-ink-faint">Nothing is charged here · a private payment link is generated for the buyer</p>
-
-      {type && (
-        <ListingCheck
-          draft={{
-            type,
-            item: f.item,
-            amount: f.amount,
-            description: f.desc,
-            imageCount: f.images.length,
-            shipping: f.shipping,
-            proof: f.proof,
-            release: f.release,
-            disputeWindowDays: f.dispute,
-          }}
-        />
-      )}
+      </div>
+      </div>
+      <p className="mt-3 text-center text-[11px] text-ink-faint">{session ? "Orders save to Supabase when configured, or local development storage in this preview. Testnet payment verification is not connected." : "Connect Noir Wallet and sign in before saving a merchant order."}</p>
     </div>
   );
 }
@@ -163,22 +207,25 @@ function StepItem({
   set: (k: keyof Fields) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
   setF: React.Dispatch<React.SetStateAction<Fields>>;
 }) {
-  const onPickImages = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const picked = Array.from(e.target.files ?? []).map((file) => ({ name: file.name, url: URL.createObjectURL(file) }));
-    setF((p) => {
-      const next = [...p.images, ...picked];
-      // revoke any that overflow the 3-photo cap so we don't leak object URLs
-      next.slice(3).forEach((img) => URL.revokeObjectURL(img.url));
-      return { ...p, images: next.slice(0, 3) };
-    });
+  const [uploadError, setUploadError] = useState("");
+  const onPickImages = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    setUploadError("");
+    const remaining = Math.max(0, 3 - f.images.length);
+    const picked: ImageItem[] = [];
+    try {
+      for (const file of files.slice(0, remaining)) {
+        if (!file.type.startsWith("image/")) throw new Error("Choose image files only.");
+        if (file.size > 12 * 1024 * 1024) throw new Error("Each source photo must be under 12 MB.");
+        picked.push({ name: file.name, dataUrl: await compressPhoto(file) });
+      }
+      setF((p) => ({ ...p, images: [...p.images, ...picked].slice(0, 3) }));
+    } catch (error) { setUploadError(error instanceof Error ? error.message : "Could not read this image."); }
     e.target.value = "";
   };
 
   const removeImage = (idx: number) =>
-    setF((p) => {
-      URL.revokeObjectURL(p.images[idx]?.url);
-      return { ...p, images: p.images.filter((_, j) => j !== idx) };
-    });
+    setF((p) => ({ ...p, images: p.images.filter((_, j) => j !== idx) }));
 
   return (
     <div className="space-y-5">
@@ -205,8 +252,9 @@ function StepItem({
         </Field>
       </div>
 
-      <Field label="Description" optional>
+      <Field label="Description">
         <Textarea value={f.desc} onChange={set("desc")} placeholder="What the buyer is getting, condition, what's included…" />
+        <Hint>{type === "physical" ? "Include quantity, condition, what is included, and any delivery timing or arrangements the buyer should know. Minimum 40 characters." : "Include quantity, condition, exactly what is included, and how the digital item will be delivered. Minimum 40 characters."}</Hint>
       </Field>
 
       {type === "physical" && (
@@ -216,7 +264,7 @@ function StepItem({
               <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-ink-mute">
                 <IconImage />
               </span>
-              <span className="text-[12.5px] text-ink-soft">Upload up to 3 photos — at least one required</span>
+              <span className="text-[12.5px] text-ink-soft">Upload up to 3 photos  -  at least one required</span>
               <input type="file" accept="image/*" multiple className="hidden" onChange={onPickImages} />
             </label>
           ) : (
@@ -224,7 +272,7 @@ function StepItem({
               {f.images.map((img, i) => (
                 <div key={`${img.name}-${i}`} className="group relative aspect-square overflow-hidden rounded-xl border border-accent-soft bg-bg-soft">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={img.url} alt={img.name} className="h-full w-full object-cover" />
+                  <img src={img.dataUrl} alt={img.name} className="h-full w-full object-cover" />
                   <span className="pointer-events-none absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/60 to-transparent px-1.5 pb-1 pt-4 text-[9px] text-white">{img.name}</span>
                   <button
                     type="button"
@@ -246,16 +294,21 @@ function StepItem({
             </div>
           )}
           <p className="mt-1.5 text-[11px] text-ink-mute">{f.images.length}/3 added · buyers trust what they can see.</p>
+          {uploadError && <p role="alert" className="mt-1 text-[11px] text-red-700">{uploadError}</p>}
         </Field>
       )}
 
       {type === "digital" && (
         <Field label="Delivery method">
-          <Select value={f.deliveryMethod} onChange={set("deliveryMethod")}>
-            <option value="link">Download link</option>
-            <option value="file">File upload</option>
-            <option value="key">License key</option>
-          </Select>
+          <ChoiceSelect
+            value={f.deliveryMethod}
+            onChange={(value) => setF((previous) => ({ ...previous, deliveryMethod: value }))}
+            options={[
+              { value: "link", label: "Download link", description: "Buyer receives a private link to the deliverable." },
+              { value: "file", label: "File upload", description: "A file is delivered after the escrow is funded." },
+              { value: "key", label: "License key", description: "A key or activation code is delivered to the buyer." },
+            ]}
+          />
         </Field>
       )}
     </div>
@@ -264,72 +317,56 @@ function StepItem({
 
 /* ---------- Step 2: terms ---------- */
 function StepTerms({
-  type,
   f,
-  set,
+  setF,
 }: {
-  type: Type;
   f: Fields;
-  set: (k: keyof Fields) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
+  setF: React.Dispatch<React.SetStateAction<Fields>>;
 }) {
   return (
     <div className="space-y-5">
-      {type === "physical" ? (
-        <>
-          <Field label="Shipping & delivery terms">
-            <Textarea value={f.shipping} onChange={set("shipping")} placeholder="Carrier, estimated delivery, who pays shipping…" />
-          </Field>
-          <Field label="Delivery confirmation">
-            <Select value={f.confirm} onChange={set("confirm")}>
-              <option value="code">Buyer enters a one-time release code on receipt</option>
-              <option value="tracking">Tracking marked delivered</option>
-            </Select>
-          </Field>
-        </>
-      ) : (
-        <Field label="Proof of delivery">
-          <Select value={f.proof} onChange={set("proof")}>
-            <option value="access">Access / download log</option>
-            <option value="confirm">Buyer confirms receipt</option>
-          </Select>
-          <Hint>Delivery is evidenced without exposing the private content itself.</Hint>
-        </Field>
-      )}
-
-      <Field label="Release conditions" optional>
-        <Textarea value={f.release} onChange={set("release")} placeholder="What must be true for funds to release to you." />
-      </Field>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Dispute window">
-          <Select value={f.dispute} onChange={set("dispute")}>
-            <option value="3">3 days</option>
-            <option value="7">7 days</option>
-            <option value="14">14 days</option>
-          </Select>
-        </Field>
-        <Field label="Payment link expires">
-          <Select value={f.expiry} onChange={set("expiry")}>
-            <option value="24">24 hours</option>
-            <option value="72">72 hours</option>
-            <option value="168">7 days</option>
-          </Select>
-        </Field>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <PolicyTerm title="Release mechanism" description={CODE_RELEASE_TERMS} icon="code" />
+        <PolicyTerm title="Dispute window" description={`${PLATFORM_DISPUTE_WINDOW_DAYS} days, set by Zecrow for every order.`} icon="time" />
       </div>
+      <Field label="Payment link expires">
+        <ChoiceSelect
+          value={f.expiry}
+          onChange={(value) => setF((previous) => ({ ...previous, expiry: value }))}
+          options={[
+            { value: "24", label: "24 hours", description: "Order link closes after one day." },
+            { value: "72", label: "72 hours", description: "Order link closes after three days." },
+            { value: "168", label: "7 days", description: "Order link closes after one week." },
+          ]}
+        />
+      </Field>
+    </div>
+  );
+}
+
+function PolicyTerm({ title, description, icon }: { title: string; description: string; icon: "code" | "time" }) {
+  return (
+    <div className="flex items-start gap-3 rounded-xl border border-line bg-bg-soft px-3.5 py-3">
+      <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-line bg-white text-accent-ink">
+        {icon === "code" ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2.5" stroke="currentColor" strokeWidth="1.7"/><path d="M8 10V7a4 4 0 1 1 8 0v3M8.5 15h7" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/></svg> : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1.7"/><path d="M12 7v5l3 2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/></svg>}
+      </span>
+      <span><span className="block text-[12px] font-semibold text-ink">{title}</span><span className="mt-0.5 block text-[10.5px] leading-4 text-ink-mute">{description}</span></span>
     </div>
   );
 }
 
 /* ---------- Step 3: review ---------- */
-function StepReview({ type, f, orderId }: { type: Type; f: Fields; orderId: number }) {
+function StepReview({ type, f }: { type: Type; f: Fields }) {
   const rows: [string, string][] = [
     ["Type", type === "physical" ? "Physical goods" : "Digital goods"],
-    ["Item", f.item || "—"],
+    ["Item", f.item || "Not set"],
     ["Amount", `${f.amount || "0.00"} ZEC`],
+    ["Description", f.desc || "Not set"],
     type === "physical"
-      ? ["Delivery", f.confirm === "code" ? "One-time release code" : "Tracking delivered"]
+      ? ["Delivery details", "Included in the description"]
       : ["Delivery", f.deliveryMethod === "link" ? "Download link" : f.deliveryMethod === "file" ? "File upload" : "License key"],
-    ["Dispute window", `${f.dispute} days`],
+    ["Release mechanism", "One-time Zecrow code after delivery"],
+    ["Dispute window", `${PLATFORM_DISPUTE_WINDOW_DAYS} days (platform policy)`],
     ["Link expires", f.expiry === "168" ? "7 days" : `${f.expiry} hours`],
   ];
 
@@ -337,51 +374,89 @@ function StepReview({ type, f, orderId }: { type: Type; f: Fields; orderId: numb
     <div>
       <div className="mb-4 flex items-center gap-2">
         <span className="text-[16px] font-semibold tracking-tight text-ink">Review escrow</span>
-        <span className="annotation text-ink-faint">#{orderId}</span>
+        <span className="annotation text-ink-faint">Draft</span>
       </div>
       <div className="overflow-hidden rounded-xl border border-line">
         {rows.map(([k, v], i) => (
           <div key={k} className={`flex items-center justify-between px-4 py-3 text-[13px] ${i % 2 ? "bg-bg-soft" : "bg-white"}`}>
             <span className="text-ink-mute">{k}</span>
-            <span className="font-medium text-ink">{v}</span>
+            <span className="max-w-[68%] break-words text-right font-medium text-ink">{v}</span>
           </div>
         ))}
       </div>
       <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-accent-soft bg-accent-wash/50 px-4 py-3 text-[12px] leading-5 text-accent-ink">
         <IconShield />
-        <span>Funds are held in managed escrow and only release on your terms, or a human arbiter's decision. Not trustless custody.</span>
+        <span>Planned managed escrow: funds would release under these terms or a human arbiter's decision. This prototype does not hold funds.</span>
       </div>
     </div>
   );
 }
 
 /* ---------- Success ---------- */
-function Success({ orderId, link, item, amount, type }: { orderId: number; link: string; item: string; amount: string; type: Type }) {
+function Success({ orderId, code, link, item, amount, type }: { orderId: number; code: string; link: string; item: string; amount: string; type: Type }) {
+  const [copied, setCopied] = useState(false);
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      setCopied(false);
+    }
+  };
+
   return (
     <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="mx-auto max-w-md text-center">
       <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4L19 7" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
       </div>
-      <h1 className="text-[22px] font-semibold tracking-tight text-ink">Escrow created</h1>
+      <h1 className="text-[22px] font-semibold tracking-tight text-ink">Order link created</h1>
       <p className="mt-2 text-[13.5px] text-ink-soft">
-        Order #{orderId} · {item || (type === "physical" ? "Physical item" : "Digital item")} · {amount || "0.00"} ZEC. Share the private link so the buyer can fund it.
+        Order #{orderId} · {item || (type === "physical" ? "Physical item" : "Digital item")} · {amount || "0.00"} ZEC. The order and its buyer link are saved.
       </p>
 
-      <div className="card mt-6 p-5">
-        <FauxQR seed={link} />
+      <div className="card mt-6 p-5 text-left">
+        <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-3 text-[12px] leading-5 text-amber-950">
+          <IconShield />
+          <span>Payment verification is not connected yet. This link is for reviewing the saved order; no funds can be accepted.</span>
+        </div>
         <div className="mt-4 flex items-center gap-2 rounded-xl border border-line bg-bg-soft px-3 py-2.5">
           <span className="truncate font-mono text-[12.5px] text-ink">{link}</span>
-          <button className="ml-auto shrink-0 rounded-lg bg-ink px-3 py-1.5 text-[11.5px] font-semibold text-white">Copy</button>
+          <button type="button" onClick={copyLink} className="ml-auto shrink-0 rounded-lg bg-ink px-3 py-1.5 text-[11.5px] font-semibold text-white">{copied ? "Copied" : "Copy"}</button>
         </div>
-        <p className="mt-3 text-[11px] text-ink-faint">Testnet demo · link not live</p>
+        <p className="mt-3 text-[11px] text-ink-faint">Local demo · link expires with the order window</p>
       </div>
 
       <div className="mt-5 flex justify-center gap-3">
-        <Link href={`/e/${link.split("/e/")[1] ?? ""}`} className="btn btn-dark !py-2.5 text-[13px]">Preview buyer link</Link>
+        <Link href={`/e/${code}`} className="btn btn-dark !py-2.5 text-[13px]">Open buyer link</Link>
         <Link href="/dashboard/orders" className="btn btn-ghost !py-2.5 text-[13px]">Go to orders</Link>
       </div>
     </motion.div>
   );
+}
+
+async function compressPhoto(file: File): Promise<string> {
+  const bitmap = await createImageBitmap(file);
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  if (!context) { bitmap.close(); throw new Error("Could not process this photo."); }
+  try {
+    let smallest = "";
+    for (const maxSide of [1024, 896, 768, 640, 512]) {
+      const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+      canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+      canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+      context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      for (const quality of [0.62, 0.5, 0.42]) {
+        smallest = canvas.toDataURL("image/jpeg", quality);
+        if (smallest.length <= 250_000) return smallest;
+      }
+    }
+    if (smallest.length > 300_000) throw new Error("This photo is too detailed to compress for review. Choose a smaller image.");
+    return smallest;
+  } finally {
+    bitmap.close();
+  }
 }
 
 /* ---------- bits ---------- */
@@ -424,17 +499,6 @@ function Textarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
     </span>
   );
 }
-function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
-  return (
-    <span className="group relative block">
-      <select {...props} className={`${fieldInput} cursor-pointer appearance-none pr-9`} />
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ink-mute">
-        <path d="m6 9 6 6 6-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-      <Underline />
-    </span>
-  );
-}
 function Hint({ children }: { children: React.ReactNode }) {
   return <p className="mt-1.5 text-[11px] text-ink-mute">{children}</p>;
 }
@@ -453,27 +517,5 @@ function TypeCard({ active, onClick, title, desc, illustration }: { active: bool
     </button>
   );
 }
-function FauxQR({ seed }: { seed: string }) {
-  const n = 21;
-  const cells = [];
-  let s = 0;
-  for (let i = 0; i < seed.length; i++) s = (s * 31 + seed.charCodeAt(i)) % 100000;
-  for (let i = 0; i < n * n; i++) {
-    s = (s * 1103515245 + 12345) & 0x7fffffff;
-    const x = i % n;
-    const y = Math.floor(i / n);
-    const finder = (x < 7 && y < 7) || (x >= n - 7 && y < 7) || (x < 7 && y >= n - 7);
-    const on = finder ? (x === 0 || x === 6 || y === 0 || y === 6 || (x > 1 && x < 5 && y > 1 && y < 5) || x === n - 1 || x === n - 7 || y === n - 7) : s % 100 > 52;
-    cells.push(on);
-  }
-  return (
-    <div className="mx-auto grid w-40" style={{ gridTemplateColumns: `repeat(${n}, 1fr)` }} aria-hidden>
-      {cells.map((on, i) => (
-        <span key={i} className="aspect-square" style={{ background: on ? "#0b0b0d" : "transparent" }} />
-      ))}
-    </div>
-  );
-}
-
 function IconImage() { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="2.5" stroke="currentColor" strokeWidth="1.6" /><path d="M3 16l5-5 4 4 3-3 6 6" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" /><circle cx="8.5" cy="9" r="1.3" fill="currentColor" /></svg>; }
 function IconShield() { return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" className="mt-0.5 shrink-0"><path d="M12 3l7 3v6c0 4.5-3 7.3-7 8.5C8 19.3 5 16.5 5 12V6z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" /></svg>; }

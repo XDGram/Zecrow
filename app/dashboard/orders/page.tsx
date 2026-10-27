@@ -1,20 +1,54 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import PageHeader from "@/components/dashboard/PageHeader";
 import OrdersTable from "@/components/dashboard/OrdersTable";
 import { ORDERS, STATUS_META, type OrderStatus } from "@/lib/dashboardData";
+import { useWallet } from "@/components/wallet/WalletProvider";
 
-const SUMMARY: OrderStatus[] = ["funded", "delivered", "disputed", "released"];
+const SUMMARY: OrderStatus[] = ["awaiting_payment", "funded", "delivered", "disputed", "released", "expired"];
 
 export default function OrdersPage() {
+  const { session } = useWallet();
+  const [orders, setOrders] = useState(ORDERS);
+
+  useEffect(() => {
+    if (!session) {
+      setOrders(ORDERS);
+      return;
+    }
+    let active = true;
+    fetch("/api/escrows")
+      .then(async (response) => {
+        if (!response.ok) return;
+        const result = await response.json() as { orders?: { number: number; item: string; type: "physical" | "digital"; amountZec: string; createdAt: string; status: OrderStatus }[] };
+        if (!active || !Array.isArray(result.orders)) return;
+        const saved = result.orders.map((order) => ({
+          id: String(order.number),
+          item: order.item,
+          type: order.type,
+          amountZec: Number(order.amountZec),
+          counterparty: "Buyer link",
+          role: "merchant" as const,
+          status: order.status,
+          created: new Date(order.createdAt).toLocaleDateString(),
+        }));
+        setOrders([...saved, ...ORDERS]);
+      })
+      .catch(() => undefined);
+    return () => { active = false; };
+  }, [session]);
+
   const counts = Object.fromEntries(
-    SUMMARY.map((s) => [s, ORDERS.filter((o) => o.status === s).length])
+    SUMMARY.map((s) => [s, orders.filter((o) => o.status === s).length])
   ) as Record<OrderStatus, number>;
 
   return (
     <>
       <PageHeader
         title="Orders"
-        subtitle="Every escrow you've created — physical and digital goods."
+        subtitle="Every escrow you've created  -  physical and digital goods."
         action={
           <Link href="/dashboard/create" className="btn btn-dark !py-2.5">
             <span className="text-base leading-none">+</span> Create escrow
@@ -22,7 +56,7 @@ export default function OrdersPage() {
         }
       />
 
-      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
         {SUMMARY.map((s) => (
           <div key={s} className="card p-3.5">
             <div className="flex items-center gap-2">
@@ -38,7 +72,7 @@ export default function OrdersPage() {
         ))}
       </div>
 
-      <OrdersTable />
+      <OrdersTable orders={orders} />
     </>
   );
 }

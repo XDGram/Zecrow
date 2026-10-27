@@ -28,7 +28,6 @@ const CASE = {
 export default function AiReviewRunner({ orderId = "4817" }: { orderId?: string }) {
   const [state, setState] = useState<"idle" | "running" | "done">("idle");
   const [result, setResult] = useState<Result | null>(null);
-  const [consent, setConsent] = useState(false);
 
   const run = async () => {
     setState("running");
@@ -37,7 +36,7 @@ export default function AiReviewRunner({ orderId = "4817" }: { orderId?: string 
       const res = await fetch(`/api/escrows/${orderId}/ai-review`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...CASE, consentImageProvenance: consent }),
+        body: JSON.stringify({ ...CASE }),
       });
       const data = (await res.json()) as Result;
       setResult(data);
@@ -58,12 +57,8 @@ export default function AiReviewRunner({ orderId = "4817" }: { orderId?: string 
       {state === "idle" && (
         <div className="mt-3 space-y-3">
           <p className="text-[11.5px] leading-5 text-ink-mute">
-            Organises the evidence into a neutral summary for the arbiter. It never moves funds or decides the case.
+            Sample statements only. No case is loaded and no photos are attached or sent. The provider can organise supplied evidence, but it never decides the case or moves funds.
           </p>
-          <label className="flex items-start gap-2 text-[11.5px] text-ink-soft">
-            <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-0.5 accent-[var(--accent)]" />
-            Also run an image-provenance check (sends the disputed photos to an external reverse-image service).
-          </label>
           <button onClick={run} className="btn btn-dark !py-2.5 text-[12.5px]">Run AI review</button>
         </div>
       )}
@@ -85,7 +80,7 @@ function ResultView({ result, onRetry }: { result: Result; onRetry: () => void }
     return (
       <div className="mt-3 space-y-2">
         <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-[11.5px] leading-5 text-amber-900">
-          AI review unavailable — {result.reason ?? "provider not configured."} Manual review stays available.
+          AI review unavailable  -  {result.reason ?? "provider not configured."} Manual review stays available.
         </div>
         <button onClick={onRetry} className="btn btn-ghost !py-2 text-[12px]">Try again</button>
       </div>
@@ -126,7 +121,7 @@ function ResultView({ result, onRetry }: { result: Result; onRetry: () => void }
       </div>
 
       {result.provenance && (
-        <div className="text-[10.5px] text-ink-mute">Image provenance: {result.provenance.status}{result.provenance.reason ? ` — ${result.provenance.reason}` : ""}</div>
+        <div className="text-[10.5px] text-ink-mute">Image provenance: {result.provenance.status}{result.provenance.reason ? `  -  ${result.provenance.reason}` : ""}</div>
       )}
 
       <p className="text-[10.5px] leading-4 text-ink-faint">{r.disclaimer}</p>

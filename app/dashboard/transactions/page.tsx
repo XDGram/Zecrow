@@ -17,7 +17,7 @@ export default function TransactionsPage() {
     <>
       <PageHeader
         title="Transactions"
-        subtitle="Shielded on-chain movements — funding, releases and refunds. Status is confirmation state, not a client flag."
+        subtitle="Shielded on-chain movements  -  funding, releases and refunds. Status is confirmation state, not a client flag."
       />
 
       <div className="mb-4 grid grid-cols-3 gap-3">

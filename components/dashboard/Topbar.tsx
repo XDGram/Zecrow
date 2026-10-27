@@ -10,8 +10,8 @@ export default function Topbar() {
         <div className="flex min-w-0 items-center gap-3">
           <MobileNav />
           <div className="min-w-0">
-            <div className="truncate text-[15px] font-semibold tracking-tight text-ink">Good afternoon, Emma</div>
-            <div className="hidden text-[11.5px] text-ink-mute sm:block">Here&apos;s what&apos;s moving across your escrows</div>
+            <div className="truncate text-[15px] font-semibold tracking-tight text-ink">Merchant workspace</div>
+            <div className="hidden text-[11.5px] text-ink-mute sm:block">Orders, deliveries and escrow activity</div>
           </div>
         </div>
 

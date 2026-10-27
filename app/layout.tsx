@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Zecrow: Private escrow for real commerce on Zcash",
   description:
-    "A merchant creates a private payment link, the buyer funds it with shielded Zcash, and funds are released when delivery is confirmed.",
+    "A hackathon prototype exploring managed escrow for private commerce on Zcash.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

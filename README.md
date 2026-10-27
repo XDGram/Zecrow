@@ -1,44 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Zecrow
 
-## Getting Started
+Zecrow is a Zecathon prototype exploring managed escrow for private commerce on Zcash. The proposed flow uses a merchant-created order, shielded Zcash funding, delivery confirmation with a one-time release code, and human review for disputes.
 
-First, run the development server:
+## Current implementation
+
+- Next.js 16 application with a public product site and dashboard prototype.
+- Noir Wallet connection accepts a Zcash testnet Unified Address. Sign-in uses a server-issued, one-time challenge, verifies the testnet message signature, and establishes an HTTP-only signed session cookie. Orders are owned by the derived transparent address used for signing, not linked to the shielded Unified Address.
+- Merchant listing readiness calls the Groq API when `GROQ_API_KEY` is configured. It reviews the submitted draft and attached images, validates the returned JSON, and gates the wizard. This is a content readiness check, not product authentication or dispute resolution.
+- Dispute AI has a provider route and structured report validation, but currently receives sample case data from the UI. It has no user authentication, order access control, evidence upload/storage, or persisted reports.
+- Existing dashboard records, transactions, metrics, and disputes are illustrative sample data. Newly created orders appear in the merchant order list.
+- When `SUPABASE_URL` and the server-only `SUPABASE_SERVICE_ROLE_KEY` are configured, orders are stored in Supabase Postgres and evidence photos are uploaded to a private Supabase Storage bucket. The migration is in `supabase/migrations/`.
+- In local development without Supabase credentials, orders are saved in `.data/escrows.json`. This file store is only a preview fallback and is disabled in production. Buyer URLs contain a random bearer token; only its SHA-256 hash is stored in Supabase. Buyer pages receive short-lived signed photo URLs.
+- The Supabase project is not connected yet. Apply the migration and configure the server environment before deploying.
+- The local managed-custody backend has been ported to the current Zcash testnet node format: Zallet is built against Zebra v7 with its indexer enabled. A session-protected `/api/zcash/backend-status` route reports its sync/lock state. Set `ZALLET_RPC_URL` and `ZALLET_RPC_COOKIE_FILE` in the server environment to connect the app to it.
+- Funding remains disabled because order-specific deposit addresses, a payment watcher, confirmation policy, and reliable payment-to-order association are not implemented. The local Zebra/Zallet wallet must also finish syncing before it can safely operate.
+- Release-code verification, dispute decisions, expiry handling, refunds, and managed escrow payouts are not implemented. No AI output can trigger a financial action.
+
+Do not treat the prototype screens as evidence that funds are held, an order was saved, or a decision was recorded.
+
+## Run locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
+
+## Configure listing AI
+
+Create `.env.local` and add a server-side Groq key:
+
+```text
+GROQ_API_KEY=your_key_here
+```
+
+The listing checker uses `qwen/qwen3.8-27b` by default. Set `AI_MODEL` only to a model supported by the configured provider and capable of reviewing images for physical listings. Never expose the key with a `NEXT_PUBLIC_` variable.
 
 ## Connect Noir Wallet on Zcash testnet
 
-1. Install the official Noir Wallet testnet extension from the [Noir Wallet releases](https://github.com/NoirWallet/noir-wallet-sdk/releases). Use a release asset whose filename ends in `-testnet.zip`.
+1. Install the official Noir Wallet testnet extension from [Noir Wallet releases](https://github.com/NoirWallet/noir-wallet-sdk/releases). Choose a release asset whose filename ends in `-testnet.zip`.
 2. In Chrome, extract the ZIP, open `chrome://extensions`, enable Developer mode, and choose **Load unpacked** to select the extracted extension folder.
-3. Reload `http://localhost:3000` and choose **Connect wallet**. Zecrow accepts the connection only when Noir returns a Zcash testnet Unified Address.
+3. Reload the local app and select **Connect wallet**. Zecrow accepts a connection only when Noir returns a Zcash testnet Unified Address.
 
-This connection authorizes the site to read the selected account address. It does not yet create an authenticated user session or fund an escrow. Those require a server-verified signature challenge and a Zcash testnet payment watcher.
+The buyer sample page cannot send funds. The app has no order-backed deposit address, payment watcher, confirmation policy, or authenticated payment association. Do not send testnet funds to a configured address through a sample link.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Remaining work before a real escrow demo
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Create the hosted Supabase project, apply the migration, and set server secrets. Do not expose the service-role key to the browser.
+2. Configure and operate the compatible Zebra v7 + Zallet testnet backend; keep the wallet seed and RPC cookie private and back up wallet data.
+3. Implement order-specific testnet deposit addresses, deposit detection, confirmation and idempotency rules, and reliable order association. Keep buyer funding disabled until this is in place.
+4. Implement the managed-custody service and secure signing/recovery operations. Define key ownership, backups, and service outage behavior.
+5. Add server-validated one-time release codes, delivery deadlines, dispute freezes, and refund/release jobs. No path may bypass an open dispute or repeat a transfer.
+6. Persist dispute evidence and AI reports, add participant/arbiter authorization, rate limiting, and audit access.
+7. Replace illustrative dashboard records with persisted data, configure hosting and secrets, then run recovery and end-to-end testnet scenarios before claiming live escrow.
 
-## Learn More
+## Environment variables
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See `.env.example` for placeholders. `.env.local` is private and must not be committed.

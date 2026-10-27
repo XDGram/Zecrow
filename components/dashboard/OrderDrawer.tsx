@@ -93,7 +93,7 @@ function Content({ order, onClose }: { order: Order; onClose: () => void }) {
         {/* amount + status */}
         <div className="flex items-center justify-between rounded-xl bg-bg-soft p-4">
           <div>
-            <div className="annotation text-ink-mute">In escrow</div>
+            <div className="annotation text-ink-mute">{order.status === "awaiting_payment" ? "Order amount" : order.status === "expired" ? "Amount" : "In escrow"}</div>
             <div className="mt-0.5 text-[22px] font-semibold tracking-tight text-ink tabular-nums">
               {order.amountZec.toFixed(2)} <span className="text-[12px] font-normal text-ink-mute">ZEC</span>
             </div>
@@ -109,7 +109,7 @@ function Content({ order, onClose }: { order: Order; onClose: () => void }) {
           <SectionTitle>Escrow progress</SectionTitle>
           {paused && (
             <div className="mb-3 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[11.5px] font-medium text-red-700">
-              <span className="h-1.5 w-1.5 rounded-full bg-red-500" /> Auto-release paused — dispute open
+              <span className="h-1.5 w-1.5 rounded-full bg-red-500" /> Auto-release paused  -  dispute open
             </div>
           )}
           <ol className="relative ml-1 space-y-4 border-l border-line pl-5">
@@ -131,18 +131,18 @@ function Content({ order, onClose }: { order: Order; onClose: () => void }) {
 
         {/* type-specific delivery / evidence */}
         <section>
-          <SectionTitle>{order.type === "physical" ? "Shipping & delivery" : "Delivery & access"}</SectionTitle>
+          <SectionTitle>{order.type === "physical" ? "Delivery" : "Digital delivery"}</SectionTitle>
           <div className="space-y-2">
             {order.type === "physical" ? (
               <>
-                <InfoRow label="Shipping" value="Standard · tracked" />
-                <InfoRow label="Confirmation" value="Buyer one-time release code" />
+                <InfoRow label="Details" value="See the order description" />
+                <InfoRow label="Receipt confirmation" value="Buyer one-time release code" />
                 <InfoRow label="Release code" value={order.status === "released" ? "Used ✓" : "Pending"} />
               </>
             ) : (
               <>
                 <InfoRow label="Delivery method" value="Download link" />
-                <InfoRow label="Proof of delivery" value="Access log" />
+                <InfoRow label="Receipt confirmation" value="Buyer one-time release code" />
                 <InfoRow label="Content" value="Shared with buyer only" />
               </>
             )}
@@ -165,51 +165,29 @@ function Content({ order, onClose }: { order: Order; onClose: () => void }) {
           <SectionTitle>Activity</SectionTitle>
           <div className="space-y-3">
             <Event label="Order created" when={order.created} />
-            {done >= 2 && <Event label="Funded on-chain" when={`${order.created} · ztx 5h2k…`} />}
-            {done >= 3 && <Event label={order.type === "physical" ? "Marked shipped" : "Delivered"} when={order.deadline ?? order.created} />}
-            {paused && <Event label="Dispute opened" when="Jan 31" tone="red" />}
-            {order.status === "released" && <Event label="Released to merchant" when={order.created} tone="green" />}
+            {done >= 2 && <Event label="Example funding event" when={order.created} />}
+            {done >= 3 && <Event label={order.type === "physical" ? "Example shipment event" : "Example delivery event"} when={order.deadline ?? order.created} />}
+            {paused && <Event label="Example dispute event" when={order.created} tone="red" />}
+            {order.status === "released" && <Event label="Example release event" when={order.created} tone="green" />}
           </div>
         </section>
       </div>
 
       {/* actions */}
       <div className="border-t border-line p-4">
-        <Actions order={order} onClose={onClose} />
+        <Actions />
         <p className="mt-2.5 text-center text-[10.5px] text-ink-faint">Illustrative · testnet demo</p>
       </div>
     </>
   );
 }
 
-function Actions({ order, onClose }: { order: Order; onClose: () => void }) {
-  switch (order.status) {
-    case "awaiting_payment":
-      return (
-        <div className="flex gap-2">
-          <button className="btn btn-dark flex-1 !py-2.5 text-[13px]">Copy payment link</button>
-          <button onClick={onClose} className="btn btn-ghost flex-1 !py-2.5 text-[13px]">Cancel order</button>
-        </div>
-      );
-    case "funded":
-      return (
-        <div className="flex gap-2">
-          <button className="btn btn-dark flex-1 !py-2.5 text-[13px]">{order.type === "physical" ? "Submit shipment" : "Deliver now"}</button>
-          <button className="btn btn-ghost !px-4 !py-2.5 text-[13px]">Dispute</button>
-        </div>
-      );
-    case "delivered":
-      return (
-        <div className="flex gap-2">
-          <button className="btn btn-ghost flex-1 !py-2.5 text-[13px]">Message buyer</button>
-          <button className="btn btn-ghost !px-4 !py-2.5 text-[13px]">Dispute</button>
-        </div>
-      );
-    case "disputed":
-      return <a href="/dashboard/disputes" className="btn btn-dark w-full !py-2.5 text-[13px]">Go to dispute</a>;
-    default:
-      return <button className="btn btn-ghost w-full !py-2.5 text-[13px]">View receipt</button>;
-  }
+function Actions() {
+  return (
+    <div className="rounded-lg bg-bg-soft px-3 py-2.5 text-center text-[12px] leading-5 text-ink-mute">
+      Order actions are unavailable because this drawer shows sample data.
+    </div>
+  );
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {

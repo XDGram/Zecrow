@@ -22,9 +22,9 @@ function WalletCard() {
     >
       <span aria-hidden className="pointer-events-none absolute -right-10 -top-12 h-32 w-32 rounded-full bg-white/35 blur-2xl" />
       <div className="relative flex items-center justify-between">
-        <span className="text-[12px] font-bold tracking-tight">Escrow wallet</span>
+        <span className="text-[12px] font-bold tracking-tight">Escrow wallet preview</span>
         <span className="flex items-center gap-1 rounded-full bg-black/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" /> Testnet
+          Sample
         </span>
       </div>
       <div className="relative mt-3 text-[9px] font-bold uppercase tracking-[0.16em] text-black/55">Shielded balance</div>
@@ -32,9 +32,9 @@ function WalletCard() {
         ••••••<span className="ml-1.5 text-[12px] font-bold tracking-normal">ZEC</span>
       </div>
       <div className="relative mt-3 flex items-center justify-between">
-        <span className="font-mono text-[11px] text-black/70">u1 fq…9kd2</span>
-        <button className="rounded-full bg-black/85 px-3 py-1 text-[10.5px] font-semibold text-white transition-transform hover:scale-[1.03]">
-          Deposit
+        <span className="font-mono text-[11px] text-black/70">Example address</span>
+        <button disabled className="cursor-not-allowed rounded-full bg-black/50 px-3 py-1 text-[10.5px] font-semibold text-white opacity-70">
+          Deposit unavailable
         </button>
       </div>
     </div>
@@ -81,12 +81,12 @@ function FeaturedDispute() {
           <span className="text-[11px] text-ink-mute">#4817</span>
         </div>
         <div className="mt-3 text-[14px] font-semibold text-ink">Vintage film camera</div>
-        <div className="text-[11.5px] text-ink-mute">1.80 ZEC held · auto-release paused</div>
+        <div className="text-[11.5px] text-ink-mute">Example case · no live funds</div>
 
         <div className="mt-3">
           <div className="flex items-center justify-between text-[10.5px] text-ink-mute">
             <span>AI evidence review</span>
-            <span>ready</span>
+            <span>sample</span>
           </div>
           <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-bg-sunk">
             <motion.div
@@ -98,7 +98,7 @@ function FeaturedDispute() {
           </div>
         </div>
 
-        <button className="btn btn-dark mt-4 w-full !py-2.5 text-[12.5px]">Review dispute</button>
+        <a href="/dashboard/disputes" className="btn btn-dark mt-4 w-full !py-2.5 text-center text-[12.5px]">Review sample dispute</a>
       </div>
     </div>
   );

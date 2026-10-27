@@ -5,7 +5,7 @@ import { getNoirWallet, isNoirWalletInstalled, type ZcashConnectResult } from "@
 
 export type WalletStatus = "checking" | "disconnected" | "connecting" | "connected" | "wrong-network" | "error";
 
-export type WalletSession = { address: string; signature: string; signedAt: number };
+export type WalletSession = { address: string; issuedAt: number; expiresAt: number };
 
 type WalletContextValue = {
   status: WalletStatus;
@@ -39,7 +39,6 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   const accept = useCallback((result: ZcashConnectResult | null) => {
     if (!result) {
       setConnection(null);
-      setSession(null);
       setStatus("disconnected");
       return false;
     }
@@ -80,6 +79,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
       if (chain?.network && chain.network.toLowerCase() !== "testnet") {
         setConnection(null);
         setSession(null);
+        void fetch("/api/auth/logout", { method: "POST" }).catch(() => undefined);
         setStatus("wrong-network");
       } else {
         void refresh();
@@ -96,6 +96,17 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
       wallet.zcash.removeListener("chainChanged", onChain);
     };
   }, [accept]);
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/auth/session", { cache: "no-store" })
+      .then(async (response) => {
+        const result = await response.json() as { session?: WalletSession | null };
+        if (active && response.ok && result.session) setSession(result.session);
+      })
+      .catch(() => undefined);
+    return () => { active = false; };
+  }, []);
 
   const connect = useCallback(async () => {
     setStatus("connecting");
@@ -119,20 +130,29 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     }
   }, [accept]);
 
-  // "Sign in with Zcash" — a derived-key signature proving control, unlinkable to the
-  // main address. (Server-side verification is the next integration step.)
+  // Sign a server-issued, one-time challenge. The server verifies the Zcash message
+  // signature before it creates the HTTP-only session cookie.
   const signIn = useCallback(async () => {
     const wallet = getNoirWallet();
     if (!wallet || !connection) return;
     setSigningIn(true);
     setMessage("");
     try {
-      const nonce = Math.random().toString(36).slice(2, 10);
-      const text = `zecrow.app wants you to sign in with your Zcash account.\n\nThis signature proves control of your wallet and never moves funds.\nNonce: ${nonce}`;
-      const res = await wallet.zcash.signMessage(text, { signingMode: "derived" });
-      setSession({ address: res.address, signature: res.signature, signedAt: Date.now() });
-    } catch {
-      setMessage("Sign-in was cancelled.");
+      const challengeResponse = await fetch("/api/auth/challenge", { method: "POST" });
+      const challenge = await challengeResponse.json() as { message?: string; error?: string };
+      if (!challengeResponse.ok || !challenge.message) throw new Error(challenge.error ?? "Could not start wallet sign-in.");
+
+      const signature = await wallet.zcash.signMessage(challenge.message, { signingMode: "derived" });
+      const verifyResponse = await fetch("/api/auth/verify", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ signature: signature.signature, address: signature.address, pubkey: signature.pubkey }),
+      });
+      const verified = await verifyResponse.json() as { session?: WalletSession; error?: string };
+      if (!verifyResponse.ok || !verified.session) throw new Error(verified.error ?? "Wallet signature verification failed.");
+      setSession(verified.session);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Sign-in was cancelled.");
     } finally {
       setSigningIn(false);
     }
@@ -151,6 +171,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   const disconnect = useCallback(async () => {
     const wallet = getNoirWallet();
     try {
+      await fetch("/api/auth/logout", { method: "POST" });
       await wallet?.zcash.disconnect();
     } finally {
       setConnection(null);

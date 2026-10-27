@@ -29,7 +29,7 @@ export default function Hero() {
             className="chip"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-            Private escrow, settled on Zcash
+            Managed escrow prototype on Zcash
             <span className="chip-tag">See how →</span>
           </motion.a>
 
@@ -52,8 +52,7 @@ export default function Hero() {
             animate="show"
             className="mt-7 max-w-xl text-[16px] leading-relaxed text-ink-soft"
           >
-            Zecrow holds shielded Zcash in escrow until delivery is confirmed, so
-            merchants and buyers can transact without exposing who, what, or how much.
+            Zecrow is a hackathon prototype exploring private commerce on Zcash. The product flow is designed around managed escrow, while order persistence, payment verification, and fund release are still being built.
           </motion.p>
 
           <motion.div

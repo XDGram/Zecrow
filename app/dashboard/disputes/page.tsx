@@ -44,7 +44,7 @@ export default function DisputesPage() {
                 <div className="text-[11.5px] text-ink-mute">Opened Jan 31 · auto-release paused</div>
               </div>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-accent-soft bg-accent-wash/60 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-accent-ink">
-                <span className="h-1.5 w-1.5 rounded-full bg-accent" /> Funds held · 1.80 ZEC
+                <span className="h-1.5 w-1.5 rounded-full bg-accent" /> Example balance · 1.80 ZEC
               </span>
             </div>
 
@@ -73,7 +73,7 @@ export default function DisputesPage() {
               <div className="mt-3">
                 <DisputeDecision />
               </div>
-              <p className="mt-2.5 text-[11px] text-ink-mute">Decision controls are limited to an authorised arbiter and recorded in the audit trail.</p>
+              <p className="mt-2.5 text-[11px] text-ink-mute">Local preview only. Authentication, arbiter permissions, decision storage, and fund movement are not connected.</p>
             </div>
           </div>
         </div>

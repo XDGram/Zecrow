@@ -10,9 +10,9 @@ import { motion } from "framer-motion";
 
 const STAGES = [
   { label: "Order", status: "Order created", detail: "The buyer and seller agree on the order details." },
-  { label: "Payment", status: "Funds secured", detail: "Funds are held in escrow until the order is complete." },
+  { label: "Payment", status: "Example: funded", detail: "In the intended flow, a server-side payment watcher verifies the deposit before the order moves forward." },
   { label: "Delivery", status: "Delivery in progress", detail: "The seller shares delivery details with the buyer." },
-  { label: "Release", status: "Ready for release", detail: "Funds release when the buyer confirms delivery." },
+  { label: "Release", status: "Example: release step", detail: "In the intended flow, the buyer's valid one-time code is the release mechanism." },
 ];
 const STEPS = ["Created", "Funded", "Delivered", "Released"];
 

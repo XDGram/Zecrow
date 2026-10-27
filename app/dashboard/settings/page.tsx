@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import PageHeader from "@/components/dashboard/PageHeader";
+import ChoiceSelect from "@/components/dashboard/ChoiceSelect";
+import { PLATFORM_DISPUTE_WINDOW_DAYS } from "@/lib/listingCheck";
 
 export default function SettingsPage() {
   const [saved, setSaved] = useState(false);
@@ -33,21 +35,17 @@ export default function SettingsPage() {
           <ToggleRow label="Weekly summary" desc="A digest of your escrow activity" on={notes.weekly} onChange={(v) => setNotes((p) => ({ ...p, weekly: v }))} />
         </Section>
 
-        {/* defaults */}
-        <Section title="Escrow defaults">
-          <Field label="Default dispute window">
-            <Select defaultValue="7">
-              <option value="3">3 days</option>
-              <option value="7">7 days</option>
-              <option value="14">14 days</option>
-            </Select>
+        {/* platform policy and merchant preference */}
+        <Section title="Escrow policy">
+          <Field label="Dispute window">
+            <span className="inline-flex rounded-full bg-bg-sunk px-3 py-1.5 text-[12px] font-medium text-ink-soft">{PLATFORM_DISPUTE_WINDOW_DAYS} days · set by Zecrow</span>
           </Field>
           <Field label="Default link expiry">
-            <Select defaultValue="72">
-              <option value="24">24 hours</option>
-              <option value="72">72 hours</option>
-              <option value="168">7 days</option>
-            </Select>
+            <ChoiceSelect defaultValue="72" options={[
+              { value: "24", label: "24 hours" },
+              { value: "72", label: "72 hours" },
+              { value: "168", label: "7 days" },
+            ]} />
           </Field>
         </Section>
 
@@ -78,9 +76,6 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <div className="min-w-0 max-w-[60%] flex-1 text-right">{children}</div>
     </div>
   );
-}
-function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
-  return <select {...props} className="w-full cursor-pointer rounded-xl border border-line bg-white px-3 py-2.5 text-[13.5px] text-ink outline-none transition-colors hover:border-ink/15 focus:border-ink/20" />;
 }
 function ToggleRow({ label, desc, on, onChange }: { label: string; desc: string; on: boolean; onChange: (v: boolean) => void }) {
   return (

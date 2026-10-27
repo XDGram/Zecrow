@@ -6,7 +6,7 @@ export const PRIMARY: NavItem[] = [
   { label: "Overview", href: "/dashboard", icon: <IconGrid /> },
   { label: "Orders", href: "/dashboard/orders", icon: <IconBox /> },
   { label: "Transactions", href: "/dashboard/transactions", icon: <IconSwap /> },
-  { label: "Disputes", href: "/dashboard/disputes", icon: <IconScale />, badge: 1 },
+  { label: "Disputes", href: "/dashboard/disputes", icon: <IconScale /> },
   { label: "Documents", href: "/dashboard/documents", icon: <IconDoc /> },
 ];
 

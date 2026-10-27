@@ -16,26 +16,26 @@ const PILL_TONE: Record<string, string> = {
   mute: "bg-bg-sunk text-ink-mute",
 };
 
-export default function OrdersTable({ limit }: { limit?: number }) {
+export default function OrdersTable({ limit, orders = ORDERS }: { limit?: number; orders?: Order[] }) {
   const [tab, setTab] = useState<Tab>("all");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Order | null>(null);
 
   const counts = useMemo(
     () => ({
-      all: ORDERS.length,
-      physical: ORDERS.filter((o) => o.type === "physical").length,
-      digital: ORDERS.filter((o) => o.type === "digital").length,
+      all: orders.length,
+      physical: orders.filter((o) => o.type === "physical").length,
+      digital: orders.filter((o) => o.type === "digital").length,
     }),
-    []
+    [orders]
   );
 
   const rows = useMemo(() => {
-    const r = ORDERS.filter((o) => (tab === "all" ? true : o.type === tab)).filter((o) =>
+    const r = orders.filter((o) => (tab === "all" ? true : o.type === tab)).filter((o) =>
       o.item.toLowerCase().includes(query.toLowerCase())
     );
     return limit ? r.slice(0, limit) : r;
-  }, [tab, query, limit]);
+  }, [orders, tab, query, limit]);
 
   const tabs: { id: Tab; label: string }[] = [
     { id: "all", label: "All" },
