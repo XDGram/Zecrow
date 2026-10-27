@@ -4,16 +4,19 @@ import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { PhysicalIllustration, DigitalIllustration } from "./GoodsIllustration";
+import ListingCheck from "./ListingCheck";
 
 type Type = "physical" | "digital";
 
 const STEPS = ["Item", "Terms", "Review"];
 
+type ImageItem = { name: string; url: string };
+
 type Fields = {
   item: string;
   amount: string;
   desc: string;
-  images: string[];
+  images: ImageItem[];
   deliveryMethod: string;
   shipping: string;
   confirm: string;
@@ -126,6 +129,22 @@ export default function CreateEscrowWizard() {
         </div>
       </div>
       <p className="mt-3 text-center text-[11px] text-ink-faint">Nothing is charged here · a private payment link is generated for the buyer</p>
+
+      {type && (
+        <ListingCheck
+          draft={{
+            type,
+            item: f.item,
+            amount: f.amount,
+            description: f.desc,
+            imageCount: f.images.length,
+            shipping: f.shipping,
+            proof: f.proof,
+            release: f.release,
+            disputeWindowDays: f.dispute,
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -145,10 +164,21 @@ function StepItem({
   setF: React.Dispatch<React.SetStateAction<Fields>>;
 }) {
   const onPickImages = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const names = Array.from(e.target.files ?? []).map((file) => file.name);
-    setF((p) => ({ ...p, images: [...p.images, ...names].slice(0, 3) }));
+    const picked = Array.from(e.target.files ?? []).map((file) => ({ name: file.name, url: URL.createObjectURL(file) }));
+    setF((p) => {
+      const next = [...p.images, ...picked];
+      // revoke any that overflow the 3-photo cap so we don't leak object URLs
+      next.slice(3).forEach((img) => URL.revokeObjectURL(img.url));
+      return { ...p, images: next.slice(0, 3) };
+    });
     e.target.value = "";
   };
+
+  const removeImage = (idx: number) =>
+    setF((p) => {
+      URL.revokeObjectURL(p.images[idx]?.url);
+      return { ...p, images: p.images.filter((_, j) => j !== idx) };
+    });
 
   return (
     <div className="space-y-5">
@@ -191,14 +221,15 @@ function StepItem({
             </label>
           ) : (
             <div className="grid grid-cols-3 gap-2">
-              {f.images.map((name, i) => (
-                <div key={`${name}-${i}`} className="relative flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border border-accent-soft bg-accent-wash/30 p-2 text-center">
-                  <span className="text-accent-ink"><IconImage /></span>
-                  <span className="w-full truncate px-1 text-[9.5px] text-ink-soft">{name}</span>
+              {f.images.map((img, i) => (
+                <div key={`${img.name}-${i}`} className="group relative aspect-square overflow-hidden rounded-xl border border-accent-soft bg-bg-soft">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={img.url} alt={img.name} className="h-full w-full object-cover" />
+                  <span className="pointer-events-none absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/60 to-transparent px-1.5 pb-1 pt-4 text-[9px] text-white">{img.name}</span>
                   <button
                     type="button"
-                    onClick={() => setF((p) => ({ ...p, images: p.images.filter((_, j) => j !== i) }))}
-                    className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white text-ink-mute shadow-[var(--shadow-sm)] transition-colors hover:text-ink"
+                    onClick={() => removeImage(i)}
+                    className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white/90 text-ink-mute shadow-[var(--shadow-sm)] backdrop-blur transition-colors hover:text-ink"
                     aria-label="Remove photo"
                   >
                     <svg width="10" height="10" viewBox="0 0 20 20" fill="none"><path d="m5 5 10 10M15 5 5 15" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" /></svg>
