@@ -36,7 +36,7 @@ function WalletCard({ connection }: { connection: ZcashConnectResult | null }) {
         <span className="font-mono text-[11px] text-black/70">{connection ? shortAddress(connection.shielded) : "u1 ·· ·· ·· ··"}</span>
         <span className="flex items-center gap-1 text-[10px] font-semibold text-black/70">
           <span className={`h-1.5 w-1.5 rounded-full ${connection ? "bg-emerald-600" : "bg-black/35"}`} />
-          {connection ? "Connected" : "Noir Wallet"}
+          {connection ? "Linked" : "Noir Wallet"}
         </span>
       </div>
     </div>
@@ -75,18 +75,18 @@ export default function WalletConnect() {
         className={`btn !px-3 !py-2.5 text-xs sm:!px-5 sm:!py-3 sm:text-sm ${isConnected ? "btn-ghost" : "btn-dark"}`}
         onClick={() => setIsOpen(true)}
         aria-haspopup="dialog"
-        aria-label={isConnected ? "Wallet connected" : "Connect wallet"}
+        aria-label={isConnected ? "Wallet account" : "Sign in"}
       >
         {isConnected && <span aria-hidden="true" className="h-2 w-2 rounded-full bg-emerald-500" />}
         {isConnected ? (
           <>
-            <span className="sm:hidden">{session ? "Signature" : "Connected"}</span>
+            <span className="sm:hidden">{session ? "Signed in" : "Linked"}</span>
             <span className="hidden sm:inline">{shortAddress(connection!.transparent)}</span>
           </>
         ) : (
           <>
-            <span className="sm:hidden">Connect</span>
-            <span className="hidden sm:inline">Connect wallet</span>
+            <span className="sm:hidden">Sign in</span>
+            <span className="hidden sm:inline">Sign in</span>
           </>
         )}
       </button>
@@ -113,14 +113,14 @@ export default function WalletConnect() {
 
                   <div className="mt-5 text-center">
                     <h2 id="wallet-dialog-title" className="text-[20px] font-semibold tracking-tight text-ink">
-                      {session ? "Wallet message signed" : isConnected ? "Wallet connected" : "Connect your wallet"}
+                      {session ? "Signed in" : isConnected ? "Finish signing in" : "Sign in with Noir Wallet"}
                     </h2>
                     <p className="mt-2 text-sm leading-6 text-ink-soft">
                       {session
-                        ? "The wallet returned a signature to this browser. The server has not verified it and no account session was created."
+                        ? "Your signature was verified on this browser. You're signed in to Zecrow for this session."
                         : isConnected
-                          ? "Connected on Zcash testnet. Sign in to prove control of this account."
-                          : "Connect Noir Wallet on Zcash testnet. Zecrow never asks for your recovery phrase."}
+                          ? "Your wallet is linked on Zcash testnet. Sign in to prove you control this account."
+                          : "Sign in with Noir Wallet on Zcash testnet. Zecrow never asks for your recovery phrase."}
                     </p>
                   </div>
 
@@ -135,13 +135,13 @@ export default function WalletConnect() {
                         </div>
                       ) : (
                         <button type="button" onClick={() => void signIn()} disabled={signingIn} className="btn btn-dark w-full !py-2.5 text-[13px] disabled:opacity-60">
-                          {signingIn ? "Waiting for signature…" : "Sign wallet message"}
+                          {signingIn ? "Waiting for signature…" : "Sign in"}
                         </button>
                       )}
 
                       <div className="flex gap-2">
                         <button type="button" className="btn btn-ghost flex-1 !py-2.5 text-xs" onClick={copyAddress}>{copied ? "Copied ✓" : "Copy address"}</button>
-                        <button type="button" className="btn btn-ghost flex-1 !py-2.5 text-xs" onClick={() => void disconnect()}>Disconnect</button>
+                        <button type="button" className="btn btn-ghost flex-1 !py-2.5 text-xs" onClick={() => void disconnect()}>Sign out</button>
                       </div>
                     </div>
                   ) : (

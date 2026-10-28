@@ -214,7 +214,7 @@ export default function CreateEscrowWizard() {
       </div>
       </div>
       </div>
-      <p className="mt-3 text-center text-[11px] text-ink-faint">{session ? "Orders save to Supabase when configured, or local development storage in this preview. Testnet payment verification is not connected." : "Connect Noir Wallet and sign in before saving a merchant order."}</p>
+      <p className="mt-3 text-center text-[11px] text-ink-faint">{session ? "Orders save to Supabase when configured, or local development storage in this preview. Testnet payment verification is not connected." : "Sign in with Noir Wallet before saving a merchant order."}</p>
     </div>
   );
 }

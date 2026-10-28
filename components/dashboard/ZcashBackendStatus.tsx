@@ -58,7 +58,7 @@ export default function ZcashBackendStatus() {
               ? "The wallet stays locked until it has scanned the testnet chain. Funding is unavailable during sync."
               : status?.ready
                 ? "Zallet is connected to Zebra on Zcash testnet. Order funding is still disabled until deposit tracking is ready."
-                : "Connect your wallet and configure the local Zallet RPC to view managed-custody status.")}
+                : "Sign in and configure the local Zallet RPC to view managed-custody status.")}
           </p>
         </div>
         {status?.nodeHeight != null && (

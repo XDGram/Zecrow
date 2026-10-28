@@ -28,7 +28,7 @@ export default function WalletAccountSummary() {
         </div>
         <span className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold ${session ? "bg-emerald-50 text-emerald-700" : status === "connected" ? "bg-accent-wash text-accent-ink" : "bg-bg-sunk text-ink-mute"}`}>
           <span className={`h-1.5 w-1.5 rounded-full ${session ? "bg-emerald-500" : status === "connected" ? "bg-accent" : "bg-ink-faint"}`} />
-          {session ? "Signed in" : status === "connected" ? "Connected" : "Not connected"}
+          {session ? "Signed in" : status === "connected" ? "Wallet linked" : "Not signed in"}
         </span>
       </div>
 
@@ -42,7 +42,7 @@ export default function WalletAccountSummary() {
             </button>
           </div>
         ) : (
-          <p className="mt-2 rounded-xl border border-dashed border-line bg-bg-soft px-3 py-3 text-xs text-ink-mute">Connect Noir Wallet from the top bar to see your testnet address.</p>
+          <p className="mt-2 rounded-xl border border-dashed border-line bg-bg-soft px-3 py-3 text-xs text-ink-mute">Sign in with Noir Wallet from the top bar to see your testnet address.</p>
         )}
         <p className="mt-3 text-[11px] leading-5 text-ink-mute">Escrow balances and transfers are not shown here yet. Testnet funding stays disabled until deposit tracking and order matching are live.</p>
       </div>

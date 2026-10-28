@@ -125,7 +125,7 @@ export default function BuyerFlow() {
     try {
       if (walletStatus !== "connected") {
         await connect();
-        setPaymentMessage("Connect Noir Wallet to Zcash testnet, then press Fund again to approve the payment.");
+        setPaymentMessage("Sign in with Noir Wallet on Zcash testnet, then press Fund again to approve the payment.");
         return;
       }
       const memo = order.paymentMemo || `zecrow:order-${order.number}`;
