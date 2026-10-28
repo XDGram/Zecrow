@@ -25,6 +25,7 @@ export type EscrowOrder = {
   linkExpiryHours: number;
   depositAddress: string | null;
   paymentMemo: string | null;
+  settlementTxid?: string | null;
   createdAt: string;
   expiresAt: string;
   status: "awaiting_payment" | "expired" | "funded" | "delivered" | "disputed" | "released" | "refunded";
@@ -267,6 +268,35 @@ export async function recordEscrowPayment(code: string, payment: { status: "pend
       payment: { status: payment.status, txid: payment.txid, confirmations: payment.confirmations },
       status: payment.status === "confirmed" ? "funded" : "awaiting_payment",
     };
+    store.orders[index] = updated;
+    await writeLocalStore(store);
+    return updated;
+  });
+}
+
+/** Settle a funded order: release to the merchant or refund to the buyer, recording the payout txid. */
+export async function recordEscrowSettlement(code: string, settlement: { kind: "released" | "refunded"; txid: string }): Promise<EscrowOrder | null> {
+  const supabase = supabaseAdmin();
+  if (supabase) {
+    const result = await supabase.from("escrows").update({ status: settlement.kind })
+      .eq("public_code_hash", hashCode(code)).eq("status", "funded").select("*").maybeSingle();
+    if (result.error) throw new Error("Could not update escrow settlement status.");
+    if (result.data) {
+      // Best-effort audit trail; the payout txid is already returned to the caller.
+      await supabase.from("escrow_events").insert({ escrow_id: result.data.id, event_type: settlement.kind, details: { txid: settlement.txid } });
+      return fromRow(result.data, code);
+    }
+    return getEscrowOrder(code);
+  }
+
+  if (process.env.NODE_ENV === "production") throw new Error("Hosted order storage is not configured.");
+  return serial(async () => {
+    const store = await readLocalStore();
+    const index = store.orders.findIndex((order) => order.code === code);
+    if (index < 0) return null;
+    const order = currentStatus(store.orders[index]);
+    if (order.status !== "funded") return order;
+    const updated: EscrowOrder = { ...order, status: settlement.kind, settlementTxid: settlement.txid };
     store.orders[index] = updated;
     await writeLocalStore(store);
     return updated;

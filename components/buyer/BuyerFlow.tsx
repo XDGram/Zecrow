@@ -56,6 +56,9 @@ export default function BuyerFlow() {
   const [funding, setFunding] = useState(false);
   const [paymentMessage, setPaymentMessage] = useState("");
   const [paymentTxid, setPaymentTxid] = useState("");
+  const [releasing, setReleasing] = useState(false);
+  const [releaseTxid, setReleaseTxid] = useState("");
+  const [releaseMessage, setReleaseMessage] = useState("");
 
   useEffect(() => {
     if (!code) return;
@@ -132,11 +135,31 @@ export default function BuyerFlow() {
     }
   };
 
+  const releaseFunds = async () => {
+    if (!code || order?.status !== "funded") return;
+    setReleasing(true);
+    setReleaseMessage("");
+    try {
+      const response = await fetch(`/api/escrows/${encodeURIComponent(code)}/release`, { method: "POST" });
+      const result = await response.json() as { status?: string; txid?: string; error?: string };
+      if (result.status === "released") {
+        setReleaseTxid(result.txid ?? "");
+        setOrder((previous) => previous ? { ...previous, status: "released" } : previous);
+      } else {
+        setReleaseMessage(result.error ?? "The release could not be completed.");
+      }
+    } catch {
+      setReleaseMessage("Could not reach the escrow wallet to release funds.");
+    } finally {
+      setReleasing(false);
+    }
+  };
+
   if (loading) return <BuyerMessage title="Loading order" detail="Fetching the saved order details." />;
   if (error || !order) return <BuyerMessage title="Order link unavailable" detail={error || "This order link could not be found."} />;
 
   const expired = order.status === "expired";
-  const stepIndex = view === "accepted" ? 1 : 0;
+  const stepIndex = order.status === "released" ? 2 : view === "accepted" ? 1 : 0;
   const delivery = order.type === "physical"
     ? (order.shipping?.trim() || "Shipping details are in the description") + " · confirm receipt with the one-time code"
     : `${order.deliveryMethod === "link" ? "Download link" : order.deliveryMethod === "file" ? "File delivery" : "License key"} · confirm delivery with the one-time code`;
@@ -158,7 +181,7 @@ export default function BuyerFlow() {
       <main className="mx-auto max-w-xl px-5 py-8">
         <div className="mb-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-[12px] leading-5 text-amber-950">
           <strong>{expired ? "Order link expired." : "Review this order before you fund it."}</strong>{" "}
-          {expired ? "This payment link can no longer be used." : "Check that the item, photos, amount and terms match what you agreed with the merchant."} Zcash testnet only. Release and refund transfers are not connected yet.
+          {expired ? "This payment link can no longer be used." : "Check that the item, photos, amount and terms match what you agreed with the merchant."} Zcash testnet only — real funds never move. Fund, release and refund run against the managed escrow wallet when it is connected.
         </div>
 
         {/* progress */}
@@ -279,8 +302,21 @@ export default function BuyerFlow() {
                       <p className="mt-0.5 text-[11.5px] leading-5 text-emerald-800">The details match. Funding is the next step — funds stay in escrow until you confirm delivery.</p>
                     </div>
                   </div>
-                  {order.status === "funded" ? (
-                    <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-center text-[12px] font-medium text-emerald-800">Testnet payment confirmed. The escrow release and refund actions are not implemented yet.</div>
+                  {order.status === "released" ? (
+                    <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
+                      <div className="flex items-center gap-2 text-[13px] font-semibold text-emerald-900"><ShieldCheck size={15} /> Funds released to the merchant</div>
+                      <p className="mt-1 text-[11.5px] leading-5 text-emerald-800">The escrow paid the merchant on Zcash testnet. This order is complete.</p>
+                      {releaseTxid && <p className="mt-2 break-all font-mono text-[10.5px] text-emerald-700">tx: {releaseTxid}</p>}
+                    </div>
+                  ) : order.status === "funded" ? (
+                    <>
+                      <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[12px] leading-5 text-emerald-800">Testnet payment confirmed and held in escrow. Release the funds once you have received the goods.</div>
+                      <button type="button" onClick={() => void releaseFunds()} disabled={releasing} className="btn btn-dark mt-3 w-full !py-3 text-[14px] disabled:opacity-50">
+                        {releasing ? "Releasing…" : "Confirm delivery & release to merchant"}
+                      </button>
+                      <p className="mt-2 text-center text-[11px] leading-5 text-ink-mute">Only release after you have the goods. This sends the escrowed testnet ZEC to the merchant and cannot be undone.</p>
+                      {releaseMessage && <p className="mt-2 break-words text-center text-[11px] leading-5 text-red-700" role="status">{releaseMessage}</p>}
+                    </>
                   ) : order.depositAddress && order.paymentMemo ? (
                     <>
                       <button type="button" onClick={() => void payWithWallet()} disabled={funding} className="btn btn-dark mt-3 w-full !py-3 text-[14px] disabled:opacity-50">
@@ -349,7 +385,7 @@ export default function BuyerFlow() {
 
         <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-line bg-white px-4 py-3 text-[12px] leading-5 text-ink-soft">
           <ShieldCheck size={15} strokeWidth={1.7} className="mt-0.5 shrink-0 text-accent-ink" />
-          <span><span className="font-medium text-ink">Custody model:</span> managed escrow is planned. This saved order does not hold funds or process releases and refunds.</span>
+          <span><span className="font-medium text-ink">Custody model:</span> managed escrow on Zcash testnet. Funds are held by the escrow wallet and released to the merchant on your confirmation, or refunded by an arbiter — not trustless custody.</span>
         </div>
       </main>
 
