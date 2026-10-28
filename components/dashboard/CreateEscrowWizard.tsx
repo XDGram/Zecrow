@@ -57,7 +57,7 @@ function resolveShipping(f: Fields): string {
 }
 
 export default function CreateEscrowWizard() {
-  const { session } = useWallet();
+  const { session, connection } = useWallet();
   const [step, setStep] = useState(0);
   const [type, setType] = useState<Type | null>(null);
   const [f, setF] = useState<Fields>(INITIAL);
@@ -120,6 +120,7 @@ export default function CreateEscrowWizard() {
           images: f.images,
           deliveryMethod: f.deliveryMethod,
           shipping: type === "physical" ? resolveShipping(f) : "",
+          merchantPayoutAddress: connection?.shielded ?? "",
           linkExpiryHours: f.expiry,
         }),
       });

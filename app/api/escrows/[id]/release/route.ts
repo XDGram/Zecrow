@@ -23,11 +23,21 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     if (order.status !== "funded") {
       return Response.json({ status: order.status, error: "This order is not funded, so it cannot be released." }, { status: 409 });
     }
-    if (!order.ownerWallet?.startsWith("utest1")) {
+    // Path B (no managed node): the escrow operator settles with the merchant off-platform.
+    // We record the confirmation without an on-chain payout, honestly flagged as manual.
+    if (!process.env.ZALLET_RPC_URL && process.env.ESCROW_DEPOSIT_ADDRESS) {
+      const updated = await recordEscrowSettlement(code, { kind: "released", txid: "" });
+      return Response.json({ status: "released", settlement: "manual", orderStatus: updated?.status ?? "released" }, { headers: { "Cache-Control": "no-store" } });
+    }
+
+    const payoutAddress = order.merchantPayoutAddress?.startsWith("utest1")
+      ? order.merchantPayoutAddress
+      : order.ownerWallet?.startsWith("utest1") ? order.ownerWallet : "";
+    if (!payoutAddress) {
       return Response.json({ status: "error", error: "The merchant has no testnet payout address on file." }, { status: 400 });
     }
 
-    const txid = await sendEscrowPayout({ to: order.ownerWallet, amountZec: order.amountZec, memo: `zecrow-release:${order.number}` });
+    const txid = await sendEscrowPayout({ to: payoutAddress, amountZec: order.amountZec, memo: `zecrow-release:${order.number}` });
     const updated = await recordEscrowSettlement(code, { kind: "released", txid });
     return Response.json({ status: "released", txid, orderStatus: updated?.status ?? "released" }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {

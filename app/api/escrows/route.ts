@@ -45,6 +45,8 @@ export async function POST(request: Request) {
   const images = Array.isArray(body.images) ? body.images : [];
   const deliveryMethod = type === "digital" && typeof body.deliveryMethod === "string" ? body.deliveryMethod : "";
   const shipping = type === "physical" && typeof body.shipping === "string" ? body.shipping.trim().slice(0, 300) : "";
+  // The merchant's shielded testnet receiving address — where the escrow releases funds.
+  const merchantPayoutAddress = typeof body.merchantPayoutAddress === "string" ? body.merchantPayoutAddress.trim() : "";
   // Every order uses the platform's one-time code as the release trigger.
   const confirmation = "code";
   const proof = "";
@@ -77,6 +79,9 @@ export async function POST(request: Request) {
   if (!linkExpiries.includes(linkExpiryHours)) {
     return Response.json({ error: "Choose a valid payment link expiry." }, { status: 400 });
   }
+  if (!merchantPayoutAddress.startsWith("utest1") || merchantPayoutAddress.length > 512) {
+    return Response.json({ error: "Connect your Noir testnet wallet so your shielded payout address can be saved." }, { status: 400 });
+  }
 
   let depositAddress: string | null = null;
   let paymentMemo: string | null = null;
@@ -97,6 +102,7 @@ export async function POST(request: Request) {
       images: safeImages,
       deliveryMethod,
       shipping,
+      merchantPayoutAddress,
       confirmation,
       proof,
       releaseTerms,

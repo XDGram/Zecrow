@@ -11,6 +11,7 @@ export type EscrowOrder = {
   number: number;
   code: string;
   ownerWallet: string;
+  merchantPayoutAddress: string;
   type: EscrowType;
   item: string;
   amountZec: string;
@@ -55,6 +56,7 @@ function fromRow(row: Record<string, unknown>, code = "", images: { name: string
     number: Number(row.order_number),
     code,
     ownerWallet: String(row.merchant_wallet),
+    merchantPayoutAddress: String(row.merchant_payout_address ?? ""),
     type: row.item_type as EscrowType,
     item: String(row.item),
     amountZec: String(row.amount_zec),
@@ -157,6 +159,7 @@ export async function createEscrowOrder(input: NewEscrow, ownerWallet: string): 
     id,
     public_code_hash: hashCode(code),
     merchant_wallet: ownerWallet,
+    merchant_payout_address: input.merchantPayoutAddress,
     item_type: input.type,
     item: input.item,
     amount_zec: input.amountZec,
@@ -268,6 +271,36 @@ export async function recordEscrowPayment(code: string, payment: { status: "pend
       payment: { status: payment.status, txid: payment.txid, confirmations: payment.confirmations },
       status: payment.status === "confirmed" ? "funded" : "awaiting_payment",
     };
+    store.orders[index] = updated;
+    await writeLocalStore(store);
+    return updated;
+  });
+}
+
+/**
+ * Record a payer-reported funding payment (no managed watcher). Used when the platform does
+ * not run a Zallet node: the buyer's wallet broadcasts a real shielded testnet payment and
+ * reports the resulting txid. The order is marked funded with payment_status "pending" to
+ * reflect that the escrow operator still verifies receipt — it is not chain-verified here.
+ */
+export async function recordReportedFunding(code: string, txid: string): Promise<EscrowOrder | null> {
+  const supabase = supabaseAdmin();
+  if (supabase) {
+    const result = await supabase.from("escrows").update({ payment_status: "pending", payment_txid: txid, status: "funded" })
+      .eq("public_code_hash", hashCode(code)).eq("status", "awaiting_payment").select("*").maybeSingle();
+    if (result.error) throw new Error("Could not record the reported payment.");
+    if (result.data) return fromRow(result.data, code);
+    return getEscrowOrder(code);
+  }
+
+  if (process.env.NODE_ENV === "production") throw new Error("Hosted order storage is not configured.");
+  return serial(async () => {
+    const store = await readLocalStore();
+    const index = store.orders.findIndex((order) => order.code === code);
+    if (index < 0) return null;
+    const order = currentStatus(store.orders[index]);
+    if (order.status !== "awaiting_payment") return order;
+    const updated: EscrowOrder = { ...order, status: "funded", payment: { status: "pending", txid, confirmations: 0 } };
     store.orders[index] = updated;
     await writeLocalStore(store);
     return updated;

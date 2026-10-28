@@ -20,6 +20,8 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
       amountZec: order.amountZec,
       description: order.description,
       images: order.images.map((image) => ({ name: image.name, src: image.dataUrl })),
+      // Path B (no managed node): a fixed platform escrow address the buyer pays directly.
+      escrowAddress: process.env.ESCROW_DEPOSIT_ADDRESS || null,
       deliveryMethod: order.deliveryMethod,
       shipping: order.shipping,
       confirmation: order.confirmation,

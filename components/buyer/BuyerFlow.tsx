@@ -24,6 +24,7 @@ type BuyerOrder = {
   disputeWindowDays: number;
   depositAddress: string | null;
   paymentMemo: string | null;
+  escrowAddress: string | null;
   payment: { status: "not_connected" | "pending" | "confirmed" | "failed"; txid: string | null; confirmations: number };
   expiresAt: string;
   status: "awaiting_payment" | "expired" | "funded" | "delivered" | "disputed" | "released" | "refunded";
@@ -115,7 +116,10 @@ export default function BuyerFlow() {
   }, [view, order?.status, checkPayment]);
 
   const payWithWallet = async () => {
-    if (!order?.depositAddress || !order.paymentMemo) return;
+    if (!order) return;
+    const managed = Boolean(order.depositAddress);          // Path A: Zallet watches this address
+    const payTo = order.depositAddress || order.escrowAddress; // Path B: fixed platform escrow address
+    if (!payTo) return;
     setFunding(true);
     setPaymentMessage("");
     try {
@@ -124,10 +128,25 @@ export default function BuyerFlow() {
         setPaymentMessage("Connect Noir Wallet to Zcash testnet, then press Fund again to approve the payment.");
         return;
       }
-      const txid = await sendPayment({ to: order.depositAddress, amount: order.amountZec, memo: order.paymentMemo });
+      const memo = order.paymentMemo || `zecrow:order-${order.number}`;
+      const txid = await sendPayment({ to: payTo, amount: order.amountZec, memo });
       setPaymentTxid(txid);
-      setPaymentMessage("Payment broadcast. Checking the Zcash testnet wallet for confirmation.");
-      await checkPayment();
+      if (managed) {
+        setPaymentMessage("Payment broadcast. Checking the Zcash testnet wallet for confirmation.");
+        await checkPayment();
+        return;
+      }
+      // Path B: report the real testnet txid to the order.
+      const response = await fetch(`/api/escrows/${encodeURIComponent(code)}/report-funding`, {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ txid }),
+      });
+      const result = await response.json() as { status?: string; error?: string };
+      if (result.status === "funded") {
+        setOrder((previous) => previous ? { ...previous, status: "funded", payment: { status: "pending", txid, confirmations: 0 } } : previous);
+        setPaymentMessage("Shielded testnet payment sent and recorded.");
+      } else {
+        setPaymentMessage(result.error ?? "Payment sent, but it could not be recorded on the order. Keep your txid.");
+      }
     } catch (reason) {
       setPaymentMessage(reason instanceof Error ? reason.message : "The wallet payment did not complete.");
     } finally {
@@ -304,30 +323,33 @@ export default function BuyerFlow() {
                   </div>
                   {order.status === "released" ? (
                     <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
-                      <div className="flex items-center gap-2 text-[13px] font-semibold text-emerald-900"><ShieldCheck size={15} /> Funds released to the merchant</div>
-                      <p className="mt-1 text-[11.5px] leading-5 text-emerald-800">The escrow paid the merchant on Zcash testnet. This order is complete.</p>
-                      {releaseTxid && <p className="mt-2 break-all font-mono text-[10.5px] text-emerald-700">tx: {releaseTxid}</p>}
+                      <div className="flex items-center gap-2 text-[13px] font-semibold text-emerald-900"><ShieldCheck size={15} /> Delivery confirmed · released</div>
+                      <p className="mt-1 text-[11.5px] leading-5 text-emerald-800">{releaseTxid ? "The escrow paid the merchant on Zcash testnet. This order is complete." : "The escrow operator settles the held funds with the merchant. This order is complete."}</p>
+                      {releaseTxid && <a href={`https://testnet.zcashexplorer.app/transactions/${releaseTxid}`} target="_blank" rel="noreferrer" className="mt-2 block break-all font-mono text-[10.5px] text-emerald-700 underline">tx: {releaseTxid}</a>}
                     </div>
                   ) : order.status === "funded" ? (
                     <>
-                      <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[12px] leading-5 text-emerald-800">Testnet payment confirmed and held in escrow. Release the funds once you have received the goods.</div>
+                      <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[12px] leading-5 text-emerald-800">
+                        Shielded testnet payment sent to escrow{order.payment.status === "pending" ? " — the escrow operator verifies receipt." : " and confirmed."} Release once you have the goods.
+                        {(order.payment.txid || paymentTxid) && <a href={`https://testnet.zcashexplorer.app/transactions/${order.payment.txid || paymentTxid}`} target="_blank" rel="noreferrer" className="mt-1 block break-all font-mono text-[10.5px] text-emerald-700 underline">tx: {order.payment.txid || paymentTxid}</a>}
+                      </div>
                       <button type="button" onClick={() => void releaseFunds()} disabled={releasing} className="btn btn-dark mt-3 w-full !py-3 text-[14px] disabled:opacity-50">
-                        {releasing ? "Releasing…" : "Confirm delivery & release to merchant"}
+                        {releasing ? "Confirming…" : "Confirm delivery & release to merchant"}
                       </button>
-                      <p className="mt-2 text-center text-[11px] leading-5 text-ink-mute">Only release after you have the goods. This sends the escrowed testnet ZEC to the merchant and cannot be undone.</p>
+                      <p className="mt-2 text-center text-[11px] leading-5 text-ink-mute">Only release after you have the goods — this completes the escrow in the merchant&apos;s favour and cannot be undone.</p>
                       {releaseMessage && <p className="mt-2 break-words text-center text-[11px] leading-5 text-red-700" role="status">{releaseMessage}</p>}
                     </>
-                  ) : order.depositAddress && order.paymentMemo ? (
+                  ) : (order.depositAddress || order.escrowAddress) ? (
                     <>
                       <button type="button" onClick={() => void payWithWallet()} disabled={funding} className="btn btn-dark mt-3 w-full !py-3 text-[14px] disabled:opacity-50">
                         {funding ? "Waiting for wallet…" : `Fund ${Number(order.amountZec).toFixed(8)} ZEC with Noir`}
                       </button>
-                      <p className="mt-2 text-center text-[11px] leading-5 text-ink-mute">Testnet payment only. Funds will remain in the escrow wallet while release and refund actions are being built.</p>
+                      <p className="mt-2 text-center text-[11px] leading-5 text-ink-mute">Real shielded Zcash testnet payment, sent from your Noir wallet to the escrow address.</p>
                     </>
                   ) : (
                     <>
-                      <button type="button" disabled className="btn btn-dark mt-3 w-full !cursor-not-allowed !py-3 text-[14px] opacity-50">Testnet escrow wallet not ready</button>
-                      <p className="mt-2 text-center text-[11px] leading-5 text-ink-mute">The order has no deposit address yet. The escrow wallet must be unlocked and configured before this link can accept funds.</p>
+                      <button type="button" disabled className="btn btn-dark mt-3 w-full !cursor-not-allowed !py-3 text-[14px] opacity-50">Testnet escrow not ready</button>
+                      <p className="mt-2 text-center text-[11px] leading-5 text-ink-mute">No escrow address is configured for this deployment yet, so this link cannot accept funds.</p>
                     </>
                   )}
                   {paymentMessage && <p className="mt-3 break-words text-center text-[11px] leading-5 text-ink-soft" role="status">{paymentMessage}{paymentTxid ? ` · ${paymentTxid.slice(0, 12)}…` : ""}</p>}
