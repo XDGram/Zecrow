@@ -1,214 +1,261 @@
+import React from "react";
+import { AbsoluteFill, Audio, Sequence, interpolate, spring, staticFile, useCurrentFrame } from "remotion";
+import { C, D, FONT } from "./brand";
 import {
-  AbsoluteFill, Audio, Easing, Sequence, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig,
-} from "remotion";
-import { C, FONT } from "./brand";
+  MeshBg, Particles, Grain, Vignette, DotGrid, Wordmark, ZMark, Words, GlassCard, GlowShield, Coin, ShieldPill, useSceneFade, useRise, Easing,
+} from "./elements";
 
-// Flip to true once you add public/voiceover.mp3 (and optionally public/music.mp3).
-const AUDIO = false;
+// Voiceover is split into one clip per scene; each scene is timed to its clip and plays it after a
+// short lead-in. A self-synthesized ambient bed (public/music.mp3) sits low under the narration.
+const AUDIO = true;
 
-/* ---------- helpers ---------- */
-function useRise(delay = 0, dist = 28) {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const s = spring({ frame: frame - delay, fps, config: { damping: 200, mass: 0.7 } });
-  return { opacity: s, transform: `translateY(${(1 - s) * dist}px)` };
-}
-function fadeInOut(frame: number, inEnd: number, outStart: number, outEnd: number) {
-  return interpolate(frame, [0, inEnd, outStart, outEnd], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-}
-
-function Mark({ size = 48 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 48 48" fill="none">
-      <path d="M6 25.2C8.2 18.1 14.2 13.2 21.6 12.6C24.5 9.1 31.5 9.3 35.1 14.2L45.5 18.8L37.4 22.4L34.6 28.3C32.5 34.3 25.8 37 19.3 33.8L11.4 39L12.8 30.9C9.4 29.8 7.1 27.8 6 25.2Z" fill={C.ink} />
-      <path d="M17.3 27.2C20.8 29.7 25.8 30 29.8 28.2" stroke="#fff" strokeOpacity="0.72" strokeWidth="1.5" strokeLinecap="round" />
-      <circle cx="29.2" cy="18.1" r="1.55" fill={C.accent} />
-    </svg>
-  );
-}
-function Wordmark({ size = 34 }: { size?: number }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-      <Mark size={size * 1.25} />
-      <span style={{ fontFamily: FONT, fontWeight: 800, fontSize: size, letterSpacing: "-0.04em", color: C.ink }}>Zecrow</span>
-    </div>
-  );
-}
-function ShieldPill({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
-  const frame = useCurrentFrame();
-  const shimmer = interpolate((frame - delay) % 70, [0, 70], [-120, 220]);
-  return (
-    <div style={{ position: "relative", overflow: "hidden", display: "inline-flex", alignItems: "center", gap: 10, padding: "10px 20px", borderRadius: 999, background: C.accentWash, border: `1px solid ${C.accentSoft}`, color: C.accentInk, fontFamily: FONT, fontWeight: 600, fontSize: 24 }}>
-      <div style={{ position: "absolute", top: 0, bottom: 0, left: `${shimmer}%`, width: "35%", background: "linear-gradient(90deg,transparent,rgba(255,255,255,0.7),transparent)" }} />
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v6c0 4.5-3 7.3-7 8.5C8 19.3 5 16.5 5 12V6z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" /><path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
-      <span style={{ position: "relative" }}>{children}</span>
-    </div>
-  );
-}
-
-/* ---------- scenes ---------- */
-function Hook() {
+/* ===================== SCENE 1 · HOOK (light) ===================== */
+function Hook({ dur }: { dur: number }) {
   const frame = useCurrentFrame();
   const kicker = useRise(0);
-  const l1 = useRise(10);
-  const l2 = useRise(22);
-  const underline = interpolate(frame, [30, 60], [0, 1], { extrapolateRight: "clamp", easing: Easing.out(Easing.cubic) });
-  const out = fadeInOut(frame, 10, 180, 210);
+  const underline = interpolate(frame, [36, 72], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.out(Easing.cubic) });
+  const shieldY = interpolate(frame, [0, dur], [10, -24]);
+  const out = useSceneFade(dur);
   return (
-    <AbsoluteFill style={{ background: C.bg, justifyContent: "center", alignItems: "center", opacity: out }}>
-      <div style={{ ...kicker, marginBottom: 34 }}><Wordmark size={30} /></div>
-      <div style={{ fontFamily: FONT, fontWeight: 800, fontSize: 110, letterSpacing: "-0.045em", lineHeight: 1.02, textAlign: "center", color: C.ink }}>
-        <div style={l1}>Trust the deal.</div>
-        <div style={{ ...l2, position: "relative", display: "inline-block" }}>
-          Not the stranger<span style={{ color: C.accent }}>.</span>
-          <div style={{ position: "absolute", left: 0, bottom: -14, height: 6, borderRadius: 3, background: C.accent, width: `${underline * 100}%` }} />
+    <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", opacity: out }}>
+      <MeshBg />
+      <DotGrid />
+      <Particles count={40} accent />
+      <div style={{ position: "absolute", top: "26%", opacity: 0.5, transform: `translateY(${shieldY}px) scale(2.4)` }}><GlowShield size={120} /></div>
+      <div style={{ ...kicker, marginBottom: 38, position: "relative" }}><Wordmark size={30} glow /></div>
+      <div style={{ position: "relative", textAlign: "center" }}>
+        <Words text="Trust the deal." size={116} delay={8} />
+        <div style={{ position: "relative", display: "inline-block", marginTop: 6 }}>
+          <Words text="Not the stranger." size={116} delay={24} color={C.ink} />
+          <div style={{ position: "absolute", left: 0, bottom: -16, height: 7, borderRadius: 4, background: C.accent, width: `${underline * 100}%`, boxShadow: "0 0 18px rgba(233,162,26,0.6)" }} />
         </div>
       </div>
+      <Grain />
+      <Vignette />
     </AbsoluteFill>
   );
 }
 
-function Problem() {
+/* ===================== SCENE 2 · PROBLEM (light) ===================== */
+function Problem({ dur }: { dur: number }) {
   const frame = useCurrentFrame();
   const head = useRise(4);
-  const card = useRise(24);
-  const redact = interpolate(frame, [95, 150], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const out = fadeInOut(frame, 10, 240, 270);
-  const rows = [["Buyer", "Jane D."], ["Amount", "$420.00"], ["Item", "Vintage camera"]];
+  const card = useRise(26);
+  const scan = interpolate(frame, [60, 150], [0, 100], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const tag = spring({ frame: frame - 120, fps: 30, config: { damping: 200 } });
+  const out = useSceneFade(dur);
+  const rows: [string, string][] = [["Buyer", "Jane Doe"], ["Seller", "Mark R."], ["Amount", "$420.00"], ["Item", "Vintage camera"]];
   return (
-    <AbsoluteFill style={{ background: C.bgSoft, justifyContent: "center", alignItems: "center", opacity: out }}>
-      <div style={{ ...head, fontFamily: FONT, fontWeight: 700, fontSize: 56, color: C.ink, marginBottom: 40, textAlign: "center" }}>
-        Escrow should fix that.<br /><span style={{ color: C.inkMute, fontWeight: 600, fontSize: 40 }}>But it leaks everything about the deal.</span>
+    <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", opacity: out }}>
+      <MeshBg />
+      <DotGrid />
+      <Particles count={28} />
+      <div style={{ ...head, fontFamily: FONT, fontWeight: 700, fontSize: 52, color: C.ink, marginBottom: 42, textAlign: "center", letterSpacing: "-0.03em" }}>
+        Escrow should fix that.<br /><span style={{ color: C.inkMute, fontWeight: 600, fontSize: 38 }}>But it leaks the whole deal onto a public ledger.</span>
       </div>
-      <div style={{ ...card, width: 620, background: C.bg, border: `1px solid ${C.line}`, borderRadius: 24, padding: 32, boxShadow: "0 30px 60px -30px rgba(0,0,0,0.25)" }}>
-        <div style={{ fontFamily: FONT, fontSize: 20, color: C.inkMute, marginBottom: 18 }}>Public escrow record</div>
+      <GlassCard style={{ ...card, width: 660, padding: 34, overflow: "hidden" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+          <span style={{ fontFamily: FONT, fontSize: 20, color: C.inkMute, letterSpacing: "0.02em" }}>Public escrow record</span>
+          <span style={{ fontFamily: FONT, fontSize: 13, fontWeight: 700, color: "#b91c1c", background: "#fee2e2", border: "1px solid #fecaca", borderRadius: 999, padding: "5px 12px", opacity: tag, transform: `scale(${0.8 + tag * 0.2})` }}>● VISIBLE TO EVERYONE</span>
+        </div>
         {rows.map(([k, v]) => (
-          <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "14px 0", borderTop: `1px solid ${C.line}`, fontFamily: FONT, fontSize: 26 }}>
+          <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "13px 0", borderTop: `1px solid ${C.line}`, fontFamily: FONT, fontSize: 25 }}>
             <span style={{ color: C.inkMute }}>{k}</span>
-            <span style={{ position: "relative", color: C.ink, fontWeight: 600 }}>
-              {v}
-              <span style={{ position: "absolute", inset: "-4px -8px", borderRadius: 8, background: C.ink, transform: `scaleX(${redact})`, transformOrigin: "left" }} />
-            </span>
+            <span style={{ color: C.ink, fontWeight: 600 }}>{v}</span>
           </div>
         ))}
-      </div>
+        {/* scan line sweeping the exposed data */}
+        <div style={{ position: "absolute", left: 0, right: 0, top: `${scan}%`, height: 2, background: "linear-gradient(90deg,transparent,rgba(185,28,28,0.8),transparent)", boxShadow: "0 0 16px rgba(185,28,28,0.6)" }} />
+      </GlassCard>
+      <Grain />
+      <Vignette />
     </AbsoluteFill>
   );
 }
 
-function Solution() {
+/* ===================== SCENE 3 · SOLUTION (dark) ===================== */
+function Solution({ dur }: { dur: number }) {
   const frame = useCurrentFrame();
-  const logo = useRise(6);
-  const line = useRise(22);
-  const pill = useRise(40);
-  const out = fadeInOut(frame, 12, 270, 300);
+  const logo = useRise(8);
+  const pill = useRise(46);
+  const out = useSceneFade(dur);
+  const coins = [0, 1, 2, 3, 4, 5];
   return (
-    <AbsoluteFill style={{ background: C.bg, justifyContent: "center", alignItems: "center", opacity: out }}>
-      <div style={{ ...logo, transform: `${logo.transform} scale(1.6)`, marginBottom: 48 }}><Wordmark size={40} /></div>
-      <div style={{ ...line, fontFamily: FONT, fontWeight: 700, fontSize: 52, color: C.ink, textAlign: "center", letterSpacing: "-0.03em" }}>
-        Private escrow for real commerce
-      </div>
-      <div style={{ ...pill, marginTop: 34 }}><ShieldPill>Built on Zcash · Shielded by default</ShieldPill></div>
+    <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", opacity: out }}>
+      <MeshBg dark />
+      <Particles count={56} dark accent />
+      {/* orbiting coins */}
+      {coins.map((i) => {
+        const a = (frame * 0.015) + (i / coins.length) * Math.PI * 2;
+        const rx = 420, ry = 230;
+        const op = 0.35 + 0.35 * Math.sin(a);
+        return (
+          <div key={i} style={{ position: "absolute", left: `calc(50% + ${Math.cos(a) * rx}px)`, top: `calc(44% + ${Math.sin(a) * ry}px)`, opacity: op, transform: "translate(-50%,-50%)" }}>
+            <Coin size={40} delay={i * 8} />
+          </div>
+        );
+      })}
+      <div style={{ ...logo, transform: `${logo.transform} scale(1.7)`, marginBottom: 54 }}><Wordmark size={40} dark glow /></div>
+      <Words text="Private escrow for real commerce" size={54} weight={700} color={D.ink} delay={20} maxWidth={1000} />
+      <div style={{ ...pill, marginTop: 40 }}><ShieldPill dark>Built on Zcash · Shielded by default</ShieldPill></div>
+      <Vignette dark />
+      <Grain opacity={0.06} />
     </AbsoluteFill>
   );
 }
 
-const STEPS = [
-  ["Create", "A merchant creates an order"],
-  ["Review", "An AI checks the listing — advice only"],
-  ["Accept", "The buyer reviews a private link & accepts"],
-  ["Fund", "Funds held in shielded escrow — amount hidden"],
-  ["Release", "Delivery confirmed → the merchant is paid"],
+/* ===================== SCENE 4 · FLOW (light) ===================== */
+const STEPS: [string, string, React.ReactNode][] = [
+  ["Create", "A merchant creates an order", <path key="a" d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />],
+  ["Review", "An AI checks the listing — advice only", <path key="b" d="M3 12s3.5-7 9-7 9 7 9 7-3.5 7-9 7-9-7-9-7Z M12 9a3 3 0 100 6 3 3 0 000-6Z" stroke="currentColor" strokeWidth="1.8" fill="none" />],
+  ["Accept", "The buyer reviews a private link & accepts", <path key="c" d="M5 12l4 4L19 7" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />],
+  ["Fund", "Funds held in shielded escrow — amount hidden", <path key="d" d="M12 3l7 3v6c0 4.5-3 7.3-7 8.5C8 19.3 5 16.5 5 12V6z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" fill="none" />],
+  ["Release", "Delivery confirmed → the merchant is paid", <path key="e" d="M5 12h12m0 0-5-5m5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />],
 ];
-function Flow() {
+function Flow({ dur }: { dur: number }) {
   const frame = useCurrentFrame();
   const head = useRise(4);
-  const out = fadeInOut(frame, 12, 920, 960);
-  const stepStart = 40;
-  const stepGap = 170;
+  const out = useSceneFade(dur, 16, 30);
+  const start = 56;
+  const gap = 118;
+  const railTop = 30, railH = (STEPS.length - 1) * 112;
+  const progress = interpolate(frame, [start, start + (STEPS.length - 1) * gap + 40], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   return (
-    <AbsoluteFill style={{ background: C.bgSoft, justifyContent: "center", alignItems: "center", opacity: out }}>
-      <div style={{ ...head, fontFamily: FONT, fontWeight: 700, fontSize: 48, color: C.ink, marginBottom: 46 }}>How it works</div>
-      <div style={{ width: 980, display: "flex", flexDirection: "column", gap: 20 }}>
-        {STEPS.map(([tag, text], i) => {
-          const d = stepStart + i * stepGap;
-          const s = spring({ frame: frame - d, fps: 30, config: { damping: 200 } });
-          const done = frame > d + stepGap * 0.8;
-          return (
-            <div key={tag} style={{ display: "flex", alignItems: "center", gap: 26, opacity: s, transform: `translateX(${(1 - s) * 40}px)` }}>
-              <div style={{ position: "relative", flexShrink: 0, width: 64, height: 64, borderRadius: 18, background: done ? C.ink : C.accent, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT, fontWeight: 800, fontSize: 28, boxShadow: `0 10px 30px -10px ${C.accent}` }}>
-                {done ? "✓" : i + 1}
+    <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", opacity: out }}>
+      <MeshBg />
+      <DotGrid />
+      <Particles count={26} />
+      <div style={{ ...head, fontFamily: FONT, fontWeight: 700, fontSize: 48, color: C.ink, marginBottom: 44, letterSpacing: "-0.03em" }}>How it works</div>
+      <div style={{ position: "relative", width: 1000 }}>
+        {/* rail */}
+        <div style={{ position: "absolute", left: 31, top: railTop, width: 3, height: railH, background: C.line, borderRadius: 2 }} />
+        <div style={{ position: "absolute", left: 31, top: railTop, width: 3, height: railH * progress, background: `linear-gradient(${C.accent}, ${C.accentInk})`, borderRadius: 2, boxShadow: "0 0 14px rgba(233,162,26,0.6)" }} />
+        {/* travelling glow dot */}
+        <div style={{ position: "absolute", left: 26, top: railTop + railH * progress - 6, width: 13, height: 13, borderRadius: "50%", background: C.accent, boxShadow: "0 0 18px 4px rgba(233,162,26,0.8)" }} />
+        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+          {STEPS.map(([tag, text, icon], i) => {
+            const d = start + i * gap;
+            const s = spring({ frame: frame - d, fps: 30, config: { damping: 200 } });
+            const active = frame > d - 4;
+            const done = frame > d + gap * 0.86;
+            return (
+              <div key={tag} style={{ display: "flex", alignItems: "center", gap: 28, opacity: s, transform: `translateX(${(1 - s) * 44}px)` }}>
+                <div style={{ position: "relative", zIndex: 2, flexShrink: 0, width: 64, height: 64, borderRadius: 18, background: done ? C.ink : active ? C.accent : C.bgSunk, color: active || done ? "#fff" : C.inkMute, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: active ? `0 12px 30px -8px ${C.accent}` : "none", transition: "all .3s" }}>
+                  {done ? (
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4L19 7" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                  ) : (
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">{icon}</svg>
+                  )}
+                </div>
+                <GlassCard style={{ flex: 1, padding: "20px 28px", transform: active ? "translateY(-2px)" : "none" }} glow={active && !done}>
+                  <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
+                    <span style={{ fontFamily: FONT, fontWeight: 800, fontSize: 24, color: C.ink, letterSpacing: "-0.02em" }}>{tag}</span>
+                    <span style={{ fontFamily: FONT, fontWeight: 700, fontSize: 13, color: C.accentInk, background: C.accentWash, borderRadius: 999, padding: "2px 10px" }}>{i + 1}</span>
+                  </div>
+                  <div style={{ fontFamily: FONT, fontSize: 23, color: C.inkSoft, marginTop: 3 }}>{text}</div>
+                </GlassCard>
               </div>
-              <div style={{ flex: 1, background: C.bg, border: `1px solid ${C.line}`, borderRadius: 18, padding: "20px 28px" }}>
-                <div style={{ fontFamily: FONT, fontWeight: 800, fontSize: 24, color: C.ink, letterSpacing: "-0.02em" }}>{tag}</div>
-                <div style={{ fontFamily: FONT, fontSize: 24, color: C.inkSoft, marginTop: 2 }}>{text}</div>
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
+      <Grain />
+      <Vignette />
     </AbsoluteFill>
   );
 }
 
-function Privacy() {
+/* ===================== SCENE 5 · PRIVACY (dark) ===================== */
+function Privacy({ dur }: { dur: number }) {
   const frame = useCurrentFrame();
   const head = useRise(4);
-  const out = fadeInOut(frame, 12, 270, 300);
+  const out = useSceneFade(dur);
   const points = ["Amounts & parties stay shielded", "No seed phrases to paste", "AI advises · a human decides disputes"];
   return (
-    <AbsoluteFill style={{ background: C.bg, justifyContent: "center", alignItems: "center", opacity: out }}>
-      <div style={{ ...head, fontFamily: FONT, fontWeight: 700, fontSize: 52, color: C.ink, marginBottom: 52, letterSpacing: "-0.03em" }}>Private by design</div>
-      <div style={{ display: "flex", gap: 26 }}>
+    <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", opacity: out }}>
+      <MeshBg dark />
+      <Particles count={44} dark accent />
+      <div style={{ ...head, fontFamily: FONT, fontWeight: 700, fontSize: 52, color: D.ink, marginBottom: 54, letterSpacing: "-0.03em", textShadow: `0 0 30px ${D.glow}` }}>Private by design</div>
+      <div style={{ display: "flex", gap: 28 }}>
         {points.map((p, i) => {
-          const s = spring({ frame: frame - (24 + i * 16), fps: 30, config: { damping: 200 } });
+          const s = spring({ frame: frame - (24 + i * 18), fps: 30, config: { damping: 200 } });
           return (
-            <div key={p} style={{ width: 360, height: 280, background: C.bgSoft, border: `1px solid ${C.line}`, borderRadius: 26, padding: 32, display: "flex", flexDirection: "column", justifyContent: "flex-end", opacity: s, transform: `translateY(${(1 - s) * 30}px)` }}>
-              <div style={{ color: C.accentInk, marginBottom: 18 }}>
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v6c0 4.5-3 7.3-7 8.5C8 19.3 5 16.5 5 12V6z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" /></svg>
-              </div>
-              <div style={{ fontFamily: FONT, fontWeight: 600, fontSize: 28, color: C.ink, lineHeight: 1.25 }}>{p}</div>
-            </div>
+            <GlassCard key={p} dark glow style={{ width: 360, height: 300, padding: 34, display: "flex", flexDirection: "column", justifyContent: "space-between", opacity: s, transform: `translateY(${(1 - s) * 34}px)` }}>
+              <GlowShield size={56} dark delay={i * 20} />
+              <div style={{ fontFamily: FONT, fontWeight: 600, fontSize: 28, color: D.ink, lineHeight: 1.25 }}>{p}</div>
+            </GlassCard>
           );
         })}
       </div>
+      <Vignette dark />
+      <Grain opacity={0.06} />
     </AbsoluteFill>
   );
 }
 
-function Close() {
+/* ===================== SCENE 6 · CLOSE (dark) ===================== */
+function Close({ dur }: { dur: number }) {
   const frame = useCurrentFrame();
   const logo = useRise(6);
-  const tag = useRise(22);
-  const foot = useRise(40);
-  const out = interpolate(frame, [0, 14, 190, 210], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const tag = useRise(24);
+  const foot = useRise(44);
+  const sweep = interpolate(frame, [0, dur], [-30, 130]);
+  const out = interpolate(frame, [0, 18, dur - 30, dur], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   return (
-    <AbsoluteFill style={{ background: C.ink, justifyContent: "center", alignItems: "center", opacity: out }}>
-      <div style={{ ...logo, display: "flex", alignItems: "center", gap: 18 }}>
-        <div style={{ background: "#fff", borderRadius: 20, padding: 14, display: "flex" }}><Mark size={64} /></div>
-        <span style={{ fontFamily: FONT, fontWeight: 800, fontSize: 72, letterSpacing: "-0.04em", color: "#fff" }}>Zecrow</span>
+    <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", opacity: out }}>
+      <MeshBg dark />
+      <Particles count={60} dark accent />
+      {/* light sweep behind the logo */}
+      <div style={{ position: "absolute", top: 0, bottom: 0, left: `${sweep}%`, width: "30%", background: "linear-gradient(90deg,transparent,rgba(244,183,40,0.14),transparent)" }} />
+      <div style={{ ...logo, display: "flex", alignItems: "center", gap: 20 }}>
+        <div style={{ background: "#fff", borderRadius: 22, padding: 16, display: "flex", boxShadow: `0 0 40px -6px ${D.glow}` }}><ZMark size={66} /></div>
+        <span style={{ fontFamily: FONT, fontWeight: 800, fontSize: 76, letterSpacing: "-0.04em", color: "#fff" }}>Zecrow</span>
       </div>
-      <div style={{ ...tag, fontFamily: FONT, fontSize: 34, color: "rgba(255,255,255,0.82)", marginTop: 30, textAlign: "center" }}>
+      <div style={{ ...tag, fontFamily: FONT, fontSize: 34, color: "rgba(255,255,255,0.84)", marginTop: 32, textAlign: "center" }}>
         Private escrow for real commerce on Zcash.
       </div>
-      <div style={{ ...foot, fontFamily: FONT, fontSize: 20, color: "rgba(255,255,255,0.45)", marginTop: 40, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+      <div style={{ ...foot, fontFamily: FONT, fontSize: 19, color: "rgba(255,255,255,0.42)", marginTop: 42, letterSpacing: "0.14em", textTransform: "uppercase" }}>
         Testnet prototype · The Zecathon
       </div>
+      <Vignette dark />
+      <Grain opacity={0.06} />
     </AbsoluteFill>
   );
 }
 
+/* ===================== TIMELINE ===================== */
+type SceneDef = { Comp: (p: { dur: number }) => React.ReactElement; dur: number; lead: number; vo: string | null };
+const SCENES: SceneDef[] = [
+  { Comp: Hook, dur: 167, lead: 14, vo: "vo-1-hook.mp3" },         // 4.44s
+  { Comp: Problem, dur: 248, lead: 12, vo: "vo-2-problem.mp3" },   // 7.26s
+  { Comp: Solution, dur: 278, lead: 12, vo: "vo-3-solution.mp3" }, // 8.25s
+  { Comp: Flow, dur: 694, lead: 14, vo: "vo-4-flow.mp3" },         // 22.0s
+  { Comp: Privacy, dur: 311, lead: 12, vo: "vo-5-privacy.mp3" },   // 9.38s
+  { Comp: Close, dur: 175, lead: 0, vo: null },                    // music only
+];
+const OVERLAP = 14;
+export const DEMO_DURATION = SCENES.reduce((sum, s, i) => sum + s.dur - (i > 0 ? OVERLAP : 0), 0);
+
 export function ZecrowDemo() {
+  let start = 0;
+  const placed = SCENES.map((s, i) => {
+    const from = i === 0 ? 0 : start - OVERLAP;
+    start = from + s.dur;
+    return { ...s, from };
+  });
   return (
     <AbsoluteFill style={{ background: C.bg }}>
-      {AUDIO && <Audio src={staticFile("voiceover.mp3")} />}
-      {AUDIO && <Audio src={staticFile("music.mp3")} volume={0.16} />}
-      <Sequence durationInFrames={210}><Hook /></Sequence>
-      <Sequence from={210} durationInFrames={270}><Problem /></Sequence>
-      <Sequence from={480} durationInFrames={300}><Solution /></Sequence>
-      <Sequence from={780} durationInFrames={960}><Flow /></Sequence>
-      <Sequence from={1740} durationInFrames={300}><Privacy /></Sequence>
-      <Sequence from={2040} durationInFrames={210}><Close /></Sequence>
+      {AUDIO && <Audio src={staticFile("music.mp3")} volume={0.17} />}
+      {placed.map((s, i) => (
+        <Sequence key={i} from={s.from} durationInFrames={s.dur}>
+          <s.Comp dur={s.dur} />
+          {AUDIO && s.vo && (
+            <Sequence from={s.lead}>
+              <Audio src={staticFile(s.vo)} />
+            </Sequence>
+          )}
+        </Sequence>
+      ))}
     </AbsoluteFill>
   );
 }
