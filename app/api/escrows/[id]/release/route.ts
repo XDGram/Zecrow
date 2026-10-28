@@ -24,8 +24,9 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       return Response.json({ status: order.status, error: "This order is not funded, so it cannot be released." }, { status: 409 });
     }
     // Path B (no managed node): the escrow operator settles with the merchant off-platform.
-    // We record the confirmation without an on-chain payout, honestly flagged as manual.
-    if (!process.env.ZALLET_RPC_URL && process.env.ESCROW_DEPOSIT_ADDRESS) {
+    // We record the confirmation without an on-chain payout, honestly flagged as manual. This is
+    // the default whenever no managed Zallet node is configured (including demo-only deployments).
+    if (!process.env.ZALLET_RPC_URL) {
       const updated = await recordEscrowSettlement(code, { kind: "released", txid: "" });
       return Response.json({ status: "released", settlement: "manual", orderStatus: updated?.status ?? "released" }, { headers: { "Cache-Control": "no-store" } });
     }
