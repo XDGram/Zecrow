@@ -60,6 +60,7 @@ export default function BuyerFlow() {
   const [releasing, setReleasing] = useState(false);
   const [releaseTxid, setReleaseTxid] = useState("");
   const [releaseMessage, setReleaseMessage] = useState("");
+  const [demoFunded, setDemoFunded] = useState(false);
 
   useEffect(() => {
     if (!code) return;
@@ -109,11 +110,13 @@ export default function BuyerFlow() {
   }, [code, order?.depositAddress, order?.paymentMemo]);
 
   useEffect(() => {
-    if (view !== "accepted" || order?.status !== "awaiting_payment") return;
+    // Only poll the managed-watcher payment route in Path A (a per-order deposit address exists).
+    // In Path B there is no watcher, so funding is reported directly and polling would just 503.
+    if (view !== "accepted" || order?.status !== "awaiting_payment" || !order?.depositAddress) return;
     void checkPayment();
     const timer = window.setInterval(() => void checkPayment(), 12_000);
     return () => window.clearInterval(timer);
-  }, [view, order?.status, checkPayment]);
+  }, [view, order?.status, order?.depositAddress, checkPayment]);
 
   const payWithWallet = async () => {
     if (!order) return;
@@ -149,6 +152,27 @@ export default function BuyerFlow() {
       }
     } catch (reason) {
       setPaymentMessage(reason instanceof Error ? reason.message : "The wallet payment did not complete.");
+    } finally {
+      setFunding(false);
+    }
+  };
+
+  const simulateFunding = async () => {
+    if (!order) return;
+    setFunding(true);
+    setPaymentMessage("");
+    try {
+      const response = await fetch(`/api/escrows/${encodeURIComponent(code)}/simulate`, { method: "POST" });
+      const result = await response.json() as { status?: string; demo?: boolean; error?: string };
+      if (result.status === "funded") {
+        setDemoFunded(true);
+        setOrder((previous) => previous ? { ...previous, status: "funded", payment: { status: "pending", txid: null, confirmations: 0 } } : previous);
+        setPaymentMessage("Demo payment recorded — no on-chain transaction.");
+      } else {
+        setPaymentMessage(result.error ?? "The demo payment could not be recorded.");
+      }
+    } catch {
+      setPaymentMessage("Could not record the demo payment.");
     } finally {
       setFunding(false);
     }
@@ -324,14 +348,20 @@ export default function BuyerFlow() {
                   {order.status === "released" ? (
                     <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
                       <div className="flex items-center gap-2 text-[13px] font-semibold text-emerald-900"><ShieldCheck size={15} /> Delivery confirmed · released</div>
-                      <p className="mt-1 text-[11.5px] leading-5 text-emerald-800">{releaseTxid ? "The escrow paid the merchant on Zcash testnet. This order is complete." : "The escrow operator settles the held funds with the merchant. This order is complete."}</p>
+                      <p className="mt-1 text-[11.5px] leading-5 text-emerald-800">{demoFunded ? "Demo order complete — no on-chain transaction was made." : releaseTxid ? "The escrow paid the merchant on Zcash testnet. This order is complete." : "The escrow operator settles the held funds with the merchant. This order is complete."}</p>
                       {releaseTxid && <a href={`https://testnet.zcashexplorer.app/transactions/${releaseTxid}`} target="_blank" rel="noreferrer" className="mt-2 block break-all font-mono text-[10.5px] text-emerald-700 underline">tx: {releaseTxid}</a>}
                     </div>
                   ) : order.status === "funded" ? (
                     <>
                       <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[12px] leading-5 text-emerald-800">
-                        Shielded testnet payment sent to escrow{order.payment.status === "pending" ? " — the escrow operator verifies receipt." : " and confirmed."} Release once you have the goods.
-                        {(order.payment.txid || paymentTxid) && <a href={`https://testnet.zcashexplorer.app/transactions/${order.payment.txid || paymentTxid}`} target="_blank" rel="noreferrer" className="mt-1 block break-all font-mono text-[10.5px] text-emerald-700 underline">tx: {order.payment.txid || paymentTxid}</a>}
+                        {demoFunded ? (
+                          <>Demo payment recorded — <span className="font-medium">no on-chain transaction</span>. Release once you have the goods.</>
+                        ) : (
+                          <>
+                            Shielded testnet payment sent to escrow{order.payment.status === "pending" ? " — the escrow operator verifies receipt." : " and confirmed."} Release once you have the goods.
+                            {(order.payment.txid || paymentTxid) && <a href={`https://testnet.zcashexplorer.app/transactions/${order.payment.txid || paymentTxid}`} target="_blank" rel="noreferrer" className="mt-1 block break-all font-mono text-[10.5px] text-emerald-700 underline">tx: {order.payment.txid || paymentTxid}</a>}
+                          </>
+                        )}
                       </div>
                       <button type="button" onClick={() => void releaseFunds()} disabled={releasing} className="btn btn-dark mt-3 w-full !py-3 text-[14px] disabled:opacity-50">
                         {releasing ? "Confirming…" : "Confirm delivery & release to merchant"}
@@ -345,6 +375,11 @@ export default function BuyerFlow() {
                         {funding ? "Waiting for wallet…" : `Fund ${Number(order.amountZec).toFixed(8)} ZEC with Noir`}
                       </button>
                       <p className="mt-2 text-center text-[11px] leading-5 text-ink-mute">Real shielded Zcash testnet payment, sent from your Noir wallet to the escrow address.</p>
+                      <div className="mt-4 flex items-center gap-2 text-[10.5px] font-medium uppercase tracking-[0.1em] text-ink-faint"><span className="h-px flex-1 bg-line" />or<span className="h-px flex-1 bg-line" /></div>
+                      <button type="button" onClick={() => void simulateFunding()} disabled={funding} className="btn btn-ghost mt-3 w-full !py-2.5 text-[12.5px] disabled:opacity-50">
+                        Simulate payment · demo, no wallet
+                      </button>
+                      <p className="mt-1.5 text-center text-[10.5px] leading-4 text-ink-faint">Reviewer shortcut — marks this order funded with no real transaction.</p>
                     </>
                   ) : (
                     <>

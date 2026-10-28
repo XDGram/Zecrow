@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import EscrowPanel from "./EscrowPanel";
 
@@ -13,6 +15,24 @@ const fade = {
 };
 
 export default function Hero() {
+  const router = useRouter();
+  const [loadingDemo, setLoadingDemo] = useState(false);
+
+  const openDemoOrder = async () => {
+    setLoadingDemo(true);
+    try {
+      const response = await fetch("/api/demo-order", { method: "POST" });
+      const result = (await response.json()) as { href?: string; error?: string };
+      if (response.ok && result.href) {
+        router.push(result.href);
+      } else {
+        setLoadingDemo(false);
+      }
+    } catch {
+      setLoadingDemo(false);
+    }
+  };
+
   return (
     <section id="top" className="relative overflow-hidden pt-32 md:pt-36">
       {/* faint dotted texture top */}
@@ -65,9 +85,9 @@ export default function Hero() {
             <a href="/dashboard/create" className="btn btn-dark px-6">
               Create an escrow
             </a>
-            <a href="#how" className="btn btn-ghost px-6">
-              <PlayIcon /> How it works
-            </a>
+            <button type="button" onClick={() => void openDemoOrder()} disabled={loadingDemo} className="btn btn-ghost px-6 disabled:opacity-60">
+              <PlayIcon /> {loadingDemo ? "Opening demo…" : "View a demo order"}
+            </button>
           </motion.div>
 
           <motion.p

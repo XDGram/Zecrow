@@ -4,6 +4,13 @@ import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { CODE_RELEASE_TERMS, PLATFORM_DISPUTE_WINDOW_DAYS } from "@/lib/listingCheck";
+
+// Identity used for judge/reviewer demo orders created without a signed-in wallet.
+export const DEMO_MERCHANT_WALLET = "zecrow-demo-merchant";
+// Fallback payout address for demo orders when ESCROW_DEPOSIT_ADDRESS is unset.
+const DEMO_PAYOUT_FALLBACK =
+  "utest1e26444y7fq6t65dnugpygc46lkrx92gnf9lqvtf7dx8r5cka5x2jhvu8c829xq82waxf837auye2l3ampcwa9tsmuehfcm7cjnvkgjjt7uxtmsprjp9mj77agzukuzsjm453j8kr4uthtq938ht0j6y82s0j0qm0p068rpdpwyjna3kx";
 
 export type EscrowType = "physical" | "digital";
 export type EscrowOrder = {
@@ -334,6 +341,64 @@ export async function recordEscrowSettlement(code: string, settlement: { kind: "
     await writeLocalStore(store);
     return updated;
   });
+}
+
+/**
+ * Demo-only funding (no wallet, no on-chain transaction). Lets a reviewer walk an order from
+ * awaiting_payment to funded so they can see the full lifecycle. The txid is left null and the
+ * payment is flagged "pending" so the UI can label it honestly as a simulated payment.
+ */
+export async function recordDemoFunding(code: string): Promise<EscrowOrder | null> {
+  const supabase = supabaseAdmin();
+  if (supabase) {
+    const result = await supabase.from("escrows").update({ payment_status: "pending", payment_txid: null, status: "funded" })
+      .eq("public_code_hash", hashCode(code)).eq("status", "awaiting_payment").select("*").maybeSingle();
+    if (result.error) throw new Error("Could not record the demo payment.");
+    if (result.data) return fromRow(result.data, code);
+    return getEscrowOrder(code);
+  }
+
+  if (process.env.NODE_ENV === "production") throw new Error("Hosted order storage is not configured.");
+  return serial(async () => {
+    const store = await readLocalStore();
+    const index = store.orders.findIndex((order) => order.code === code);
+    if (index < 0) return null;
+    const order = currentStatus(store.orders[index]);
+    if (order.status !== "awaiting_payment") return order;
+    const updated: EscrowOrder = { ...order, status: "funded", payment: { status: "pending", txid: null, confirmations: 0 } };
+    store.orders[index] = updated;
+    await writeLocalStore(store);
+    return updated;
+  });
+}
+
+/**
+ * Create a pre-populated demo order so hackathon reviewers can open a real order page without a
+ * wallet. It is an ordinary order owned by a demo merchant identity; funding/release use the
+ * simulated (demo) paths so no on-chain transaction is required.
+ */
+export async function createDemoOrder(): Promise<EscrowOrder> {
+  const payoutAddress = process.env.ESCROW_DEPOSIT_ADDRESS?.startsWith("utest1")
+    ? process.env.ESCROW_DEPOSIT_ADDRESS
+    : DEMO_PAYOUT_FALLBACK;
+  return createEscrowOrder({
+    type: "digital",
+    item: "Demo order · Lightroom preset pack",
+    amountZec: "1.25",
+    description:
+      "Reviewer demo order. A downloadable pack of 40 Lightroom presets, delivered as a private link after the buyer confirms with their one-time Zecrow release code. This order is pre-filled so you can walk the full escrow flow — review, fund, and release — without a wallet.",
+    images: [],
+    deliveryMethod: "link",
+    shipping: "",
+    merchantPayoutAddress: payoutAddress,
+    confirmation: "code",
+    proof: "",
+    releaseTerms: CODE_RELEASE_TERMS,
+    disputeWindowDays: PLATFORM_DISPUTE_WINDOW_DAYS,
+    linkExpiryHours: 168,
+    depositAddress: null,
+    paymentMemo: null,
+  }, DEMO_MERCHANT_WALLET);
 }
 
 export async function saveEscrowDepositDetails(code: string, details: { address: string; memo: string }): Promise<EscrowOrder | null> {
