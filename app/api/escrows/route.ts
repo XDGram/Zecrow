@@ -1,6 +1,7 @@
 import { createEscrowOrder, listEscrowOrders, type EscrowType } from "@/lib/escrowStore";
 import { CODE_RELEASE_TERMS, PLATFORM_DISPUTE_WINDOW_DAYS, validZecAmount } from "@/lib/listingCheck";
 import { getAllowedOrigin, readWalletSession } from "@/lib/walletAuth";
+import { createEscrowDepositDetails } from "@/lib/zalletRpc";
 
 const IMAGE_LIMIT = 1_900_000;
 const linkExpiries = [24, 72, 168];
@@ -77,6 +78,16 @@ export async function POST(request: Request) {
     return Response.json({ error: "Choose a valid payment link expiry." }, { status: 400 });
   }
 
+  let depositAddress: string | null = null;
+  let paymentMemo: string | null = null;
+  try {
+    const deposit = await createEscrowDepositDetails();
+    depositAddress = deposit.address;
+    paymentMemo = deposit.memo;
+  } catch {
+    // Keep the order reviewable while Zallet is being configured; the buyer flow remains unfunded.
+  }
+
   try {
     const order = await createEscrowOrder({
       type: type as EscrowType,
@@ -91,6 +102,8 @@ export async function POST(request: Request) {
       releaseTerms,
       disputeWindowDays,
       linkExpiryHours,
+      depositAddress,
+      paymentMemo,
     }, session.address);
     return Response.json({ order: { number: order.number, code: order.code, createdAt: order.createdAt, expiresAt: order.expiresAt } }, { status: 201 });
   } catch (error) {

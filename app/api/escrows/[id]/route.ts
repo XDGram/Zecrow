@@ -26,6 +26,9 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
       proof: order.proof,
       releaseTerms: order.releaseTerms,
       disputeWindowDays: PLATFORM_DISPUTE_WINDOW_DAYS,
+      depositAddress: order.depositAddress,
+      paymentMemo: order.paymentMemo,
+      payment: order.payment,
       expiresAt: order.expiresAt,
       status: order.status,
     } }, { headers: { "Cache-Control": "no-store" } });

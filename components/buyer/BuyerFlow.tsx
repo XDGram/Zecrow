@@ -2,9 +2,10 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { Package } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Expand, Package, ShieldCheck, X } from "lucide-react";
+import { useWallet } from "@/components/wallet/WalletProvider";
 import { CODE_RELEASE_TERMS, PLATFORM_DISPUTE_WINDOW_DAYS } from "@/lib/listingCheck";
 import ZecrowMark from "@/components/ZecrowMark";
 
@@ -21,22 +22,40 @@ type BuyerOrder = {
   proof: string;
   releaseTerms: string;
   disputeWindowDays: number;
+  depositAddress: string | null;
+  paymentMemo: string | null;
+  payment: { status: "not_connected" | "pending" | "confirmed" | "failed"; txid: string | null; confirmations: number };
   expiresAt: string;
-  status: "awaiting_payment" | "expired";
+  status: "awaiting_payment" | "expired" | "funded" | "delivered" | "disputed" | "released" | "refunded";
 };
 
-const PROGRESS: { key: string; label: string }[] = [
-  { key: "fund", label: "Fund" },
-  { key: "deliver", label: "Delivery" },
-  { key: "release", label: "Released" },
+type View = "review" | "accepted" | "declining" | "declined";
+
+const DECLINE_REASONS = [
+  "Item differs from the description",
+  "Photos don't match the item",
+  "Amount is wrong",
+  "Delivery terms differ from what we agreed",
+  "Something else",
 ];
 
+const STEPS = ["Review", "Fund", "Released"];
+
 export default function BuyerFlow() {
+  const { status: walletStatus, connect, sendPayment } = useWallet();
   const params = useParams();
   const code = typeof params.code === "string" ? params.code : "";
   const [order, setOrder] = useState<BuyerOrder | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const [view, setView] = useState<View>("review");
+  const [lightbox, setLightbox] = useState<number | null>(null);
+  const [reasons, setReasons] = useState<string[]>([]);
+  const [note, setNote] = useState("");
+  const [funding, setFunding] = useState(false);
+  const [paymentMessage, setPaymentMessage] = useState("");
+  const [paymentTxid, setPaymentTxid] = useState("");
 
   useEffect(() => {
     if (!code) return;
@@ -54,44 +73,106 @@ export default function BuyerFlow() {
     return () => { active = false; };
   }, [code]);
 
+  const toggleReason = (reason: string) =>
+    setReasons((prev) => prev.includes(reason) ? prev.filter((r) => r !== reason) : [...prev, reason]);
+
+  const checkPayment = useCallback(async () => {
+    if (!code || !order) return;
+    try {
+      const response = await fetch(`/api/escrows/${encodeURIComponent(code)}/payment`, { method: "POST" });
+      const result = await response.json() as { status?: string; txid?: string; confirmations?: number; requiredConfirmations?: number; depositAddress?: string; paymentMemo?: string; error?: string };
+      if (result.status === "ready" && result.depositAddress && result.paymentMemo) {
+        setOrder((previous) => previous ? { ...previous, depositAddress: result.depositAddress!, paymentMemo: result.paymentMemo! } : previous);
+        setPaymentMessage("Zcash testnet deposit address ready. You can fund this order with Noir Wallet.");
+        return;
+      }
+      if (result.status === "funded") {
+        setOrder((previous) => previous ? { ...previous, status: "funded", payment: { status: "confirmed", txid: result.txid ?? null, confirmations: result.confirmations ?? 0 } } : previous);
+        setPaymentMessage(`Payment confirmed with ${result.confirmations ?? 0} testnet confirmation(s).`);
+        return;
+      }
+      if (result.status === "confirming") {
+        setPaymentTxid(result.txid ?? "");
+        setPaymentMessage(`Payment detected. Waiting for confirmations (${result.confirmations ?? 0}/${result.requiredConfirmations ?? 1}).`);
+      } else if (result.status === "amount_mismatch" || result.status === "ambiguous") {
+        setPaymentMessage(result.error ?? "Payment needs manual review.");
+      } else if (result.status === "unavailable") {
+        setPaymentMessage(result.error ?? "Testnet payment checking is unavailable.");
+      }
+    } catch {
+      setPaymentMessage("Could not check payment status. Retrying shortly.");
+    }
+  }, [code, order?.depositAddress, order?.paymentMemo]);
+
+  useEffect(() => {
+    if (view !== "accepted" || order?.status !== "awaiting_payment") return;
+    void checkPayment();
+    const timer = window.setInterval(() => void checkPayment(), 12_000);
+    return () => window.clearInterval(timer);
+  }, [view, order?.status, checkPayment]);
+
+  const payWithWallet = async () => {
+    if (!order?.depositAddress || !order.paymentMemo) return;
+    setFunding(true);
+    setPaymentMessage("");
+    try {
+      if (walletStatus !== "connected") {
+        await connect();
+        setPaymentMessage("Connect Noir Wallet to Zcash testnet, then press Fund again to approve the payment.");
+        return;
+      }
+      const txid = await sendPayment({ to: order.depositAddress, amount: order.amountZec, memo: order.paymentMemo });
+      setPaymentTxid(txid);
+      setPaymentMessage("Payment broadcast. Checking the Zcash testnet wallet for confirmation.");
+      await checkPayment();
+    } catch (reason) {
+      setPaymentMessage(reason instanceof Error ? reason.message : "The wallet payment did not complete.");
+    } finally {
+      setFunding(false);
+    }
+  };
+
   if (loading) return <BuyerMessage title="Loading order" detail="Fetching the saved order details." />;
   if (error || !order) return <BuyerMessage title="Order link unavailable" detail={error || "This order link could not be found."} />;
 
+  const expired = order.status === "expired";
+  const stepIndex = view === "accepted" ? 1 : 0;
   const delivery = order.type === "physical"
-    ? "Delivery details are in the order description. Confirm receipt with the one-time code."
+    ? (order.shipping?.trim() || "Shipping details are in the description") + " · confirm receipt with the one-time code"
     : `${order.deliveryMethod === "link" ? "Download link" : order.deliveryMethod === "file" ? "File delivery" : "License key"} · confirm delivery with the one-time code`;
+
   return (
     <div className="min-h-screen bg-bg-soft/50">
-      {/* top bar */}
-      <header className="border-b border-line bg-white">
+      <header className="sticky top-0 z-20 border-b border-line bg-white/85 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-xl items-center justify-between px-5">
           <Link href="/" className="flex items-center gap-2 text-ink">
             <ZecrowMark size={24} />
             <span className="text-[14px] font-bold tracking-[-0.035em]">Zecrow</span>
           </Link>
           <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-bg-soft px-2.5 py-1 text-[11px] font-medium text-ink-soft">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="5" y="10" width="14" height="9" rx="2.2" stroke="currentColor" strokeWidth="1.6" /><path d="M8 10V7.5a4 4 0 0 1 8 0V10" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>
-            Testnet prototype
+            <ShieldCheck size={13} strokeWidth={1.8} /> Testnet prototype
           </span>
         </div>
       </header>
 
       <main className="mx-auto max-w-xl px-5 py-8">
         <div className="mb-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-[12px] leading-5 text-amber-950">
-          <strong>{order.status === "expired" ? "Order link expired." : "Saved order preview."}</strong> {order.status === "expired" ? "This payment link can no longer be used." : "Review the merchant's terms before proceeding."} Testnet payment verification, release-code checks, refunds, and escrow custody are not connected, so do not send funds.
+          <strong>{expired ? "Order link expired." : "Review this order before you fund it."}</strong>{" "}
+          {expired ? "This payment link can no longer be used." : "Check that the item, photos, amount and terms match what you agreed with the merchant."} Zcash testnet only. Release and refund transfers are not connected yet.
         </div>
+
         {/* progress */}
         <div className="mb-6 flex items-center gap-2">
-          {PROGRESS.map((p, i) => {
-            const done = false;
-            const active = i === 0;
+          {STEPS.map((label, i) => {
+            const active = i === stepIndex;
+            const done = i < stepIndex;
             return (
-              <div key={p.key} className="flex flex-1 items-center gap-2">
-                <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold ${done ? "bg-ink text-white" : active ? "bg-accent text-white ring-4 ring-accent-wash" : "bg-bg-sunk text-ink-mute"}`}>
+              <div key={label} className="flex flex-1 items-center gap-2">
+                <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold transition-colors ${done ? "bg-ink text-white" : active ? "bg-accent text-white ring-4 ring-accent-wash" : "bg-bg-sunk text-ink-mute"}`}>
                   {done ? "✓" : i + 1}
                 </div>
-                <span className={`text-[12px] font-medium ${active || done ? "text-ink" : "text-ink-mute"}`}>{p.label}</span>
-                {i < PROGRESS.length - 1 && <span className={`mx-1 h-px flex-1 ${done ? "bg-ink/40" : "bg-line"}`} />}
+                <span className={`text-[12px] font-medium ${active || done ? "text-ink" : "text-ink-mute"}`}>{label}</span>
+                {i < STEPS.length - 1 && <span className={`mx-1 h-px flex-1 ${done ? "bg-ink/40" : "bg-line"}`} />}
               </div>
             );
           })}
@@ -113,14 +194,37 @@ export default function BuyerFlow() {
                 <div className="text-[11.5px] text-ink-mute">{order.type === "physical" ? "Physical goods" : "Digital goods"} · order /e/{code}</div>
               </div>
             </div>
-            <p className="mt-3 text-[12px] leading-5 text-ink-soft">{order.description}</p>
+
+            <div className="mt-4">
+              <div className="annotation text-ink-mute">What the merchant described</div>
+              <p className="mt-1 whitespace-pre-line text-[12.5px] leading-6 text-ink-soft">{order.description}</p>
+            </div>
 
             {/* photos */}
-            {order.images.length > 0 && <div className="mt-4 grid grid-cols-3 gap-2">
-              {order.images.map((image, i) => (
-                <div key={`${image.name}-${i}`} role="img" aria-label={image.name} className="aspect-[4/3] rounded-lg bg-cover bg-center" style={{ backgroundImage: `url("${image.src}")` }} />
-              ))}
-            </div>}
+            {order.images.length > 0 && (
+              <div className="mt-4">
+                <div className="annotation mb-1.5 text-ink-mute">Photos · tap to view full size</div>
+                <div className="grid grid-cols-3 gap-2">
+                  {order.images.map((image, i) => (
+                    <motion.button
+                      key={`${image.name}-${i}`}
+                      type="button"
+                      onClick={() => setLightbox(i)}
+                      whileHover={{ y: -2 }}
+                      whileTap={{ scale: 0.97 }}
+                      className="group relative aspect-[4/3] overflow-hidden rounded-lg border border-line bg-bg-soft"
+                      aria-label={`View ${image.name} full size`}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={image.src} alt={image.name} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                      <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-ink/0 opacity-0 transition-all duration-200 group-hover:bg-ink/25 group-hover:opacity-100">
+                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-ink shadow-[var(--shadow-sm)]"><Expand size={14} /></span>
+                      </span>
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="mt-4 flex items-end justify-between rounded-xl bg-bg-soft px-4 py-3">
               <div>
@@ -129,9 +233,9 @@ export default function BuyerFlow() {
                   {Number(order.amountZec).toFixed(2)} <span className="text-[13px] font-normal text-ink-mute">ZEC</span>
                 </div>
               </div>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-wash px-2.5 py-1 text-[11px] font-medium text-accent-ink">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6c-1.4 0-2.7-.3-3.8-.8M4 4l16 16" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" /></svg>
-                Shielded
+              <span className="relative inline-flex items-center gap-1.5 overflow-hidden rounded-full bg-accent-wash px-2.5 py-1 text-[11px] font-medium text-accent-ink">
+                <motion.span aria-hidden className="absolute inset-y-0 -left-full w-1/2 bg-gradient-to-r from-transparent via-white/50 to-transparent" animate={{ x: ["0%", "360%"] }} transition={{ repeat: Infinity, duration: 2.6, ease: "easeInOut" }} />
+                <ShieldCheck size={12} strokeWidth={1.9} /> Shielded
               </span>
             </div>
           </div>
@@ -147,30 +251,179 @@ export default function BuyerFlow() {
           {/* action area */}
           <div className="p-5">
             <AnimatePresence mode="wait" initial={false}>
-              <motion.div key="preview" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.25 }}>
-                <div className="space-y-3">
-                  <button type="button" disabled className="btn btn-dark w-full !cursor-not-allowed !py-3 text-[14px] opacity-50">
-                    {order.status === "expired" ? "This order link has expired" : "Payment verification is not connected"}
-                  </button>
-                  <p className="text-center text-[12px] leading-5 text-ink-mute">
-                    This saved order has no testnet deposit address or payment watcher. The payment action stays disabled until a deposit can be verified and tied to this order.
-                  </p>
-                </div>
-              </motion.div>
+              {expired ? (
+                <Panel key="expired">
+                  <button type="button" disabled className="btn btn-dark w-full !cursor-not-allowed !py-3 text-[14px] opacity-50">This order link has expired</button>
+                </Panel>
+              ) : view === "review" ? (
+                <Panel key="review">
+                  <p className="mb-3 text-center text-[12.5px] leading-5 text-ink-soft">Does everything above match what you agreed with the merchant?</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <motion.button type="button" whileHover={{ y: -1 }} whileTap={{ scale: 0.98 }} onClick={() => setView("declining")}
+                      className="flex items-center justify-center gap-2 rounded-xl border border-line bg-white py-3 text-[13.5px] font-semibold text-ink-soft transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-700">
+                      <X size={16} /> Doesn&apos;t match
+                    </motion.button>
+                    <motion.button type="button" whileHover={{ y: -1 }} whileTap={{ scale: 0.98 }} onClick={() => setView("accepted")}
+                      className="flex items-center justify-center gap-2 rounded-xl bg-ink py-3 text-[13.5px] font-semibold text-white transition-colors hover:bg-ink/90">
+                      <Check size={16} /> Accept order
+                    </motion.button>
+                  </div>
+                  <p className="mt-3 text-center text-[11px] leading-4 text-ink-faint">Accepting confirms the details look right. You still release funds only after delivery, with your one-time code.</p>
+                </Panel>
+              ) : view === "accepted" ? (
+                <Panel key="accepted">
+                  <div className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
+                    <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white"><Check size={15} strokeWidth={2.4} /></span>
+                    <div>
+                      <div className="text-[13px] font-semibold text-emerald-900">Order accepted</div>
+                      <p className="mt-0.5 text-[11.5px] leading-5 text-emerald-800">The details match. Funding is the next step — funds stay in escrow until you confirm delivery.</p>
+                    </div>
+                  </div>
+                  {order.status === "funded" ? (
+                    <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-center text-[12px] font-medium text-emerald-800">Testnet payment confirmed. The escrow release and refund actions are not implemented yet.</div>
+                  ) : order.depositAddress && order.paymentMemo ? (
+                    <>
+                      <button type="button" onClick={() => void payWithWallet()} disabled={funding} className="btn btn-dark mt-3 w-full !py-3 text-[14px] disabled:opacity-50">
+                        {funding ? "Waiting for wallet…" : `Fund ${Number(order.amountZec).toFixed(8)} ZEC with Noir`}
+                      </button>
+                      <p className="mt-2 text-center text-[11px] leading-5 text-ink-mute">Testnet payment only. Funds will remain in the escrow wallet while release and refund actions are being built.</p>
+                    </>
+                  ) : (
+                    <>
+                      <button type="button" disabled className="btn btn-dark mt-3 w-full !cursor-not-allowed !py-3 text-[14px] opacity-50">Testnet escrow wallet not ready</button>
+                      <p className="mt-2 text-center text-[11px] leading-5 text-ink-mute">The order has no deposit address yet. The escrow wallet must be unlocked and configured before this link can accept funds.</p>
+                    </>
+                  )}
+                  {paymentMessage && <p className="mt-3 break-words text-center text-[11px] leading-5 text-ink-soft" role="status">{paymentMessage}{paymentTxid ? ` · ${paymentTxid.slice(0, 12)}…` : ""}</p>}
+                  <button type="button" onClick={() => setView("review")} className="mt-3 w-full text-[12px] font-medium text-ink-mute transition-colors hover:text-ink">Back to review</button>
+                </Panel>
+              ) : view === "declining" ? (
+                <Panel key="declining">
+                  <div className="text-[13px] font-semibold text-ink">What doesn&apos;t match?</div>
+                  <p className="mt-0.5 text-[11.5px] leading-5 text-ink-mute">Pick anything that is off, and add detail so the merchant can fix it.</p>
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {DECLINE_REASONS.map((reason) => {
+                      const on = reasons.includes(reason);
+                      return (
+                        <button key={reason} type="button" onClick={() => toggleReason(reason)}
+                          className={`rounded-full border px-3 py-1.5 text-[11.5px] font-medium transition-colors ${on ? "border-red-300 bg-red-50 text-red-700" : "border-line bg-white text-ink-soft hover:border-ink/20"}`}>
+                          {on ? "✓ " : ""}{reason}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} maxLength={600}
+                    placeholder="Describe what differs from what you agreed (e.g. condition, missing parts, wrong variant)…"
+                    className="mt-3 w-full resize-none rounded-xl border border-line bg-white px-3.5 py-2.5 text-[13px] text-ink outline-none transition-colors placeholder:text-ink-mute focus:border-ink/20" />
+                  <div className="mt-3 grid grid-cols-2 gap-3">
+                    <button type="button" onClick={() => setView("review")} className="btn btn-ghost !py-2.5 text-[13px]">Back</button>
+                    <button type="button" disabled={reasons.length === 0 && !note.trim()} onClick={() => setView("declined")}
+                      className="flex items-center justify-center gap-2 rounded-xl bg-red-600 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-40">
+                      Submit decline
+                    </button>
+                  </div>
+                </Panel>
+              ) : (
+                <Panel key="declined">
+                  <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+                    <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-500 text-white"><X size={15} strokeWidth={2.4} /></span>
+                    <div>
+                      <div className="text-[13px] font-semibold text-red-900">Order declined</div>
+                      <p className="mt-0.5 text-[11.5px] leading-5 text-red-800">You reported that this order doesn&apos;t match what was agreed. No funds were sent.</p>
+                    </div>
+                  </div>
+                  {(reasons.length > 0 || note.trim()) && (
+                    <div className="mt-3 rounded-xl border border-line bg-bg-soft px-4 py-3">
+                      <div className="annotation text-ink-mute">Your reason</div>
+                      {reasons.length > 0 && <div className="mt-1.5 flex flex-wrap gap-1.5">{reasons.map((r) => <span key={r} className="rounded-full border border-red-200 bg-white px-2.5 py-1 text-[11px] font-medium text-red-700">{r}</span>)}</div>}
+                      {note.trim() && <p className="mt-2 text-[12px] leading-5 text-ink-soft">{note.trim()}</p>}
+                    </div>
+                  )}
+                  <p className="mt-3 text-center text-[11px] leading-5 text-ink-mute">Your response is shown here. In this prototype it isn&apos;t sent to the merchant yet — share it with them directly.</p>
+                  <button type="button" onClick={() => setView("review")} className="mt-3 w-full text-[12px] font-medium text-ink-mute transition-colors hover:text-ink">Back to review</button>
+                </Panel>
+              )}
             </AnimatePresence>
           </div>
         </div>
 
-        {/* custody note */}
         <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-line bg-white px-4 py-3 text-[12px] leading-5 text-ink-soft">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" className="mt-0.5 shrink-0 text-accent-ink"><path d="M12 3l7 3v6c0 4.5-3 7.3-7 8.5C8 19.3 5 16.5 5 12V6z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" /></svg>
-          <span className="font-medium text-ink">Custody model:</span> managed escrow is planned. This saved order does not hold funds or process releases and refunds.
+          <ShieldCheck size={15} strokeWidth={1.7} className="mt-0.5 shrink-0 text-accent-ink" />
+          <span><span className="font-medium text-ink">Custody model:</span> managed escrow is planned. This saved order does not hold funds or process releases and refunds.</span>
         </div>
-        <p className="mt-3 text-center text-[11px] text-ink-faint">
-          Zcash testnet wallet connection is not attached to this order yet. No funds move on this page.
-        </p>
       </main>
+
+      {/* lightbox */}
+      <Lightbox images={order.images} index={lightbox} onClose={() => setLightbox(null)} onIndex={setLightbox} />
     </div>
+  );
+}
+
+function Panel({ children }: { children: React.ReactNode }) {
+  return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.22 }}>
+      {children}
+    </motion.div>
+  );
+}
+
+function Lightbox({ images, index, onClose, onIndex }: { images: { name: string; src: string }[]; index: number | null; onClose: () => void; onIndex: (i: number) => void }) {
+  const open = index !== null;
+  const go = useCallback((dir: number) => {
+    if (index === null) return;
+    onIndex((index + dir + images.length) % images.length);
+  }, [index, images.length, onIndex]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowRight") go(1);
+      if (e.key === "ArrowLeft") go(-1);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open, go, onClose]);
+
+  return (
+    <AnimatePresence>
+      {open && index !== null && (
+        <motion.div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-ink/80 p-4 backdrop-blur-sm"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          onClick={onClose}
+        >
+          <button type="button" onClick={onClose} aria-label="Close" className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20">
+            <X size={20} />
+          </button>
+          {images.length > 1 && (
+            <>
+              <button type="button" aria-label="Previous" onClick={(e) => { e.stopPropagation(); go(-1); }} className="absolute left-3 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 sm:left-6">
+                <ChevronLeft size={22} />
+              </button>
+              <button type="button" aria-label="Next" onClick={(e) => { e.stopPropagation(); go(1); }} className="absolute right-3 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 sm:right-6">
+                <ChevronRight size={22} />
+              </button>
+            </>
+          )}
+          <motion.figure
+            key={index}
+            initial={{ opacity: 0, scale: 0.94 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }}
+            transition={{ duration: 0.2 }}
+            className="flex max-h-full max-w-3xl flex-col items-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={images[index].src} alt={images[index].name} className="max-h-[80vh] w-auto rounded-xl object-contain shadow-2xl" />
+            <figcaption className="mt-3 flex items-center gap-2 text-[12px] text-white/80">
+              <span className="truncate">{images[index].name}</span>
+              <span className="text-white/50">·</span>
+              <span>{index + 1} / {images.length}</span>
+            </figcaption>
+          </motion.figure>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 

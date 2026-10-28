@@ -23,6 +23,8 @@ export type EscrowOrder = {
   releaseTerms: string;
   disputeWindowDays: number;
   linkExpiryHours: number;
+  depositAddress: string | null;
+  paymentMemo: string | null;
   createdAt: string;
   expiresAt: string;
   status: "awaiting_payment" | "expired" | "funded" | "delivered" | "disputed" | "released" | "refunded";
@@ -64,6 +66,8 @@ function fromRow(row: Record<string, unknown>, code = "", images: { name: string
     releaseTerms: String(row.release_terms),
     disputeWindowDays: Number(row.dispute_window_days),
     linkExpiryHours: Number(row.link_expiry_hours),
+    depositAddress: typeof row.deposit_address === "string" ? row.deposit_address : null,
+    paymentMemo: typeof row.payment_memo === "string" ? row.payment_memo : null,
     createdAt: String(row.created_at),
     expiresAt: String(row.expires_at),
     status,
@@ -79,7 +83,17 @@ async function readLocalStore(): Promise<Store> {
   try {
     const raw = await readFile(storePath, "utf8");
     const parsed = JSON.parse(raw) as Store;
-    if (parsed.version === 1 && Array.isArray(parsed.orders)) return parsed;
+    if (parsed.version === 1 && Array.isArray(parsed.orders)) {
+      return {
+        version: 1,
+        orders: parsed.orders.map((order) => ({
+          ...order,
+          depositAddress: order.depositAddress ?? null,
+          paymentMemo: order.paymentMemo ?? null,
+          payment: order.payment ?? { status: "not_connected", txid: null, confirmations: 0 },
+        })),
+      };
+    }
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
   }
@@ -153,6 +167,8 @@ export async function createEscrowOrder(input: NewEscrow, ownerWallet: string): 
     release_terms: input.releaseTerms,
     dispute_window_days: input.disputeWindowDays,
     link_expiry_hours: input.linkExpiryHours,
+    deposit_address: input.depositAddress,
+    payment_memo: input.paymentMemo,
     expires_at: expiresAt,
   }).select("*").single();
   if (insert.error || !insert.data) throw new Error("Could not save the order to Supabase.");
@@ -222,4 +238,63 @@ export async function listEscrowOrders(ownerWallet: string): Promise<EscrowOrder
   if (process.env.NODE_ENV === "production") throw new Error("Hosted order storage is not configured.");
   const store = await readLocalStore();
   return store.orders.filter((order) => order.ownerWallet === ownerWallet).map(currentStatus);
+}
+
+export async function recordEscrowPayment(code: string, payment: { status: "pending" | "confirmed"; txid: string; confirmations: number }): Promise<EscrowOrder | null> {
+  const supabase = supabaseAdmin();
+  if (supabase) {
+    const status = payment.status === "confirmed" ? "funded" : "awaiting_payment";
+    const result = await supabase.from("escrows").update({
+      payment_status: payment.status,
+      payment_txid: payment.txid,
+      payment_confirmations: payment.confirmations,
+      status,
+    }).eq("public_code_hash", hashCode(code)).eq("status", "awaiting_payment").select("*").maybeSingle();
+    if (result.error) throw new Error("Could not update escrow payment status.");
+    if (result.data) return fromRow(result.data, code);
+    return getEscrowOrder(code);
+  }
+
+  if (process.env.NODE_ENV === "production") throw new Error("Hosted order storage is not configured.");
+  return serial(async () => {
+    const store = await readLocalStore();
+    const index = store.orders.findIndex((order) => order.code === code);
+    if (index < 0) return null;
+    const order = currentStatus(store.orders[index]);
+    if (order.status !== "awaiting_payment") return order;
+    const updated: EscrowOrder = {
+      ...order,
+      payment: { status: payment.status, txid: payment.txid, confirmations: payment.confirmations },
+      status: payment.status === "confirmed" ? "funded" : "awaiting_payment",
+    };
+    store.orders[index] = updated;
+    await writeLocalStore(store);
+    return updated;
+  });
+}
+
+export async function saveEscrowDepositDetails(code: string, details: { address: string; memo: string }): Promise<EscrowOrder | null> {
+  const supabase = supabaseAdmin();
+  if (supabase) {
+    const result = await supabase.from("escrows").update({ deposit_address: details.address, payment_memo: details.memo })
+      .eq("public_code_hash", hashCode(code)).eq("status", "awaiting_payment").is("deposit_address", null).is("payment_memo", null)
+      .select("*").maybeSingle();
+    if (result.error) throw new Error("Could not attach a deposit address to this order.");
+    if (result.data) return fromRow(result.data, code);
+    return getEscrowOrder(code);
+  }
+
+  if (process.env.NODE_ENV === "production") throw new Error("Hosted order storage is not configured.");
+  return serial(async () => {
+    const store = await readLocalStore();
+    const index = store.orders.findIndex((order) => order.code === code);
+    if (index < 0) return null;
+    const order = currentStatus(store.orders[index]);
+    if (order.status !== "awaiting_payment") return order;
+    if (order.depositAddress && order.paymentMemo) return order;
+    const updated = { ...order, depositAddress: details.address, paymentMemo: details.memo };
+    store.orders[index] = updated;
+    await writeLocalStore(store);
+    return updated;
+  });
 }
