@@ -1,6 +1,16 @@
-// Remotion root. Intentionally empty for now — the demo video compositions
-// (hero intro, escrow-flow explainer, etc.) get added here later.
-// Add scenes with <Composition id="..." component={...} durationInFrames={...} fps={30} width={1920} height={1080} />.
+// Remotion root — registers the Zecrow demo composition.
+import { Composition } from "remotion";
+import { ZecrowDemo } from "./ZecrowDemo";
+
 export function RemotionRoot() {
-  return <></>;
+  return (
+    <Composition
+      id="ZecrowDemo"
+      component={ZecrowDemo}
+      durationInFrames={2250}
+      fps={30}
+      width={1920}
+      height={1080}
+    />
+  );
 }
