@@ -3,6 +3,7 @@ import "server-only";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
+import os from "node:os";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { CODE_RELEASE_TERMS, PLATFORM_DISPUTE_WINDOW_DAYS } from "@/lib/listingCheck";
 
@@ -42,7 +43,14 @@ export type EscrowOrder = {
 
 type Store = { version: 1; orders: EscrowOrder[] };
 type NewEscrow = Omit<EscrowOrder, "id" | "number" | "code" | "ownerWallet" | "createdAt" | "expiresAt" | "status" | "payment">;
-const storePath = path.join(process.cwd(), ".data", "escrows.json");
+// Fallback JSON store used when Supabase is not configured. Locally it lives in the project's
+// .data dir; on serverless hosts (e.g. Vercel) the bundle filesystem is read-only, so it uses the
+// OS temp dir instead. Note: serverless temp storage is per-instance and ephemeral — fine for a
+// demo, not durable multi-user persistence. Configure Supabase for that.
+const dataDir = process.env.VERCEL
+  ? path.join(os.tmpdir(), "zecrow-data")
+  : path.join(process.cwd(), ".data");
+const storePath = path.join(dataDir, "escrows.json");
 let writeQueue: Promise<unknown> = Promise.resolve();
 
 function hashCode(code: string) {
@@ -129,9 +137,6 @@ function createCode() {
 
 export async function createEscrowOrder(input: NewEscrow, ownerWallet: string): Promise<EscrowOrder> {
   const supabase = supabaseAdmin();
-  if (!supabase && process.env.NODE_ENV === "production") {
-    throw new Error("Hosted order storage is not configured. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.");
-  }
 
   if (!supabase) {
     return serial(async () => {
@@ -232,7 +237,6 @@ export async function getEscrowOrder(code: string): Promise<EscrowOrder | null> 
     return fromRow(result.data, code, images);
   }
 
-  if (process.env.NODE_ENV === "production") throw new Error("Hosted order storage is not configured.");
   const store = await readLocalStore();
   const order = store.orders.find((entry) => entry.code === code);
   return order ? currentStatus(order) : null;
@@ -246,7 +250,6 @@ export async function listEscrowOrders(ownerWallet: string): Promise<EscrowOrder
     return (result.data ?? []).map((row) => fromRow(row as Record<string, unknown>));
   }
 
-  if (process.env.NODE_ENV === "production") throw new Error("Hosted order storage is not configured.");
   const store = await readLocalStore();
   return store.orders.filter((order) => order.ownerWallet === ownerWallet).map(currentStatus);
 }
@@ -266,7 +269,6 @@ export async function recordEscrowPayment(code: string, payment: { status: "pend
     return getEscrowOrder(code);
   }
 
-  if (process.env.NODE_ENV === "production") throw new Error("Hosted order storage is not configured.");
   return serial(async () => {
     const store = await readLocalStore();
     const index = store.orders.findIndex((order) => order.code === code);
@@ -300,7 +302,6 @@ export async function recordReportedFunding(code: string, txid: string): Promise
     return getEscrowOrder(code);
   }
 
-  if (process.env.NODE_ENV === "production") throw new Error("Hosted order storage is not configured.");
   return serial(async () => {
     const store = await readLocalStore();
     const index = store.orders.findIndex((order) => order.code === code);
@@ -329,7 +330,6 @@ export async function recordEscrowSettlement(code: string, settlement: { kind: "
     return getEscrowOrder(code);
   }
 
-  if (process.env.NODE_ENV === "production") throw new Error("Hosted order storage is not configured.");
   return serial(async () => {
     const store = await readLocalStore();
     const index = store.orders.findIndex((order) => order.code === code);
@@ -358,7 +358,6 @@ export async function recordDemoFunding(code: string): Promise<EscrowOrder | nul
     return getEscrowOrder(code);
   }
 
-  if (process.env.NODE_ENV === "production") throw new Error("Hosted order storage is not configured.");
   return serial(async () => {
     const store = await readLocalStore();
     const index = store.orders.findIndex((order) => order.code === code);
@@ -412,7 +411,6 @@ export async function saveEscrowDepositDetails(code: string, details: { address:
     return getEscrowOrder(code);
   }
 
-  if (process.env.NODE_ENV === "production") throw new Error("Hosted order storage is not configured.");
   return serial(async () => {
     const store = await readLocalStore();
     const index = store.orders.findIndex((order) => order.code === code);

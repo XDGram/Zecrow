@@ -38,13 +38,18 @@ function clearCookie(name: string, request: Request, path = "/") {
 }
 
 export function getAllowedOrigin(request: Request): string | null {
-  const configured = process.env.APP_ORIGIN;
-  if (process.env.NODE_ENV === "production" && !configured) return null;
-  const expected = (configured || new URL(request.url).origin).replace(/\/$/, "");
   const origin = request.headers.get("origin");
   if (!origin) return null;
+  // Allow same-origin requests (the app calling its own API) on any host — this keeps the
+  // hosted demo working on Vercel preview/production URLs with no APP_ORIGIN config. An
+  // explicit APP_ORIGIN, if set, is also accepted. Cross-site requests are still rejected.
+  const self = new URL(request.url).origin;
+  const configured = process.env.APP_ORIGIN?.replace(/\/$/, "");
   try {
-    return new URL(origin).origin === expected ? expected : null;
+    const incoming = new URL(origin).origin;
+    if (incoming === self) return incoming;
+    if (configured && incoming === configured) return incoming;
+    return null;
   } catch {
     return null;
   }
