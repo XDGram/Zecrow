@@ -369,22 +369,24 @@ export default function BuyerFlow() {
                       <p className="mt-2 text-center text-[11px] leading-5 text-ink-mute">Only release after you have the goods — this completes the escrow in the merchant&apos;s favour and cannot be undone.</p>
                       {releaseMessage && <p className="mt-2 break-words text-center text-[11px] leading-5 text-red-700" role="status">{releaseMessage}</p>}
                     </>
-                  ) : (order.depositAddress || order.escrowAddress) ? (
+                  ) : (
                     <>
-                      <button type="button" onClick={() => void payWithWallet()} disabled={funding} className="btn btn-dark mt-3 w-full !py-3 text-[14px] disabled:opacity-50">
-                        {funding ? "Waiting for wallet…" : `Fund ${Number(order.amountZec).toFixed(8)} ZEC with Noir`}
-                      </button>
-                      <p className="mt-2 text-center text-[11px] leading-5 text-ink-mute">Real shielded Zcash testnet payment, sent from your Noir wallet to the escrow address.</p>
+                      {(order.depositAddress || order.escrowAddress) ? (
+                        <>
+                          <button type="button" onClick={() => void payWithWallet()} disabled={funding} className="btn btn-dark mt-3 w-full !py-3 text-[14px] disabled:opacity-50">
+                            {funding ? "Waiting for wallet…" : `Fund ${Number(order.amountZec).toFixed(8)} ZEC with Noir`}
+                          </button>
+                          <p className="mt-2 text-center text-[11px] leading-5 text-ink-mute">Real shielded Zcash testnet payment, sent from your Noir wallet to the escrow address.</p>
+                        </>
+                      ) : (
+                        <p className="mt-3 text-center text-[11px] leading-5 text-ink-mute">Real wallet funding isn&apos;t set up on this deployment — use the demo below to walk the full flow.</p>
+                      )}
+                      {/* The demo path never depends on escrow config, so reviewers can always walk the flow. */}
                       <div className="mt-4 flex items-center gap-2 text-[10.5px] font-medium uppercase tracking-[0.1em] text-ink-faint"><span className="h-px flex-1 bg-line" />or<span className="h-px flex-1 bg-line" /></div>
                       <button type="button" onClick={() => void simulateFunding()} disabled={funding} className="btn btn-ghost mt-3 w-full !py-2.5 text-[12.5px] disabled:opacity-50">
                         Simulate payment · demo, no wallet
                       </button>
                       <p className="mt-1.5 text-center text-[10.5px] leading-4 text-ink-faint">Reviewer shortcut — marks this order funded with no real transaction.</p>
-                    </>
-                  ) : (
-                    <>
-                      <button type="button" disabled className="btn btn-dark mt-3 w-full !cursor-not-allowed !py-3 text-[14px] opacity-50">Testnet escrow not ready</button>
-                      <p className="mt-2 text-center text-[11px] leading-5 text-ink-mute">No escrow address is configured for this deployment yet, so this link cannot accept funds.</p>
                     </>
                   )}
                   {paymentMessage && <p className="mt-3 break-words text-center text-[11px] leading-5 text-ink-soft" role="status">{paymentMessage}{paymentTxid ? ` · ${paymentTxid.slice(0, 12)}…` : ""}</p>}
