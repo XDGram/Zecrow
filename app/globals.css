@@ -1,0 +1,327 @@
+@import "tailwindcss";
+
+/* ============================================================
+   ZECROW: Light design system (Northstar direction)
+   White foundation, near-black ink, one restrained Zcash-amber accent.
+   ============================================================ */
+
+:root {
+  /* Foundation */
+  --bg:        #ffffff;
+  --bg-soft:   #fafafa;   /* alternating section tint */
+  --bg-sunk:   #f4f4f5;   /* sunken wells / code-ish surfaces */
+
+  /* Ink */
+  --ink:       #0b0b0d;   /* near-black primary */
+  --ink-soft:  #52525b;   /* secondary text */
+  --ink-mute:  #8a8a94;   /* captions / annotations */
+  --ink-faint: #c4c4cc;   /* faint labels */
+
+  /* Restrained Zcash accent */
+  --accent:      #e9a21a; /* Zcash gold, tuned for light bg */
+  --accent-ink:  #7a5406; /* accent text that passes contrast */
+  --accent-wash: #fdf4e1; /* pale amber fill */
+  --accent-soft: #f7e4bd;
+
+  /* Lines & shadow */
+  --line:      rgba(10, 10, 15, 0.09);
+  --line-soft: rgba(10, 10, 15, 0.055);
+  --shadow-sm: 0 1px 2px rgba(10,10,20,0.04), 0 1px 1px rgba(10,10,20,0.03);
+  --shadow-md: 0 1px 2px rgba(10,10,20,0.04), 0 12px 28px -10px rgba(10,10,20,0.12);
+  --shadow-lg: 0 2px 4px rgba(10,10,20,0.04), 0 30px 60px -24px rgba(10,10,20,0.18);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-soft: var(--bg-soft);
+  --color-bg-sunk: var(--bg-sunk);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-mute: var(--ink-mute);
+  --color-ink-faint: var(--ink-faint);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-wash: var(--accent-wash);
+  --color-accent-soft: var(--accent-soft);
+  --color-line: var(--line);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --radius-xl2: 1.25rem;
+}
+
+html {
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  color-scheme: light;
+  scroll-padding-top: 76px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans), "Helvetica Neue", Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Smooth-scroll (Lenis) hooks */
+html.lenis,
+html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+/* ---------- Typography ---------- */
+
+.display {
+  font-weight: 650;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+  text-wrap: balance;
+}
+
+.eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+.annotation {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+
+.accent-text { color: var(--accent-ink); }
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.72rem 1.3rem;
+  transition: transform 0.18s ease, background 0.2s ease, box-shadow 0.2s ease,
+    border-color 0.2s ease, color 0.2s ease;
+  will-change: transform;
+}
+.btn-dark {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--ink);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+.btn-dark::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  content: "";
+  background: linear-gradient(110deg, transparent 25%, rgba(255,255,255,0.2) 48%, transparent 68%);
+  transform: translateX(-120%);
+  transition: transform 0.65s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.btn-dark:hover::after,
+.btn-dark:focus-visible::after { transform: translateX(120%); }
+.btn-dark:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.btn-ghost {
+  color: var(--ink);
+  border: 1px solid var(--line);
+  background: #fff;
+}
+.btn-ghost:hover { border-color: rgba(10,10,15,0.22); transform: translateY(-1px); }
+
+/* Pill eyebrow (Northstar chip) */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  border-radius: 9999px;
+  border: 1px solid var(--line);
+  background: #fff;
+  padding: 0.34rem 0.34rem 0.34rem 0.85rem;
+  font-size: 0.8125rem;
+  color: var(--ink-soft);
+  box-shadow: var(--shadow-sm);
+}
+.chip-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: 9999px;
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+  padding: 0.15rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* ---------- Surfaces ---------- */
+.card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl2);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Soft amber gradient wash for the hero product backdrop */
+.wash-amber {
+  background:
+    radial-gradient(120% 120% at 15% 0%, #fff6e3 0%, transparent 55%),
+    radial-gradient(120% 120% at 100% 20%, #fdeccb 0%, transparent 50%),
+    linear-gradient(180deg, #fff9ef 0%, #ffffff 70%);
+}
+
+/* Dotted grid texture */
+.dotgrid {
+  background-image: radial-gradient(var(--line-soft) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+
+
+/* ---------- a11y ---------- */
+/* Buttons, links and tabbable widgets get the gold focus ring.
+   Text fields (input/textarea/select) provide their own focus styles,
+   so they opt out here to avoid a heavy double outline. */
+:where(a, button, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+:where(input, textarea, select):focus-visible {
+  outline: none;
+}
+
+.hairline {
+  height: 1px;
+  width: 100%;
+  background: var(--line);
+}
+
+/* Indeterminate, linear review loader inspired by Uiverse progress readouts. */
+.review-loader {
+  position: relative;
+  display: block;
+  width: 2.75rem;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: var(--accent-soft);
+}
+/* Adapted from ZacharyCrespin's Uiverse square loader. */
+.zec-review-stage {
+  display: grid;
+  min-height: 144px;
+  justify-items: center;
+  align-content: center;
+  gap: 0;
+  overflow: visible;
+  text-align: center;
+}
+.zec-review-loader {
+  --qc-square-color: #bd963d;
+  position: relative;
+  width: 96px;
+  height: 96px;
+  flex: 0 0 96px;
+  transform: rotate(45deg);
+  transition: --qc-square-color 220ms ease;
+}
+.zec-review-loader.has-issues { --qc-square-color: #d5444a; }
+.zec-review-loader.passed { --qc-square-color: #359768; }
+.zec-review-loader.settled .zec-review-loader__square { animation-play-state: paused; }
+.zec-review-loader__square {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 28px;
+  height: 28px;
+  margin: 2px;
+  border-radius: 0;
+  background: var(--qc-square-color);
+  animation: zec-square-animation 10s ease-in-out infinite both;
+}
+.zec-review-loader__square:nth-child(1) { animation-delay: 0s; }
+.zec-review-loader__square:nth-child(2) { animation-delay: -1.4285714286s; }
+.zec-review-loader__square:nth-child(3) { animation-delay: -2.8571428571s; }
+.zec-review-loader__square:nth-child(4) { animation-delay: -4.2857142857s; }
+.zec-review-loader__square:nth-child(5) { animation-delay: -5.7142857143s; }
+.zec-review-loader__square:nth-child(6) { animation-delay: -7.1428571429s; }
+.zec-review-loader__square:nth-child(7) { animation-delay: -8.5714285714s; }
+@media (max-width: 639px) {
+  .zec-review-stage { min-height: 124px; }
+  .zec-review-loader {
+    width: 72px;
+    height: 72px;
+    flex-basis: 72px;
+    transform: rotate(45deg) scale(.68);
+  }
+}
+@keyframes zec-square-animation {
+  0%, 10.5% { left: 0; top: 0; }
+  12.5%, 23% { left: 32px; top: 0; }
+  25%, 35.5% { left: 64px; top: 0; }
+  37.5%, 48% { left: 64px; top: 32px; }
+  50%, 60.5% { left: 32px; top: 32px; }
+  62.5%, 73% { left: 32px; top: 64px; }
+  75%, 85.5% { left: 0; top: 64px; }
+  87.5%, 98% { left: 0; top: 32px; }
+  100% { left: 0; top: 0; }
+}
+.review-loader::after {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 34%;
+  border-radius: inherit;
+  background: var(--accent);
+  content: "";
+  animation: review-sweep 1.5s ease-in-out infinite;
+}
+@keyframes review-sweep {
+  0% { transform: translateX(-115%); }
+  55% { transform: translateX(115%); }
+  100% { transform: translateX(310%); }
+}
+
+/* ---------- Wallet modal (Uiverse-style gold glow ring) ---------- */
+.wallet-ring::before {
+  content: "";
+  position: absolute;
+  inset: -9px;
+  z-index: -1;
+  border-radius: 2.1rem;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    var(--accent) 55deg,
+    transparent 130deg,
+    transparent 235deg,
+    var(--accent) 305deg,
+    transparent 360deg
+  );
+  filter: blur(15px);
+  opacity: 0.4;
+  animation: wallet-glow-spin 8s linear infinite;
+}
+@keyframes wallet-glow-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
+
+::selection {
+  background: var(--accent);
+  color: #fff;
+}
