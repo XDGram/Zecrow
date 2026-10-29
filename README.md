@@ -18,6 +18,28 @@ Zecrow is a Zecathon prototype exploring managed escrow for private commerce on 
 
 Do not treat the prototype screens as evidence that funds are held, an order was saved, or a decision was recorded.
 
+## How the AI, the release code, and images fit together
+
+### AI review (advisory only — it never decides or moves funds)
+
+There are two distinct AI roles, and neither can trigger a financial action. Every prompt treats listing/case text as untrusted data, not instructions, and every model response is validated against a strict server-side schema before it is shown; invalid or unconfigured responses fail honestly rather than being fabricated.
+
+- **Listing quality reviewer** (`lib/listingCheck.ts`, `/api/escrows/listing-check`). Gates the create-order wizard. It compares the merchant's claims and photos against each other and reports what is and is not supported. It explicitly cannot authenticate goods, prove ownership, or guarantee a dispute outcome — it is a readiness check, not product authentication.
+- **Dispute evidence organizer** (`lib/aiReview.ts`, `/api/escrows/[id]/ai-review`). Summarizes and organizes dispute evidence for a **human arbiter**. By design it keeps "buyer wins"/"merchant wins" out of its output, separates supported facts from unproven claims, flags possible manipulation only as an unverified concern, and emits a versioned structured report (`zecrow.ai-review.v1`). A human makes the decision separately. This route currently accepts caller-supplied sample data and has no access control, so it must not be exposed as a live service yet.
+
+### One-time release code (the delivery-confirmation trigger)
+
+Every order uses the same fixed platform release trigger: *"The buyer confirms delivery with the one-time Zecrow release code"* (`CODE_RELEASE_TERMS`). This term is written into each order at creation and surfaced to the listing reviewer as fixed policy, so the release condition is consistent across all orders and is not something a merchant can redefine. A fixed dispute window (currently 7 days) accompanies it.
+
+What is **not** implemented yet: the `release` route only gates on request origin and a `funded` status. **Server-validated verification of the one-time code is still a stub** — possession of the order link is deliberately noted in the code as insufficient proof for a production release. No path releases or refunds funds based on AI output.
+
+### How images support the flow
+
+Images do real work in two places, both with privacy guardrails:
+
+- **At listing time**, the reviewer inspects the actual pixels of each supplied product photo (up to three, which may be arranged as numbered panels on a single contact sheet) and returns one finding per photo — whether each plausibly depicts the described item and whether it contradicts a written claim. A "strong" verdict requires every photo to match. Validated item-stage image findings can be reused in the later terms step so the same pixels are not re-billed for re-inspection.
+- **At dispute time**, an optional reverse-image / web-detection provenance check (`lib/imageProvenance.ts`) can see whether a submitted photo also appears elsewhere online. It is **consent-gated and provider-gated**: nothing is sent to a third party without explicit consent, no provider adapter is wired yet (so it currently reports an honest `unavailable`), and a match is treated only as an unverified concern — never as proof of fraud.
+
 ## Run locally
 
 ```bash
